@@ -54,6 +54,23 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 ### Dudas abiertas
 - Ninguna por ahora.
 
+### Fase 1 · Mapa demo (FAQ paso 1) ✅
+- `npm ci` + `npm start` en `frontend/`; el panel abre en http://localhost:4200.
+- Resultado: catálogo de países cargado, 4 eventos dibujados, 0 omitidos; la ficha, el zoom y las capas funcionan.
+- Evidencia: `docs/evidencias/fase1-mapa-demo.png`.
+- Angular CLI preguntó si se comparten estadísticas de uso y se respondió «y». **Corrección:** sí modificó
+  `frontend/angular.json` (añadió `"cli": {"analytics": "<id>"}`); la primera comprobación se hizo antes
+  de que se escribiera. Se revierte para dejar el archivo del profesor intacto y se desactiva a nivel global.
+- Problema: un `git status` lanzado desde el terminal de Claude dejó un `.git/index.lock` huérfano, que
+  bloquearía los commits. Se borró. Solución para el futuro: Claude usa `git --no-optional-locks`.
+- Qué demuestran los 4 puntos ficticios (`terremotos-demo.geojson`), y cómo dibuja el mapa:
+  | id | Profundidad | Mag | País | Cómo se ve |
+  |---|---|---|---|---|
+  | demo-1 | 12 km | 3,2 | España | amarillo (< 70 km) |
+  | demo-2 | 95 km | 5,1 | Japón | naranja (70–300 km) |
+  | demo-3 | 350 km | 6,0 | Chile | morado (≥ 300 km), el más grande |
+  | demo-4 | 8 km | **null** | **null** (océano) | círculo mínimo; ficha «ND» y «Sin país asignado» |
+
 ### Siguiente paso
-1. Commit de `.gitattributes` y de la actualización de los documentos.
-2. Fase 1: arrancar el mapa en modo demo (`npm ci` y `npm start` en `frontend/`).
+1. Commit de la evidencia de la Fase 1.
+2. Fase 1: explorar el JSON del feed (campos, tipos, unidades, opcionales).

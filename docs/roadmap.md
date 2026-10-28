@@ -17,10 +17,11 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `git init` + commit 1: material del profesor sin modificar ⚑ (`5c052ff`)
 - [x] Commit 2: documentos propios ⚑ (`d792b78`)
 - [x] Crear repo en GitHub y primer push
-- [ ] Añadir `.gitattributes` (finales de línea LF) ⚑
+- [x] Añadir `.gitattributes` (finales de línea LF) ⚑
 
 ### Fase 1 · Mapa demo y exploración de los datos  *(FAQ paso 1–2)*
-- [ ] Arrancar el frontend en modo demo (`npm ci`, `npm start`) → ver 4 puntos y fronteras
+- [x] Arrancar el frontend en modo demo (`npm ci`, `npm start`) → ver 4 puntos y fronteras ⚑
+      Evidencia: `docs/evidencias/fase1-mapa-demo.png`
 - [ ] Explorar el JSON del feed: campos, tipos, unidades, opcionales
 - [ ] Explorar el catálogo de países: unicidad de `ADM0_A3`, atributos
 - [ ] Anotar hallazgos (explosiones, profundidades negativas, nulos…) ⚑
