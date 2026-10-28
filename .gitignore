@@ -1,0 +1,20 @@
+# --- Dependencias y compilados (se regeneran, no van a Git) ---
+node_modules/
+dist/
+.angular/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# --- Secretos: el .env real NUNCA se sube; sí se sube .env.example ---
+.env
+
+# --- Datos descargados (grandes y regenerables con los scripts) ---
+data/raw/
+data/tmp/
+
+# --- Sistema / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
