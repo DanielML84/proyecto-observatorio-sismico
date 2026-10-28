@@ -34,6 +34,10 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - **FAQ duplicada:** `FAQ-observatorio-sismico .md` era idéntica a `FAQ-ALUMNADO.md` → borrada.
 - **Archivos ocultos:** solo había `frontend/.gitignore`, que sigue en su sitio. La huella SHA-256 de
   `paises.geojson` coincide con la de `FUENTES-Y-LICENCIAS.md` → catálogo íntegro.
+- **Carpeta renombrada** a `proyecto-observatorio-sismico` (nombre elegido por Daniel, igual que el repo).
+- **Avisos `LF will be replaced by CRLF` al hacer `git add`:** no son errores. Git en Windows convierte
+  los finales de línea. Se añade `.gitattributes` con `eol=lf` para que todo quede en formato Linux,
+  porque un script con CRLF puede fallar dentro de un contenedor Docker.
 - **El terminal de Claude en el escritorio es un Linux aislado sin Docker:** Docker, npm y git
   se ejecutan en el Windows de Daniel (terminal de VS Code o Claude Code).
 
@@ -43,13 +47,13 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Histórico de enero 2025 (mag ≥ 4): 1.413 eventos, muy por debajo del límite de 20.000.
 
 ### Commits
-- (pendientes: los hace Daniel; ver «Siguiente paso»)
+- `5c052ff` Material inicial del profesor sin modificar
+- `d792b78` Organización del proyecto: README, .gitignore, roadmap, bitácora y prompt principal
+- Push a https://github.com/DanielML84/proyecto-observatorio-sismico (rama `main`)
 
 ### Dudas abiertas
 - Ninguna por ahora.
 
 ### Siguiente paso
-1. Renombrar la carpeta a `observatorio-sismico`.
-2. `git init` + commit 1 (material del profesor) + commit 2 (documentos propios).
-3. Crear el repositorio en GitHub y hacer push.
-4. Fase 1: arrancar el mapa en modo demo.
+1. Commit de `.gitattributes` y de la actualización de los documentos.
+2. Fase 1: arrancar el mapa en modo demo (`npm ci` y `npm start` en `frontend/`).

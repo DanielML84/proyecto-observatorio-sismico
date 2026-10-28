@@ -80,7 +80,8 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
   Kafka no se instala: va en una imagen de Docker.
 - Carpeta del proyecto: `C:\Users\Usuario\Desktop\proyecto-observatorio-sismico`
   (antes `PROYECTO_1_BIGDATA`).
-- GitHub: https://github.com/DanielML84. Netlify y ngrok están pendientes de crear (Fase 10).
+- Repositorio: https://github.com/DanielML84/proyecto-observatorio-sismico (rama `main`).
+- Cuenta GitHub: https://github.com/DanielML84. Netlify y ngrok están pendientes de crear (Fase 10).
 - Herramientas: Claude en el escritorio (planificación, explicación y documentos) y Claude Code
   (ejecución en mi Windows). El terminal integrado de Claude en el escritorio es un Linux aislado
   **sin Docker**, así que Docker, npm y git los ejecuto yo en Windows o desde Claude Code.
@@ -91,6 +92,7 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
 proyecto-observatorio-sismico/
 ├── README.md
 ├── .gitignore
+├── .gitattributes             finales de línea LF (necesario para Docker/Linux)
 ├── frontend/                  Angular + Leaflet (base del profesor)
 ├── docs/
 │   ├── prompt-principal.md    este archivo
@@ -138,5 +140,5 @@ proyecto-observatorio-sismico/
 - `frontend/src/app/app.component.ts` si trabajamos en el panel
 
 **Mejor alternativa:** abrir la conversación en Claude de escritorio con acceso a la carpeta
-`observatorio-sismico`, o usar Claude Code dentro de ella. Así se leen los archivos directamente
+`proyecto-observatorio-sismico`, o usar Claude Code dentro de ella. Así se leen los archivos directamente
 y no hay que subir nada.

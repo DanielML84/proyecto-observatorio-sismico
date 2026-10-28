@@ -13,10 +13,11 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Leer todo el material del profesor y los repos de referencia de Juan
 - [x] Organizar la carpeta del proyecto
 - [x] Crear roadmap, bitácora y prompt principal
-- [ ] Renombrar carpeta a `observatorio-sismico` (lo hace Daniel)
-- [ ] `git init` + commit 1: material del profesor sin modificar ⚑
-- [ ] Commit 2: documentos propios ⚑
-- [ ] Crear repo en GitHub y primer push (lo hace Daniel)
+- [x] Renombrar carpeta a `proyecto-observatorio-sismico`
+- [x] `git init` + commit 1: material del profesor sin modificar ⚑ (`5c052ff`)
+- [x] Commit 2: documentos propios ⚑ (`d792b78`)
+- [x] Crear repo en GitHub y primer push
+- [ ] Añadir `.gitattributes` (finales de línea LF) ⚑
 
 ### Fase 1 · Mapa demo y exploración de los datos  *(FAQ paso 1–2)*
 - [ ] Arrancar el frontend en modo demo (`npm ci`, `npm start`) → ver 4 puntos y fronteras

@@ -1,0 +1,8 @@
+# Guardar y extraer todos los archivos de texto con finales de línea LF (estilo Linux).
+# Motivo: los contenedores Docker son Linux; un script con CRLF (Windows) puede fallar dentro.
+* text=auto eol=lf
+
+# Binarios: no tocar
+*.docx binary
+*.png binary
+*.jpg binary
