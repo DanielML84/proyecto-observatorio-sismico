@@ -28,6 +28,9 @@ manipular y defender lo que se genera, como se haría en una empresa.
 6. **Los commits, push y entregas los hago yo.** Tú no los ejecutas, pero recuérdame hacer
    commit al terminar cada punto (marcado con ⚑ en el roadmap).
 7. Al final de cada sesión, actualiza `docs/bitacora.md` y marca el avance en `docs/roadmap.md`.
+   Al terminar cada fase, además: añade a `docs/memoria.md` los resultados (con cifras y su origen) y
+   las decisiones (Anexo A), y añade a `docs/defensa.md` las preguntas probables de esa fase.
+   Las respuestas de la defensa las escribo yo y tú las corriges.
 8. Tengo TDAH: me ayuda una organización visual, sencilla y por pasos cortos.
 
 **Ciclo para cada pieza del sistema:**
@@ -98,8 +101,10 @@ proyecto-observatorio-sismico/
 │   ├── prompt-principal.md    este archivo
 │   ├── roadmap.md             plan por fases con casillas  ← ESTADO
 │   ├── bitacora.md            diario de sesiones          ← ESTADO
+│   ├── memoria.md             memoria final (se va rellenando por fases)
+│   ├── defensa.md             preguntas probables + mis respuestas
 │   ├── material-profesor/     enunciado, FAQ, guía, contrato API, ejemplos (sin modificar)
-│   └── (más adelante) spec.md, plan.md, memoria.md, evidencias/
+│   └── (más adelante) spec.md, plan.md, evidencias/
 └── (más adelante) compose.yaml, .env.example, producer/, consumer/, api/, sql/, data/
 ```
 
@@ -128,13 +133,14 @@ proyecto-observatorio-sismico/
 1. `docs/prompt-principal.md` (este archivo; o pégalo como instrucciones del proyecto)
 2. `docs/roadmap.md`
 3. `docs/bitacora.md`
+3b. `docs/memoria.md` y `docs/defensa.md`
 4. `docs/material-profesor/Proyecto observatorio actividad sismica.docx` (la biblia)
 5. `docs/material-profesor/Guia-entregables-observatorio-sismico.md`
 6. `docs/material-profesor/FAQ-ALUMNADO.md`
 7. `docs/material-profesor/CONTRATO-API.md`
 
 **Según la fase en la que estemos:**
-- `docs/spec.md`, `docs/plan.md` y `docs/memoria.md`, cuando existan
+- `docs/spec.md` y `docs/plan.md`, cuando existan
 - `compose.yaml` y el código de la pieza en la que estemos trabajando
 - `docs/material-profesor/ejemplos/` si vamos a explorar datos
 - `frontend/src/app/app.component.ts` si trabajamos en el panel

@@ -51,9 +51,6 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - `d792b78` Organización del proyecto: README, .gitignore, roadmap, bitácora y prompt principal
 - Push a https://github.com/DanielML84/proyecto-observatorio-sismico (rama `main`)
 
-### Dudas abiertas
-- Ninguna por ahora.
-
 ### Fase 1 · Mapa demo (FAQ paso 1) ✅
 - `npm ci` + `npm start` en `frontend/`; el panel abre en http://localhost:4200.
 - Resultado: catálogo de países cargado, 4 eventos dibujados, 0 omitidos; la ficha, el zoom y las capas funcionan.
@@ -71,6 +68,33 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   | demo-3 | 350 km | 6,0 | Chile | morado (≥ 300 km), el más grande |
   | demo-4 | 8 km | **null** | **null** (océano) | círculo mínimo; ficha «ND» y «Sin país asignado» |
 
+### Fase 1 · Exploración del feed (en curso)
+- Creado `analisis/01_exploracion_feed.ipynb` (pandas): estructura, tipos, completitud, unicidad,
+  `type`, magnitud, coordenadas, profundidades negativas, tiempos, `status` e `ids`.
+- **Problema:** al aplanar con `json_normalize` aparecen **dos columnas `type`** (la del Feature, siempre
+  "Feature", y `properties.type`). Provocaba `ValueError: Grouper for 'type' not 1-dimensional`.
+  **Solución:** renombrar a `feature_type` y `geom_type` antes de quitar el prefijo `properties.`.
+- Resultados (muestra del 28/10, 187 eventos): 187 id únicos; 185 earthquake y 2 explosion; mag de 0,22 a 6,0,
+  sin nulos en esta muestra; 28 con mag ≥ 4; 3 profundidades negativas (2 explosiones y 1 terremoto de
+  −2,31 km); `updated − time` con mediana de 3,6 min y máximo de 925,8 min; 120 automatic y 67 reviewed;
+  8 eventos con más de un id asociado.
+- **Documentación oficial FDSN (API del histórico)** aportada por Daniel. Datos útiles:
+  - `limit` máximo 20.000: si se supera, la API responde **HTTP 400** (no trunca en silencio).
+  - Método `count`: permite saber cuántos eventos hay **antes** de descargarlos.
+  - `starttime` = «on or after» y `endtime` = «on or before» → **los dos extremos son inclusivos**,
+    por eso hay que deduplicar los eventos que caen en el límite entre meses.
+  - `mindepth`/`maxdepth` admiten de −100 a 1000 km → la propia API contempla profundidades negativas.
+  - `updatedafter`: permite pedir solo lo actualizado después de una fecha → candidato para recuperar
+    un hueco tras una parada de más de 24 h.
+  - `eventtype=earthquake` filtra los eventos que no son terremotos; `includedeleted` y el HTTP 409 tienen que ver con los eventos borrados.
+- Pregunta de comprobación (misma versión en dos consultas seguidas): Daniel respondió bien
+  (0 terremotos nuevos). Matiz: no es porque «no haya terminado», sino porque el feed devuelve toda la
+  ventana de 24 h en cada consulta; mismo `id` + mismo `updated` = misma versión, ya publicada.
+
+### Dudas abiertas
+- Significado oficial de la profundidad negativa y si `mag` puede ser nula o negativa: pendiente de la
+  descripción por campo de https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php
+
 ### Siguiente paso
-1. Commit de la evidencia de la Fase 1.
-2. Fase 1: explorar el JSON del feed (campos, tipos, unidades, opcionales).
+1. Instalar la extensión Jupyter en VS Code y ejecutar el notebook.
+2. Rellenar las conclusiones del notebook y hacer commit.
