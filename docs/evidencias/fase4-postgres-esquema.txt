@@ -1,0 +1,40 @@
+Fase 4 · PostgreSQL con el esquema creado automáticamente · 30/10/2026
+======================================================================
+
+$ docker compose exec postgres psql -U observatorio -d observatorio -c "\dt"
+ Schema |       Name        | Type  |    Owner
+--------+-------------------+-------+--------------
+ public | consulta_ingesta  | table | observatorio
+ public | cuarentena        | table | observatorio
+ public | evento_actual     | table | observatorio
+ public | evento_version    | table | observatorio
+ public | fecha             | table | observatorio
+ public | pais              | table | observatorio
+ public | version_publicada | table | observatorio
+(7 rows)
+
+$ ... -c "\d evento_actual"   (extracto)
+Indexes:
+    "evento_actual_pkey" PRIMARY KEY, btree (event_id)
+    "ix_evento_actual_country" btree (country_id)
+    "ix_evento_actual_time" btree (event_time)
+Check constraints:
+    "ck_lat" CHECK (lat >= '-90' AND lat <= 90)
+    "ck_lon" CHECK (lon >= '-180' AND lon <= 180)
+Foreign-key constraints:
+    "evento_actual_country_id_fkey" FOREIGN KEY (country_id) REFERENCES pais(country_id)
+    "evento_actual_fecha_id_fkey" FOREIGN KEY (fecha_id) REFERENCES fecha(fecha_id)
+
+$ ... -c "SELECT COUNT(*), MIN(fecha_id), MAX(fecha_id) FROM fecha;"
+ count |    min     |    max
+-------+------------+------------
+  1461 | 2024-01-01 | 2027-12-31
+
+PRUEBA: insertar dos veces el mismo event_id
+$ INSERT INTO evento_actual (...) VALUES ('prueba-1', ...);
+INSERT 0 1
+$ INSERT INTO evento_actual (...) VALUES ('prueba-1', ...);
+ERROR:  duplicate key value violates unique constraint "evento_actual_pkey"
+DETAIL:  Key (event_id)=(prueba-1) already exists.
+$ DELETE FROM evento_actual WHERE event_id = 'prueba-1';
+DELETE 1

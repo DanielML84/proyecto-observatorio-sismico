@@ -43,8 +43,9 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 ## Semana 2 · 04/11 – 10/11 · Datos correctos
 
 ### Fase 4 · PostgreSQL y modelo  *(FAQ paso 4)*
-- [ ] Modelo conceptual → lógico → físico (SQL en `sql/`)
-- [ ] Tablas: evento actual, versiones, país, fecha, cuarentena, estado de ingesta
+- [x] Modelo conceptual → lógico → físico (`sql/01_esquema.sql`)
+- [x] Tablas: evento actual, versiones, país, fecha, cuarentena, versión publicada, consulta de ingesta
+- [x] PostgreSQL en compose (volumen `pg-data`, healthcheck, `.env`) + prueba de UNIQUE (`fase4-postgres-esquema.txt`) ⚑
 - [ ] Consumidor escribe en PostgreSQL → consulta SQL lo muestra ⚑
 
 ### Fase 5 · Duplicados y revisiones  *(FAQ paso 5 · lo más importante)*

@@ -1,6 +1,6 @@
 # Observatorio de actividad sísmica · Docker Compose
 # Fase 3: Kafka + creación de topics + productor de prueba + consumidor mínimo.
-# Se irán añadiendo el productor real, PostgreSQL y la API.
+# Fase 4: + PostgreSQL. Se irán añadiendo el productor real y la API.
 # Base: configuración KRaft de juanarrow/binance-kafka (docker.md explica cada variable),
 # adaptada a los requisitos del enunciado §9: volumen persistente y retención limitada.
 
@@ -100,5 +100,24 @@ services:
     profiles: ["pruebas"]
     restart: "no"
 
+  # Base de datos. Las variables ${...} se leen del archivo .env (que NO se sube a Git).
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg-data:/var/lib/postgresql/data          # datos persistentes
+      - ./sql:/docker-entrypoint-initdb.d:ro      # scripts que crean las tablas la PRIMERA vez (solo lectura)
+    healthcheck:                                  # "sano" cuando acepta conexiones
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+    # Sin "ports": PostgreSQL NO se publica fuera de Docker (enunciado §9)
+
 volumes:
   kafka-data:
+  pg-data:

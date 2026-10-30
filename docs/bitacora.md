@@ -58,8 +58,18 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
     FAQ 12: razonamiento correcto (estado actual = 2 y la magnitud es la de la última versión), pero contó
     «3 versiones por terremoto» en lugar de 3 en total → hay que repasar la tabla de la FAQ 12.
 
+- **Fase 4 · base de datos levantada:** `sql/01_esquema.sql` (7 tablas, 3 índices, dimensión fecha con
+  1.461 días de 2024 a 2027), `.env.example` y servicio `postgres:17-alpine` en compose (volumen `pg-data`,
+  `sql/` montado en `/docker-entrypoint-initdb.d`, healthcheck `pg_isready`, sin puertos publicados).
+  - Sintaxis del SQL validada antes con `pglast`.
+  - En el equipo de Daniel: 7 tablas creadas; `\d evento_actual` muestra PK, índices, CHECK y FK; fecha = 1461 filas.
+  - Prueba: el segundo INSERT del mismo `event_id` falla con `duplicate key value violates unique constraint`.
+  - Evidencia: `docs/evidencias/fase4-postgres-esquema.txt`.
+- ⚠️ Recordatorio: el SQL de `/docker-entrypoint-initdb.d` solo se ejecuta con el volumen vacío. Si se cambia
+  el esquema: `docker compose down -v` (borra los volúmenes) o una migración.
+
 ### Siguiente paso
-- Fase 4: nivel lógico (tablas, columnas, claves) → nivel físico (SQL) → PostgreSQL en compose.
+- El consumidor escribe en PostgreSQL con UPSERT condicionado por `updated` + historial de versiones (Fase 4–5).
 
 ---
 

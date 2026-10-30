@@ -72,7 +72,35 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 (la del Feature y `properties.type`). Se renombran a `feature_type` y `geom_type`.
 
 ## 5. Calidad de datos ⬜
-## 6. Modelo conceptual, lógico y físico ⬜
+## 6. Modelo conceptual, lógico y físico 🟡
+
+SQL: [`sql/01_esquema.sql`](../sql/01_esquema.sql). Evidencia: `docs/evidencias/fase4-postgres-esquema.txt`.
+
+**Conceptual:** un *terremoto* ocurre en un *día* UTC, puede estar en un *país* (0 o 1) y tiene una o
+varias *versiones* (las publicaciones sucesivas de USGS). Además, el sistema registra *rechazos* (cuarentena),
+la *última versión publicada* por el productor y las *consultas* a USGS.
+
+**Lógico (grano y claves):**
+
+| Tabla | Tipo | Una fila = | Clave | Relaciones |
+|---|---|---|---|---|
+| `evento_actual` | Hecho | un terremoto con su versión más reciente | PK `event_id` | FK `fecha_id` → `fecha`; FK `country_id` → `pais` (admite NULL) |
+| `evento_version` | Historial | una versión observada | PK `(event_id, updated_ms)` | — |
+| `pais` | Dimensión | una entidad de Natural Earth | PK `country_id` (ADM0_A3) | — |
+| `fecha` | Dimensión | un día UTC (2024–2027) | PK `fecha_id` | — |
+| `cuarentena` | Calidad | un mensaje inválido o excluido | PK `id`; UNIQUE `(topic, partición, offset)` | — |
+| `version_publicada` | Estado del productor | la última versión publicada de cada evento | PK `event_id` | — |
+| `consulta_ingesta` | Procedencia | una petición a USGS | PK `id` | — |
+
+**Físico:** tipos de PostgreSQL 17 (`TIMESTAMPTZ` en UTC, `BIGINT` para los milisegundos de USGS,
+`DOUBLE PRECISION` para la magnitud y las coordenadas, `JSONB` para el original). Restricciones `CHECK` de rango en `lat`/`lon`.
+
+**Índices (justificación provisional; medición en la Fase 12):**
+- `ix_evento_actual_time (event_time)`: la API filtra por intervalos de tiempo y agrupa por ventanas horarias.
+- `ix_evento_actual_country (country_id)`: recuentos y filtro por país.
+- `ix_consulta_ok_fecha (ok, solicitada_at DESC)`: obtener la última consulta correcta para el estado del sistema.
+
+**Comprobación:** insertar dos veces el mismo `event_id` → `duplicate key value violates unique constraint`.
 ## 7. Análisis y conclusiones ⬜
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
 ## 9. Evidencias de las pruebas de aceptación ⬜
@@ -98,6 +126,10 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 | D12 | Servicio `kafka-init` que crea los topics (`--if-not-exists`) y termina | Que el productor cree el topic (como en binance-kafka) | Topics declarados en un solo sitio y visibles; el arranque es repetible | — |
 | D13 | Consumidor con `enable_auto_commit=False` y commit del offset tras procesar | Commit automático | Base del procesamiento «al menos una vez» con escritura idempotente | Enunciado §7; FAQ 13 |
 | D14 | 3 particiones por topic | 1 partición | El orden se garantiza por clave (id); permite repartir la carga entre varios consumidores si crece el volumen | — |
+| D15 | `updated` guardado en milisegundos (`BIGINT`) además de como fecha | Solo `TIMESTAMPTZ` | Se compara exactamente el valor de la fuente, sin conversión | Enunciado §5.3 |
+| D16 | Estado del productor en PostgreSQL (`version_publicada`) | Diccionario en memoria o archivo | Debe sobrevivir a un reinicio | FAQ 10 |
+| D17 | Una tabla `cuarentena` con `tipo` invalido/excluido | Dos tablas | Un único sitio para todo lo que no entra en el análisis, con su motivo y referencia al mensaje | Enunciado §4.1 y §6 |
+| D18 | Dimensión fecha precargada (2024–2027) con `generate_series` | Calcular la fecha en cada consulta | Modelo dimensional (como en clase); agregar por día/mes/día de la semana | FAQ 20; sesión 5 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1
