@@ -104,8 +104,14 @@ proyecto-observatorio-sismico/
 │   ├── memoria.md             memoria final (se va rellenando por fases)
 │   ├── defensa.md             preguntas probables + mis respuestas
 │   ├── material-profesor/     enunciado, FAQ, guía, contrato API, ejemplos (sin modificar)
-│   └── (más adelante) spec.md, plan.md, evidencias/
-└── (más adelante) compose.yaml, .env.example, producer/, consumer/, api/, sql/, data/
+│   ├── contrato-mensaje.md    formato de los mensajes Kafka (v1)
+│   └── evidencias/            capturas y salidas de las pruebas
+├── analisis/                  notebooks de exploración (pandas)
+├── backend/                   imagen Python común: src/mensajes.py, productor_prueba.py, consumidor.py
+├── sql/01_esquema.sql         tablas, índices y dimensión fecha (se ejecuta al crear el volumen)
+├── compose.yaml               kafka, kafka-init, postgres, consumidor, productor-prueba
+├── .env.example               plantilla de credenciales (.env real fuera de Git)
+└── (más adelante) productor real, api/, data/
 ```
 
 ## 6. Referencias del profesor

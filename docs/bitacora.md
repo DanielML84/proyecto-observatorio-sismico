@@ -68,8 +68,11 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - ⚠️ Recordatorio: el SQL de `/docker-entrypoint-initdb.d` solo se ejecuta con el volumen vacío. Si se cambia
   el esquema: `docker compose down -v` (borra los volúmenes) o una migración.
 
-### Siguiente paso
-- El consumidor escribe en PostgreSQL con UPSERT condicionado por `updated` + historial de versiones (Fase 4–5).
+### Siguiente paso (próxima sesión)
+1. Consumidor → PostgreSQL: UPSERT en `evento_actual` condicionado por `updated_ms` + INSERT en
+   `evento_version` (ON CONFLICT DO NOTHING), todo en una transacción; commit del offset después.
+2. Probar la secuencia completa de la FAQ 12 (5 mensajes → 3 versiones → 2 terremotos; E1 = 4,6).
+3. Pendientes menores: dar un nombre común a la imagen Python (`image:`); responder en `defensa.md` las preguntas de las Fases 1–4.
 
 ---
 
