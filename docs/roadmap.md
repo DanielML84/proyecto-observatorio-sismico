@@ -22,7 +22,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 ### Fase 1 · Mapa demo y exploración de los datos  *(FAQ paso 1–2)*
 - [x] Arrancar el frontend en modo demo (`npm ci`, `npm start`) → ver 4 puntos y fronteras ⚑
       Evidencia: `docs/evidencias/fase1-mapa-demo.png`
-- [ ] Explorar el JSON del feed: campos, tipos, unidades, opcionales
+- [x] Explorar el JSON del feed: campos, tipos, unidades, opcionales (`analisis/01_exploracion_feed.ipynb`)
 - [ ] Explorar el catálogo de países: unicidad de `ADM0_A3`, atributos
 - [ ] Anotar hallazgos (explosiones, profundidades negativas, nulos…) ⚑
 
@@ -32,7 +32,9 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [ ] `docs/contrato-mensaje.md`: formato del mensaje Kafka ⚑
 
 ### Fase 3 · Kafka + productor + consumidor mínimos  *(FAQ paso 3)*
-- [ ] `compose.yaml` con Kafka (KRaft, volumen, retención limitada)
+- [x] `compose.yaml` con Kafka (KRaft, volumen, retención limitada)
+- [x] Prueba con consola: topic `pruebas`, productor → consumidor (evidencias `fase3-*.png`)
+- [ ] Comprobar persistencia con `docker compose down` + `up`
 - [ ] Productor mínimo que publica un evento de prueba
 - [ ] Consumidor mínimo que lo muestra en el log
 - [ ] Evidencia: log del consumidor ⚑

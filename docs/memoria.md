@@ -88,3 +88,7 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 | D2 | `.gitattributes` con `eol=lf` | Dejar los finales CRLF de Windows | Los contenedores son Linux; un script con CRLF puede fallar | Bitácora, sesión 1 |
 | D3 | Conservar las profundidades negativas | Rechazarlas | USGS las explica; el enunciado prohíbe rechazarlas sin estudiarlas | Enunciado §6; FAQ de USGS |
 | D4 | Exploración en un notebook con pandas | Script `.py` | Código y resultados juntos, reproducibles, en el estilo de clase | — |
+| D5 | Kafka con volumen persistente (`kafka-data`) | Datos efímeros, como en binance-kafka | Los mensajes deben sobrevivir a un reinicio | Enunciado §9 |
+| D6 | Retención de 7 días o 512 MB por partición | Retención por defecto o ilimitada | Retención limitada exigida; cubre una parada de fin de semana del consumidor | Enunciado §9; FAQ 11 |
+| D7 | Kafka sin puertos publicados al host | Publicar 9092 como en binance-kafka | Solo lo usan los contenedores; no se expone el broker | Enunciado §2 y §9 |
+| D8 | Creación automática de topics desactivada | Activada | Un nombre de topic mal escrito no crea un topic nuevo en silencio | — |

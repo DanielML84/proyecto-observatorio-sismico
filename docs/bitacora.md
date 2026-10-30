@@ -5,6 +5,37 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 2 · Viernes 30/10/2026
+
+### Qué se hizo
+- Comprobado que los documentos «nuevos» del profesor (guía y FAQ) y la carpeta de `Downloads` son idénticos
+  a los del repositorio → no hay versión nueva del enunciado.
+- Notebook `01_exploracion_feed.ipynb` reescrito con explicación conceptual por apartado y comentarios
+  línea a línea (Daniel se agobiaba con el pandas sin comentar).
+- Creados `docs/memoria.md` (memoria que se rellena por fases, con un registro de decisiones en el Anexo A) y
+  `docs/defensa.md` (preguntas probables del profesor; las responde Daniel).
+- **Fase 3, paso 1:** `compose.yaml` solo con Kafka (`apache/kafka:4.1.2`, KRaft, volumen `kafka-data`,
+  retención de 7 días o 512 MB, sin publicar puertos al host, topics sin creación automática).
+  - `docker compose up -d kafka` → healthy.
+  - Topic `pruebas` creado a mano.
+  - Productor de consola → consumidor de consola: los mensajes «hola terremoto» y «bienvenido kafka» llegan.
+  - Evidencias: `docs/evidencias/fase3-docker-desktop-kafka.png`, `fase3-productor-consola.png`,
+    `fase3-consumidor-consola.png`.
+  - Tras cerrar y volver a abrir los contenedores, los mensajes siguen ahí.
+
+### Problemas y solución
+- Docker Desktop avisa de que su versión ya no tiene soporte. No impide trabajar; se actualizará más adelante,
+  en un momento en que no haya contenedores con datos importantes.
+
+### Dudas abiertas
+- Confirmar si la prueba de persistencia se hizo con `docker compose down` (borra el contenedor; demuestra
+  el volumen) o con un simple «stop» (no lo demuestra).
+
+### Siguiente paso
+- Fase 2: `docs/spec.md` y `docs/contrato-mensaje.md`. Después, productor y consumidor mínimos en Python.
+
+---
+
 ## Sesión 1 · Miércoles 28/10/2026
 
 ### Qué se hizo

@@ -1,0 +1,58 @@
+# Observatorio de actividad sísmica · Docker Compose
+# Fase 3 (paso 1): solo Kafka. Se irán añadiendo productor, consumidor, PostgreSQL y API.
+# Base: configuración KRaft de juanarrow/binance-kafka (docker.md explica cada variable),
+# adaptada a los requisitos del enunciado §9: volumen persistente y retención limitada.
+
+name: observatorio-sismico
+
+services:
+  kafka:
+    image: apache/kafka:4.1.2          # misma imagen que el ejemplo del profesor
+    hostname: kafka                    # nombre con el que lo encuentran los demás contenedores
+    environment:
+      # --- Un único nodo que es a la vez broker (guarda mensajes) y controller (guarda metadatos). Sin ZooKeeper (modo KRaft).
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw   # id fijo: con volumen persistente, cada arranque reconoce el mismo clúster
+
+      # --- Listeners (por dónde escucha):
+      #   PLAINTEXT :9092 -> para productor y consumidor, dentro de la red de Docker (kafka:9092)
+      #   CONTROLLER :9093 -> uso interno de Kafka
+      # Kafka NO se publica al host ni al túnel (enunciado §2 y §9).
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      # --- Un solo broker: los topics internos no pueden tener 3 réplicas (valor por defecto)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+      # --- Topics: se crean a mano (no automáticamente) para que un nombre mal escrito no cree un topic nuevo sin avisar
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+
+      # --- Retención LIMITADA (enunciado §9): los mensajes se borran a los 7 días
+      #     o cuando una partición supera 512 MB, lo que ocurra antes.
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_RETENTION_BYTES: 536870912
+
+      # --- Dónde guarda los datos dentro del contenedor (montado en un volumen persistente, abajo)
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data   # los mensajes sobreviven a "docker compose down"
+    healthcheck:                         # Compose considera Kafka "sano" cuando responde a esta orden
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092"]
+      interval: 5s
+      timeout: 10s
+      retries: 24
+      start_period: 25s
+    restart: unless-stopped
+
+volumes:
+  kafka-data:

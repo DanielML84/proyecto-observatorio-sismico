@@ -20,3 +20,12 @@
 | ¿Qué haces con las explosiones? | | Notebook 01, §5 |
 | ¿Qué significa que un evento tenga varios `ids`? | | Notebook 01, §9 |
 | ¿Por qué hay que deduplicar al descargar el histórico por meses? | | Memoria §3 |
+
+## Fase 3 · Kafka
+| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+|---|---|---|
+| ¿Para qué sirve Kafka si podrías guardar directamente en la base de datos? | | FAQ 11 |
+| ¿Qué es un topic? ¿Y un offset? ¿El offset es el id del terremoto? | | FAQ 14 |
+| ¿Qué pasa con los mensajes si el consumidor está parado 2 minutos? ¿Y 2 semanas? | | `compose.yaml` (retención) |
+| ¿Por qué los contenedores usan `kafka:9092` y no `localhost:9092`? | | FAQ 28 |
+| ¿Cómo demuestras que los mensajes sobreviven a un reinicio? | | Bitácora, sesión 2 |
