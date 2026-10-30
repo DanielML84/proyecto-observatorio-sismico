@@ -1,0 +1,23 @@
+Fase 3 · Productor y consumidor Python (aiokafka) en Docker · 30/10/2026
+=========================================================================
+
+$ docker compose ps -a
+observatorio-sismico-consumidor-1   ...  Up 1 second
+observatorio-sismico-kafka-1        ...  Up 24 minutes (healthy)
+observatorio-sismico-kafka-init-1   ...  Exited (0) 2 seconds ago
+
+$ docker compose logs kafka-init
+Created topic terremotos.live.
+Created topic terremotos.replay.
+__consumer_offsets
+pruebas
+terremotos.live
+terremotos.replay
+
+$ docker compose run --rm productor-prueba
+[productor] publicado id=us7000ttlm topic=terremotos.live particion=1 offset=0
+
+$ docker compose logs -f consumidor
+[consumidor] escuchando topic=terremotos.live grupo=consumidor-observatorio
+[consumidor] recibido particion=1 offset=0
+[consumidor] clave=us7000ttlm mode=live source=prueba-manual mag=6 type=earthquake updated=1793162671840 ingested_at=2026-10-30T18:54:52.990Z lugar='214 km NW of Port-Olry, Vanuatu'

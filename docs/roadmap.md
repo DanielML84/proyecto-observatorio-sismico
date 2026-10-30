@@ -35,9 +35,10 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `compose.yaml` con Kafka (KRaft, volumen, retención limitada)
 - [x] Prueba con consola: topic `pruebas`, productor → consumidor (evidencias `fase3-*.png`)
 - [x] Comprobar persistencia con `docker compose down` + `up` (los mensajes siguen ahí)
-- [ ] Productor mínimo que publica un evento de prueba
-- [ ] Consumidor mínimo que lo muestra en el log
-- [ ] Evidencia: log del consumidor ⚑
+- [x] Productor mínimo que publica un evento de prueba (`backend/src/productor_prueba.py`)
+- [x] Consumidor mínimo que lo muestra en el log (`backend/src/consumidor.py`)
+- [x] Evidencia: `docs/evidencias/fase3-pipeline-python.txt` ⚑
+- [x] Experimento: reenviar el mismo evento → offset 1 → Kafka NO deduplica (motiva la Fase 5)
 
 ## Semana 2 · 04/11 – 10/11 · Datos correctos
 

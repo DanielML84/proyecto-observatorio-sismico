@@ -33,8 +33,25 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   clave = id del evento; valor = `schema_version`, `source`, `mode`, `ingested_at`, `replayed_at` y `event`
   (el Feature original sin modificar). El productor no filtra ni transforma.
 
+- **Fase 3, paso 2:** imagen Python común (`backend/Dockerfile`, `aiokafka==0.12.0`), `src/mensajes.py`
+  (construye mensajes según el contrato), `src/productor_prueba.py` (envía us7000ttlm y termina) y
+  `src/consumidor.py` (muestra cada mensaje; `enable_auto_commit=False` y commit DESPUÉS de procesar).
+  `compose.yaml`: `kafka-init` crea `terremotos.live` y `terremotos.replay` (3 particiones, `--if-not-exists`);
+  `productor-prueba` con perfil `pruebas` (se lanza con `docker compose run --rm productor-prueba`).
+  - Resultado: publicado en partición 1, offset 0; el consumidor lo recibe en partición 1, offset 0.
+  - Evidencia: `docs/evidencias/fase3-pipeline-python.txt`.
+  - Aviso de Kafka sobre mezclar «.» y «_» en los nombres de topics: sin impacto (solo usamos «.»).
+- **Experimento clave:** al reenviar el mismo evento, Kafka lo guarda otra vez (offset 1). Kafka es un
+  registro de mensajes y **no deduplica**. Con un INSERT simple habría 2 filas del mismo terremoto; con el
+  feed cada 60 s, 187 × 60 × 24 = 269.280 inserciones al día de eventos repetidos.
+  Daniel lo dedujo él solo. → Motiva las dos defensas: productor con estado `(id, updated)` y consumidor idempotente.
+
+### Mejora pendiente (menor)
+- `docker compose` construye dos imágenes iguales (`…-consumidor` y `…-productor-prueba`) desde el mismo
+  Dockerfile. Se puede dar un nombre común con `image:` para construir una sola.
+
 ### Siguiente paso
-- Productor y consumidor mínimos en Python (aiokafka) en contenedores, enviando el evento de ejemplo según el contrato.
+- Fase 4: PostgreSQL en compose + modelo de datos (conceptual → lógico → físico).
 
 ---
 

@@ -94,3 +94,13 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 | D8 | Creación automática de topics desactivada | Activada | Un nombre de topic mal escrito no crea un topic nuevo en silencio | — |
 | D9 | El productor publica el evento original sin filtrar ni transformar; el consumidor valida y filtra | Que el productor descarte las explosiones | Una responsabilidad por componente; la exclusión y su motivo quedan registrados en la BD | Enunciado §2, §4.1 y §5; `docs/contrato-mensaje.md` |
 | D10 | Topics separados `terremotos.live` y `terremotos.replay` | Un único topic con un campo `mode` | Aislamiento de la reproducción | Enunciado §11; FAQ 32 |
+| D11 | Una sola imagen Python (`backend/`) con un comando distinto por servicio | Una imagen por servicio | Menos mantenimiento; dependencias comunes | Enunciado §2 |
+| D12 | Servicio `kafka-init` que crea los topics (`--if-not-exists`) y termina | Que el productor cree el topic (como en binance-kafka) | Topics declarados en un solo sitio y visibles; el arranque es repetible | — |
+| D13 | Consumidor con `enable_auto_commit=False` y commit del offset tras procesar | Commit automático | Base del procesamiento «al menos una vez» con escritura idempotente | Enunciado §7; FAQ 13 |
+| D14 | 3 particiones por topic | 1 partición | El orden se garantiza por clave (id); permite repartir la carga entre varios consumidores si crece el volumen | — |
+
+### Evidencia del problema de duplicados (Fase 3)
+Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1
+de la partición 1: **Kafka no deduplica**. Como el feed devuelve toda la ventana de 24 h en cada consulta,
+un consumidor ingenuo insertaría cada minuto los ~187 eventos de nuevo (≈ 269.280 filas repetidas al día).
+Esto justifica el control de versiones en el productor y la escritura idempotente en el consumidor (Fase 5).

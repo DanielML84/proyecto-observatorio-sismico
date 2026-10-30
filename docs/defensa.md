@@ -29,6 +29,9 @@
 | ¿Qué pasa con los mensajes si el consumidor está parado 2 minutos? ¿Y 2 semanas? | | `compose.yaml` (retención) |
 | ¿Por qué los contenedores usan `kafka:9092` y no `localhost:9092`? | | FAQ 28 |
 | ¿Cómo demuestras que los mensajes sobreviven a un reinicio? | | Bitácora, sesión 2 |
+| Si envías dos veces el mismo terremoto, ¿Kafka lo detecta? ¿Qué consecuencias tiene? | *(Daniel: «se duplicarían los 187 terremotos» → completar con el porqué)* | `docs/evidencias/fase3-pipeline-python.txt`; memoria |
+| ¿Por qué el consumidor confirma el offset después de procesar y no antes? | | Memoria, D13; FAQ 13 |
+| ¿Por qué el id del terremoto siempre va a la misma partición? | | Contrato (clave) |
 
 ## Fase 2 · Contrato del mensaje
 | Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
