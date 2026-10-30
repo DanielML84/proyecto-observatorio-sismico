@@ -50,8 +50,16 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - `docker compose` construye dos imágenes iguales (`…-consumidor` y `…-productor-prueba`) desde el mismo
   Dockerfile. Se puede dar un nombre común con `image:` para construir una sola.
 
+- **Fase 4 (conceptos, sin código):** niveles conceptual/lógico/físico, entidades (Terremoto, Versión, País,
+  Día, Cuarentena, Estado de ingesta), el **grano** de cada tabla y la relación con el modelo dimensional
+  (hecho = terremoto; dimensiones = país y día).
+  - Confusión trabajada: Daniel pensaba que para contar terremotos se usa la tabla de versiones. Se corrigió
+    (estado actual = 1 fila por terremoto; versiones = historial, como `git log`). Segundo ejercicio con la
+    FAQ 12: razonamiento correcto (estado actual = 2 y la magnitud es la de la última versión), pero contó
+    «3 versiones por terremoto» en lugar de 3 en total → hay que repasar la tabla de la FAQ 12.
+
 ### Siguiente paso
-- Fase 4: PostgreSQL en compose + modelo de datos (conceptual → lógico → físico).
+- Fase 4: nivel lógico (tablas, columnas, claves) → nivel físico (SQL) → PostgreSQL en compose.
 
 ---
 

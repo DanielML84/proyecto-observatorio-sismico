@@ -40,3 +40,12 @@
 | ¿Por qué el productor no filtra las explosiones? | | Memoria, D9 |
 | ¿Qué diferencia hay entre `ingested_at` y `time`? | | Contrato; enunciado §6 («separa tiempo de ocurrencia y de procesamiento») |
 | ¿Cómo separas los datos de la reproducción de los reales? | | Memoria, D10 |
+
+## Fase 4 · Modelo de datos
+| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+|---|---|---|
+| ¿Qué diferencia hay entre un terremoto y una versión? | | FAQ 12 y 20 |
+| ¿Qué es el grano de una tabla? Dime el grano de cada una de tus tablas | | Memoria §6 |
+| Para contar terremotos por país, ¿qué tabla usas y por qué? | *(⚠️ trabajada en la sesión 2: estado actual, NO versiones)* | FAQ 20 y 22 |
+| Con la secuencia de la FAQ 12, ¿cuántas filas hay en cada tabla? | | FAQ 12 |
+| ¿Cuál es la tabla de hechos y cuáles son las dimensiones? | | Memoria §6; notebook de modelado dimensional de Juan |
