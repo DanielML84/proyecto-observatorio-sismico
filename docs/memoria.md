@@ -92,3 +92,5 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 | D6 | Retención de 7 días o 512 MB por partición | Retención por defecto o ilimitada | Retención limitada exigida; cubre una parada de fin de semana del consumidor | Enunciado §9; FAQ 11 |
 | D7 | Kafka sin puertos publicados al host | Publicar 9092 como en binance-kafka | Solo lo usan los contenedores; no se expone el broker | Enunciado §2 y §9 |
 | D8 | Creación automática de topics desactivada | Activada | Un nombre de topic mal escrito no crea un topic nuevo en silencio | — |
+| D9 | El productor publica el evento original sin filtrar ni transformar; el consumidor valida y filtra | Que el productor descarte las explosiones | Una responsabilidad por componente; la exclusión y su motivo quedan registrados en la BD | Enunciado §2, §4.1 y §5; `docs/contrato-mensaje.md` |
+| D10 | Topics separados `terremotos.live` y `terremotos.replay` | Un único topic con un campo `mode` | Aislamiento de la reproducción | Enunciado §11; FAQ 32 |

@@ -27,12 +27,14 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Docker Desktop avisa de que su versión ya no tiene soporte. No impide trabajar; se actualizará más adelante,
   en un momento en que no haya contenedores con datos importantes.
 
-### Dudas abiertas
-- Confirmar si la prueba de persistencia se hizo con `docker compose down` (borra el contenedor; demuestra
-  el volumen) o con un simple «stop» (no lo demuestra).
+- **Persistencia confirmada:** `docker compose down` + `up` → los mensajes del topic `pruebas` siguen ahí (volumen `kafka-data`).
+- Explicado dónde ver `(healthy)`: columna STATUS de `docker compose ps`.
+- **Fase 2:** creado `docs/contrato-mensaje.md` (v1): topics `terremotos.live` y `terremotos.replay`;
+  clave = id del evento; valor = `schema_version`, `source`, `mode`, `ingested_at`, `replayed_at` y `event`
+  (el Feature original sin modificar). El productor no filtra ni transforma.
 
 ### Siguiente paso
-- Fase 2: `docs/spec.md` y `docs/contrato-mensaje.md`. Después, productor y consumidor mínimos en Python.
+- Productor y consumidor mínimos en Python (aiokafka) en contenedores, enviando el evento de ejemplo según el contrato.
 
 ---
 

@@ -1,0 +1,2 @@
+# Dependencias Python FIJADAS (versión exacta) para que la imagen sea reproducible (enunciado §9).
+aiokafka==0.12.0   # cliente Kafka asíncrono (exigido por el enunciado; misma versión que binance-kafka)

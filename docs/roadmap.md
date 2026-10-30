@@ -29,12 +29,12 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 ### Fase 2 · Especificación y plan (a mano, Markdown)
 - [ ] `docs/spec.md`: qué hace el sistema, reglas de negocio, pruebas de aceptación
 - [ ] `docs/plan.md`: decisiones técnicas, servicios, topics, tablas, puertos
-- [ ] `docs/contrato-mensaje.md`: formato del mensaje Kafka ⚑
+- [x] `docs/contrato-mensaje.md`: formato del mensaje Kafka ⚑
 
 ### Fase 3 · Kafka + productor + consumidor mínimos  *(FAQ paso 3)*
 - [x] `compose.yaml` con Kafka (KRaft, volumen, retención limitada)
 - [x] Prueba con consola: topic `pruebas`, productor → consumidor (evidencias `fase3-*.png`)
-- [ ] Comprobar persistencia con `docker compose down` + `up`
+- [x] Comprobar persistencia con `docker compose down` + `up` (los mensajes siguen ahí)
 - [ ] Productor mínimo que publica un evento de prueba
 - [ ] Consumidor mínimo que lo muestra en el log
 - [ ] Evidencia: log del consumidor ⚑

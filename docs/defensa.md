@@ -29,3 +29,11 @@
 | ¿Qué pasa con los mensajes si el consumidor está parado 2 minutos? ¿Y 2 semanas? | | `compose.yaml` (retención) |
 | ¿Por qué los contenedores usan `kafka:9092` y no `localhost:9092`? | | FAQ 28 |
 | ¿Cómo demuestras que los mensajes sobreviven a un reinicio? | | Bitácora, sesión 2 |
+
+## Fase 2 · Contrato del mensaje
+| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+|---|---|---|
+| ¿Qué clave usas en Kafka y por qué? | | `docs/contrato-mensaje.md` |
+| ¿Por qué el productor no filtra las explosiones? | | Memoria, D9 |
+| ¿Qué diferencia hay entre `ingested_at` y `time`? | | Contrato; enunciado §6 («separa tiempo de ocurrencia y de procesamiento») |
+| ¿Cómo separas los datos de la reproducción de los reales? | | Memoria, D10 |
