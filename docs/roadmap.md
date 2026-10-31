@@ -71,9 +71,10 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 ## Semana 3 · 11/11 – 18/11 · Panel, pruebas y memoria
 
 ### Fase 9 · Panel Angular  *(FAQ pasos 8–9)*
-- [ ] Conectar a la API (modo `api`)
-- [ ] Filtros (fecha, magnitud, país), tabla, gráficos, comparación histórica
-- [ ] Estado del sistema (última ingesta, avisos) ⚑
+- [x] Conectar a la API (modo `api`, `frontend/src/app/api.service.ts`)
+- [x] Filtros (fecha, magnitud, país), tabla, gráficos, comparación histórica
+- [x] Estado del sistema (última ingesta, avisos) ⚑
+- [x] Revisión final: pruebas repetidas, build de producción, CORS, móvil y modo demo (`docs/evidencias/fase9-panel.txt`)
 
 ### Fase 10 · Despliegue  *(FAQ paso 10)*
 - [ ] Cuentas ngrok y Netlify

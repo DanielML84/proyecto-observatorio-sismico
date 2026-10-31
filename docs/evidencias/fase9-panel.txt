@@ -1,0 +1,72 @@
+Fase 9 · Panel Angular: verificación final
+Fecha: 31/10/2026, ~11:30 UTC. Navegador real: Microsoft Edge sin ventana, controlado por el protocolo de depuración.
+Cada resultado se compara con una consulta directa a la API. «Simulado» = respuesta alterada en el navegador.
+Los scripts de prueba fueron temporales y no forman parte del repositorio.
+
+BUILD
+- npm run build: sin errores. Queda 1 aviso: «Module 'leaflet' ... is not ESM» (viene del código base del profesor; angular.json no se toca).
+- Salida (dist/observatorio/browser): index.html, config.json, _redirects, datos/, JS y CSS.
+
+BUILD DE PRODUCCIÓN (servido en el puerto 4201)
+- Origen no autorizado (CORS real): «La API no responde y todavía no hay ninguna lectura. Revisa API, túnel y CORS.»
+- Con la API (CORS desactivado solo en el navegador de prueba): 218 eventos dibujados = 218 en la API; filtros, estadísticas y tabla presentes.
+- Sin restos del texto de la demo. Título «Observatorio sísmico», lang=es.
+- Modo demo: línea «DEMOSTRACIÓN · datos ficticios», 4 filas, sin filtros ni estadísticas, 0 peticiones a la API.
+- Ficha de demo-4: «Magnitud: ND · Profundidad: 8 km · País: Sin país asignado».
+- Ancho: 390 px -> página 390; 320 px -> página 320 (antes de corregir el desplegable de país: 353).
+
+ESTADO DEL SISTEMA (caída REAL: docker compose stop api / start api)
+- Antes: API · Última consulta completada.
+- Parada: «La API no responde: datos antiguos. Se conserva la última lectura, del 31/10/2026, 12:31:33.»
+- Recuperada, sin recargar: «API · Última consulta completada».
+- Ciclos: +0,0 s / +60,1 s / +120,1 s; 3 peticiones por ciclo (eventos, salud, estadísticas), sin solapes.
+- Simulado: ingesta parada, lista truncada, /api/salud con 503, config.json inválido, API caída sin lectura previa: mensaje correcto en cada caso.
+
+FILTROS
+- Lista de países: 2 opciones fijas + 177 del catálogo, mismo orden y códigos; no cambia con los filtros.
+- Catálogo frente a tabla pais (SQL): 177 códigos en ambos, mismos nombres, sin vacíos ni repetidos.
+- EE. UU.: panel 163 = API 163. Sin país: panel 47 = API 47.
+- EE. UU. + 29/07/2025 + M>=6: panel 0 = API 0, aviso «Sin resultados».
+- Fechas invertidas o iguales: error y 0 peticiones.
+- Tres cambios seguidos con API lenta (simulado): máximo 3 peticiones a la vez (1 ciclo); gana el último filtro.
+
+TABLA
+- Primera página igual a la API fila a fila (fecha, magnitud, país, lugar); 50 filas por página.
+- Orden por magnitud: 4,9 · 4,9 · 4,8 · 4,7 · 4,6 = API ordenada.
+- Refresco real de 60 s: conserva página 2 y orden.
+- Todo 2025: «son los 5000 eventos más recientes de 18302»; ordenar 5.000 filas y leer la tabla: ~17 ms.
+- Nulos (simulado): ND y «Sin país asignado», siempre al final en los dos sentidos.
+
+ESTADÍSTICAS (últimas 24 h, sin filtro)
+- Total 218 = suma por país 218 = por subregión 218 = magnitud + nulos 218 = profundidad + nulos 218 = por hora 218.
+- Tramo 3,5-4,0 con 0 eventos: visible (la API no lo envía; lo rellena el panel).
+- Todo 2025: 8.760 ventanas, suma 18.302, en ~0,66 s.
+- Periodo con horas exactas: 24 ventanas, 0 parciales.
+- Solo fallan las estadísticas (simulado): aviso «Estadísticas antiguas»; mapa y tabla se actualizan; se recupera solo.
+
+EVENTOS SIN MAGNITUD EXCLUIDOS (sin_valor.magnitud_excluidos_por_filtro)
+- Real: 0 con filtro (no hay eventos reales sin magnitud). Sin filtro: no se muestra.
+- Simulado: «M≥4: 24 terremotos · 3 sin magnitud no incluidos»; «M≥4,5: 11 terremotos · 1 sin magnitud no incluido».
+
+COMPARACIÓN CON 2025 (panel = API en todos los casos: recuento / esperado / variación)
+Consulta                        Recuento   Esperado    Variación   Avisos
+Últimas 24 h                    24         50,14       -52,1 %     Solo cuenta M≥4 (total 218); 1,4 % de días <= 24
+M>=2                            24         50,14       -52,1 %     Solo cuenta M≥4
+EE. UU., M>=4                   1          0,19        +414,1 %    Base muy pequeña
+Luxemburgo                      0          0           ND          ninguno
+29/07/2025                      121        50,14       +141,3 %    Periodo dentro de 2025
+Todo 2025                       18.302     18.302      0 %         Periodo dentro de 2025
+24-31/10/2026                   19         351         -94,6 %     Recuento incompleto
+01/03/2026                      0          50,14       -100 %      Recuento incompleto
+30/10/2026 12:00 -> 30/12/2026  24         3033,62     -99,2 %     Termina en el futuro
+30/10/2026 00:00 -> 30/12/2026  30         3058,69     -99 %       Recuento incompleto + termina en el futuro
+30/12/2025 -> 02/01/2026        63         150,43      -58,1 %     Periodo dentro de 2025 + recuento incompleto
+- Cobertura según la API: cobertura_feed_desde = 2026-10-30T06:48:01 UTC.
+- variacion_pct y dias_2025 nulos (simulado): «ND».
+- Nota de la API mostrada literalmente.
+
+CONSOLA DEL NAVEGADOR: 0 errores y 0 excepciones en todas las pruebas.
+
+CAPTURAS
+fase9-bloque1-normal.png, fase9-bloque1-api-caida.png, fase9-bloque2-filtros.png, fase9-bloque3-tabla.png,
+fase9-bloque4-estadisticas.png, fase9-bloque4-kamchatka.png, fase9-bloque5-comparacion.png, fase9-bloque6-movil.png.

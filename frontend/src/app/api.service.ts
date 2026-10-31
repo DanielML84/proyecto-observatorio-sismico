@@ -73,6 +73,8 @@ export type ComparacionHistorica = {
   esperado_en_periodo: number;          // media escalada a la duración del periodo
   diferencia: number;
   variacion_pct: number | null;         // null = no hay base: se muestra «ND»
+  cobertura_feed_desde: string | null;  // primera ingesta correcta menos 24 h; null si aún no hay ninguna
+  periodo_cubierto: boolean;            // false = el recuento del periodo puede estar incompleto
   dias_2025: {
     mediana: number | null;
     p10: number | null;

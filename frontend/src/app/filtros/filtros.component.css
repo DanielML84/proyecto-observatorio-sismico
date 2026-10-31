@@ -1,8 +1,9 @@
 /* Campos en fila, que bajan a la línea siguiente si no caben. */
 .filtros { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; padding: 16px; background: white; margin: 0 0 20px; }
-.campo { display: flex; flex-direction: column; gap: 4px; flex: 1 1 170px; }
+/* min-width 0 y width 100 %: el desplegable se ajusta a la columna, no al nombre de país más largo. */
+.campo { display: flex; flex-direction: column; gap: 4px; flex: 1 1 170px; min-width: 0; }
 label { font-size: .8rem; color: #42596b; }
-input, select { padding: 7px 8px; border: 1px solid #94a3b8; border-radius: 4px; font: inherit; background: white; min-width: 0; }
+input, select { width: 100%; padding: 7px 8px; border: 1px solid #94a3b8; border-radius: 4px; font: inherit; background: white; min-width: 0; }
 
 .botones { display: flex; align-items: center; gap: 8px; }
 button { padding: 8px 14px; border: 1px solid #176b70; border-radius: 4px; background: #176b70; color: white; font: inherit; cursor: pointer; }

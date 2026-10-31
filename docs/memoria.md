@@ -205,6 +205,47 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    (pendiente: volver a descargar el periodo del catálogo hacia el 03/11 para medirlo). No es una predicción ni una
    evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`.
    → *Mejora aplicada:* `/api/estadisticas` devuelve ahora la mediana, el p10, el p90 y el % de días de 2025 con un recuento ≤ al reciente.
+
+## 7bis. Panel del observatorio (enunciado §8) 🟡
+
+Angular 20.3, ngx-leaflet y Leaflet 1.9.4, sobre el mapa del profesor y sin dependencias nuevas. El panel solo consume nuestra API.
+Evidencia: `docs/evidencias/fase9-panel.txt` y capturas `fase9-bloque*.png`.
+
+| Requisito | Dónde | Comprobación |
+|---|---|---|
+| Mapa, leyenda y nulos | `app.component` | Ficha de `demo-4`: «Magnitud: ND», «Sin país asignado» |
+| País, subregión y ventanas de 1 h UTC | `estadisticas/` | Las sumas coinciden con el total de la API (218); 2025: 8.760 ventanas, 18.302 eventos |
+| Distribuciones con registros sin valor | `estadisticas/` | Magnitud + nulos y profundidad + nulos = 218 |
+| Comparación histórica | `comparacion-historica` | Panel = API en 11 consultas reales; ND si `variacion_pct` es null |
+| Filtros a la vez en mapa, tabla y gráficos | `filtros/`, `api.service.ts` | Eventos y estadísticas con los mismos parámetros en cada ciclo |
+| Estado del sistema | `estado-sistema/` | Caída real de la API: aviso, última lectura marcada como antigua y recuperación sola |
+| Tabla accesible | `tabla-eventos/` | Igual a la API fila a fila; ordenable con teclado; `aria-sort` |
+| Lista truncada | `estado-sistema/`, `tabla-eventos/` | Todo 2025: «5000 de 18302»; las estadísticas se calculan sobre todos |
+| Refresco de 60 s sin solapes | `app.component` | Ciclos a +0, +60,1 y +120,1 s |
+
+**Cómo se evita un porcentaje engañoso.** El panel enseña siempre el porcentaje que calcula la API, acompañado de un aviso cuando no
+significa lo que parece (D39):
+
+| Situación | Ejemplo real | Aviso | Origen |
+|---|---|---|---|
+| El periodo empieza antes de los datos del feed | 24–31/10/2026: 19 frente a 351 (−94,6 %) | Recuento incompleto | `periodo_cubierto` y `cobertura_feed_desde` de la API |
+| El periodo termina en el futuro | Hasta el 30/12/2026: −99,2 % | Termina en el futuro | Comparado con `generated` |
+| El periodo cae dentro de 2025 | Todo 2025: 0 % | Periodo dentro de 2025 | Calculado en el panel |
+| Se espera menos de 1 terremoto | EE. UU., M≥4: 1 frente a 0,19 (+414,1 %) | Base muy pequeña | **Criterio nuestro:** `BASE_MINIMA = 1` |
+| Filtro por debajo de M≥4 | Total 218, comparación 24 | Explica la diferencia | El histórico solo tiene M≥4 (FAQ 23) |
+
+**Criterio propio `BASE_MINIMA = 1`:** si el recuento esperado en el periodo es menor que 1, un solo terremoto mueve el porcentaje cientos de
+puntos. El umbral no viene del enunciado ni de una regla estadística: lo hemos fijado nosotros porque, por debajo de 1 terremoto esperado, la
+diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambia ningún cálculo. Está en
+`frontend/src/app/estadisticas/comparacion-historica.component.ts`.
+
+**Limitaciones:**
+- `cobertura_feed_desde` no detecta huecos por paradas de más de 24 h (D32).
+- El mapa y la tabla reciben como mucho 5.000 eventos, los más recientes; ordenar la tabla no alcanza a los que quedan fuera.
+- Eventos y estadísticas son dos peticiones: si entra una ingesta entre ambas, sus totales pueden diferir en algún evento hasta el siguiente refresco.
+- Comprobado en Edge a 1280, 390 y 320 px. No se ha probado con un lector de pantalla real.
+- Las pruebas de ingesta parada, lista truncada y eventos sin magnitud son simuladas en el navegador: en la base real no hay eventos sin magnitud.
+
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
 
 *Datos ya recogidos:*
@@ -219,11 +260,11 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
 | Reenviar la misma versión | No aumenta el número | `ignorado: version_repetida`; sigue 1 fila | ídem |
 | Recibir una versión posterior | Cambian los datos actuales | `actualizado`; mag 4,2 → 4,6 | ídem |
 | Recibir después una versión antigua | No sustituye a la más reciente | `ignorado`; mag sigue en 4,6 | ídem |
-| Magnitud nula | Se conserva y se muestra ND | Guardada con `mag` NULL (panel: pendiente) | ídem |
+| Magnitud nula | Se conserva y se muestra ND | Guardada con `mag` NULL; panel: «ND» en ficha y tabla, al final al ordenar | ídem; `fase9-panel.txt` |
 | Coordenadas inválidas | Cuarentena y motivo | `lat_fuera_de_rango`, offset 4 | ídem |
-| Evento marítimo | Sin país; permanece | ⬜ Fase 6 | |
+| Evento marítimo | Sin país; permanece | Eventos reales como «Fiji region» se guardan sin país y el panel los muestra como «Sin país asignado» (47 de 218) | `fase9-bloque4-estadisticas.png`; `fase9-panel.txt` |
 | Reiniciar consumidor | Reanuda sin duplicar | ⬜ | |
-| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ Fase 10 | |
+| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ Fase 10 (ya comprobado parando el contenedor de la API, sin túnel) | `fase9-panel.txt` |
 | Reproducción histórica | Por Kafka, aislada | ⬜ Fase 11 | |
 
 Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados de los datos reales (enunciado §6).
@@ -267,6 +308,16 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D30 | Comparación con `mag >= 4` en los dos periodos | `mag > 4` | Es lo que hace realmente `minmagnitude=4` (incluye 4,0) | Muestra de enero |
 | D31 | Con `min_mag`, contar aparte los eventos sin magnitud (`magnitud_excluidos_por_filtro`) | Esconderlos | El contrato exige contabilizarlos por separado; detectado en la revisión del bloque 4 del panel | Contrato API |
 | D32 | La API devuelve `cobertura_feed_desde` (primera ingesta correcta − 24 h) y `periodo_cubierto` | Que el panel adivine la cobertura | Avisar con exactitud cuando un periodo no está cubierto por datos y el recuento puede ser incompleto. Limitación: no detecta huecos por paradas > 24 h (recuperables con el catálogo, `updatedafter`) | Enunciado §5 y §8.4 |
+| D33 | Lista de países fija: catálogo (`ADM0_A3`, `NAME_ES`, 177) + «Sin país asignado» | `por_pais`, como decía el encargo | Decisión de Daniel: se puede elegir cualquier país aunque no tenga eventos, y la lista no cambia con los filtros. Catálogo y tabla `pais` coinciden (177 códigos, mismos nombres) | `docs/evidencias/fase9-panel.txt` |
+| D34 | `fetch` y campos HTML normales | `HttpClient` y `@angular/forms` | `@angular/forms` no está en el `package.json` del profesor; `fetch` ya estaba en su código y no hace falta añadir nada | `docs/fase9-encargo-panel.md` |
+| D35 | Gráficos sin librería: barras en tablas HTML y columnas en un solo trazado SVG | Una librería de gráficos | El encargo pide evitar dependencias. La tabla es además su alternativa accesible, y un trazado aguanta las 8.760 ventanas de un año | Encargo; enunciado §8 |
+| D36 | Mapa y tabla comparten la misma respuesta; las estadísticas vienen siempre de la API | Calcular estadísticas en el navegador | Con la lista truncada a 5.000, calcularlas en el navegador sería falso | Encargo, punto 8; contrato API |
+| D37 | Si los filtros cambian durante una consulta: se descarta su resultado y se repite al terminar | Cancelar la petición; lanzar otra a la vez | Una sola función de refresco, sin solapes, y siempre gana el último filtro | Encargo, punto 9 |
+| D38 | Rellenar los tramos de magnitud con 0 y mostrar siempre las 4 clases de profundidad | Dibujar solo lo que envía la API | Un tramo vacío también es un dato; ocultarlo deformaría la distribución | Enunciado §8 |
+| D39 | Mostrar el porcentaje de la API con un aviso cuando engaña | Sustituirlo por ND | Decisión de Daniel: el panel no oculta el cálculo y explica cómo leerlo; ND queda para cuando `variacion_pct` es null | Encargo, punto 4; memoria §7bis |
+| D40 | `BASE_MINIMA = 1`: aviso si se espera menos de 1 terremoto | Sin aviso; otro umbral | **Criterio propio**, no viene del enunciado. Solo añade un aviso | Memoria §7bis |
+| D41 | Tabla paginada de 50 filas | Pintar hasta 5.000 filas | Mantener ágil el navegador; el orden se aplica a toda la lista recibida antes de paginar | Encargo, punto 7 |
+| D42 | Ventanas de 1 h parciales en tono claro y con nota | Dibujarlas igual que las completas | Una ventana cubierta a medias tiene menos eventos sin que haya menos actividad | Enunciado §8 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1

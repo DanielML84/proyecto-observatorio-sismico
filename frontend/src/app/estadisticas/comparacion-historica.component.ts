@@ -5,9 +5,7 @@ import type { ComparacionHistorica, Periodo } from '../api.service';
 
 const INICIO_2025 = Date.UTC(2025, 0, 1);
 const FIN_2025 = Date.UTC(2026, 0, 1);
-const HORA_MS = 3_600_000;
-const MARGEN_FEED_MS = 25 * HORA_MS;                    // el feed cubre 24 h; +1 h para no avisar en la consulta por defecto
-const BASE_MINIMA = 1;                                  // criterio propio: esperar menos de 1 terremoto no da un % útil
+const BASE_MINIMA = 1;                                 // criterio propio: esperar menos de 1 terremoto no da un % útil
 
 // Número en español. ND si falta.
 const cifra = (valor: number | null, decimales = 0): string =>
@@ -38,8 +36,21 @@ export class ComparacionHistoricaComponent {
 
   // El periodo cae dentro de 2025: se compara con un año que ya lo contiene.
   readonly solapa2025 = computed(() => this.inicio() < FIN_2025 && this.fin() > INICIO_2025);
-  // Empieza antes de lo que cubre el feed: el recuento puede estar incompleto por falta de datos, no de terremotos.
-  readonly fueraDeCobertura = computed(() => !this.solapa2025() && this.inicio() < this.generated() - MARGEN_FEED_MS);
+  // Fecha desde la que hay datos del feed, según la API. null = aún no hay ninguna ingesta correcta.
+  private readonly cobertura = computed(() => {
+    const desde = this.datos().cobertura_feed_desde;
+    return desde === null ? null : new Date(desde).getTime();
+  });
+  // La API dice que el periodo no está cubierto y es porque empieza antes de los datos del feed
+  // (periodo_cubierto también es false si solo termina en el futuro: de eso se avisa aparte).
+  readonly fueraDeCobertura = computed(() => {
+    const desde = this.cobertura();
+    return !this.datos().periodo_cubierto && (desde === null || this.inicio() < desde);
+  });
+  readonly coberturaTexto = computed(() => {
+    const desde = this.cobertura();
+    return desde === null ? 'ND' : `${new Date(desde).toLocaleString('es-ES', { timeZone: 'UTC' })} UTC`;
+  });
   // Termina en el futuro: el esperado incluye días que aún no han ocurrido.
   readonly periodoFuturo = computed(() => this.fin() > this.generated());
   // Hay porcentaje, pero sobre una base tan pequeña que un solo terremoto lo cambia por completo.

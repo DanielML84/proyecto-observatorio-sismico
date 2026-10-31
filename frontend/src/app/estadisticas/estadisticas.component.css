@@ -8,5 +8,5 @@ h2 { margin: 0 0 8px; font-size: 1.2rem; }
 .nota.grave { border-left-color: #b91c1c; background: #fee2e2; color: #7f1d1d; }
 
 /* Dos columnas que pasan a una en pantallas estrechas. */
-.rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 24px 32px; margin-top: 24px; }
+.rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(440px, 100%), 1fr)); gap: 24px 32px; margin-top: 24px; }
 .ayuda { margin: 6px 0 0; font-size: .8rem; color: #42596b; }

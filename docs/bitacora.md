@@ -5,6 +5,60 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 4 · Sábado 31/10/2026
+
+### Qué se hizo
+- **Fase 9 · panel Angular** con Claude Code, en 6 bloques. El mapa del profesor se conserva y se amplía; sin dependencias nuevas.
+  1. **Conexión y estado:** `config.json` en modo `api`; `api.service.ts` es el único archivo que habla con la API; componente
+     `estado-sistema/`. Si la API falla: aviso rojo, se conserva la última lectura y se marca como antigua.
+  2. **Filtros:** fecha UTC, magnitud y país (`filtros/`), con validación. Si cambian durante una consulta, esta se repite al
+     terminar, sin peticiones solapadas. «Filtros de esta lectura» sale de la respuesta, no del formulario.
+  3. **Tabla:** `tabla-eventos/`, ordenable y paginada (50 filas), con los mismos datos que el mapa.
+  4. **Estadísticas:** `estadisticas/`, ventanas de 1 h UTC (SVG), país, subregión, magnitud y profundidad (tablas HTML con barras).
+  5. **Comparación con 2025:** recuento, esperado, variación, mediana, P10–P90, % de días y nota de la API.
+  6. **Revisión final:** repetidas las pruebas sobre el código final, build de producción, CORS real, móvil y fichas.
+- **Cambios de Daniel en la API:** `sin_valor.magnitud_excluidos_por_filtro` (D31), `cobertura_feed_desde` y `periodo_cubierto` (D32).
+- Decisión de Daniel: lista de países fija desde el catálogo (177 + «Sin país asignado»), no `por_pais` como decía el encargo (D33).
+  Antes de cambiarla se comprobó que el catálogo y la tabla `pais` coinciden: 177 códigos y los mismos nombres.
+- Decisión de Daniel: el porcentaje se muestra con aviso (D39) y el umbral `BASE_MINIMA = 1` queda como criterio nuestro (D40).
+- Evidencia: `docs/evidencias/fase9-panel.txt` y capturas `fase9-bloque*.png`.
+
+### Resultados
+- Últimas 24 h (31/10, ~11:30 UTC): **24 frente a 50,14 con M≥4 (−52,1 %)**; el 1,4 % de los días de 2025 tuvo 24 o menos. Mediana 43, P10–P90 31–69.
+- Sumas por país, subregión, magnitud, profundidad y hora = total de la API (218). Todo 2025: 8.760 ventanas, 18.302 eventos, ~0,66 s.
+- Caída real de la API: aviso, datos conservados y recuperación sola sin recargar.
+
+### Problemas y solución
+- **Lista de países que encogía:** `por_pais` con `country_id=USA` devuelve 1 fila. Primero se pidió sin ese filtro; después Daniel
+  decidió usar el catálogo, porque tampoco se podía elegir un país sin eventos en el periodo aplicado.
+- **Fechas invertidas:** la API responde 200 con 0 eventos; parecería que no hubo terremotos → el panel valida antes de enviar.
+- **Tramos de magnitud vacíos:** la API no envía los tramos con 0, y dibujar solo lo recibido escondía el hueco 3,5–4,0 → se rellenan.
+- **Porcentajes engañosos:** semana 24–31/10 = −94,6 % solo porque no había datos antes del 30/10. Primero se avisó con un apaño de
+  25 h; Daniel añadió la cobertura a la API y el panel usa ahora esos campos. Se añadieron también los avisos de periodo dentro de 2025,
+  fin en el futuro y base muy pequeña.
+- **`periodo_cubierto = false` tiene dos causas** (empieza antes de los datos o termina en el futuro): el panel las separa con `cobertura_feed_desde`.
+- **Errores de Claude encontrados al probar:** barras estrechas (`table-layout: fixed` tomaba el ancho de encabezados ocultos, y además la
+  rejilla salía a 3 columnas); fecha equivocada en el aviso de estadísticas antiguas; texto «0 no coincide con el total de 0»; el desplegable
+  de país ensanchaba la página a 353 px en pantallas de 320 px. Corregidos.
+- **Falsos positivos de los guiones de prueba** (el panel estaba bien): EE. UU. no se podía elegir porque el escenario previo lo dejaba fuera
+  de la lista entonces vigente; «Limpiar» parecía hacer 4 peticiones porque el guion mezclaba las del escenario siguiente.
+
+### Observaciones
+- **Desfase de reloj:** Docker va unos 6,8 s por detrás de Windows. No afecta a los avisos, porque la antigüedad se calcula solo en el servidor.
+- **Consultas cada ~55 s, sigue sin explicar:** en una prueba de 2 min el reloj de la API avanzó al ritmo del navegador, así que su hora no
+  parece la causa; las ingestas siguieron saliendo a ~55 s (109 s en dos ciclos). No se ha investigado más.
+- Aviso de compilación de `leaflet` («not ESM»): viene de la base del profesor y no se oculta, para no tocar `angular.json`.
+- Subregiones en inglés: es como vienen del catálogo; no se traducen.
+
+### Commits
+- `656791c` Bloque 1 · `ef2ab80` y `f695320` Bloque 2 · `b0f81c0` Bloque 3 · `087aa53` Bloque 4 · `a16ce1b` Bloque 5. Bloque 6 pendiente de commit de Daniel.
+
+### Siguiente paso
+1. ~03/11: volver a descargar del catálogo las 24 h del 30/10 09:28 → 31/10 09:28 UTC y compararlas con el feed.
+2. Fase 10: cuentas de ngrok y Netlify, túnel, `apiUrl` HTTPS en `config.json`, origen de Netlify en `CORS_ORIGINS` y prueba desde otro dispositivo.
+
+---
+
 ## Sesión 3 · Sábado 31/10/2026
 
 ### Qué se hizo

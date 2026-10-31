@@ -6,7 +6,7 @@
     <p class="aviso"><strong>Periodo dentro de 2025:</strong> se compara con un año que ya lo incluye. Sirve para situar ese periodo en su año, no para comparar dos periodos distintos.</p>
   }
   @if (fueraDeCobertura()) {
-    <p class="aviso"><strong>Recuento posiblemente incompleto:</strong> el periodo empieza más de 24 h atrás. Solo hay datos desde que el sistema empezó a recoger el feed, así que la variación puede salir baja por falta de datos, no de terremotos.</p>
+    <p class="aviso"><strong>Recuento incompleto:</strong> solo hay datos del feed desde el {{ coberturaTexto() }} y el periodo empieza antes. La variación puede salir baja por falta de datos, no de terremotos.</p>
   }
   @if (periodoFuturo()) {
     <p class="aviso"><strong>El periodo termina en el futuro:</strong> el esperado cuenta días que aún no han ocurrido.</p>
