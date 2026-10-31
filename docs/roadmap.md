@@ -49,7 +49,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Consumidor escribe en PostgreSQL → consulta SQL lo muestra ⚑
 
 ### Fase 5 · Duplicados y revisiones  *(FAQ paso 5 · lo más importante)*
-- [ ] Productor real: USGS cada 60 s, compara `id` + `updated`, reintentos
+- [x] Productor real: USGS cada 60 s, compara `id` + `updated`, reintentos (`backend/src/productor.py`)
 - [x] Consumidor idempotente: transacción + upsert + offset después de escribir (`backend/src/db.py`)
 - [x] Probar la secuencia de la FAQ 12 + magnitud nula, latitud 145 y explosión (`fase5-faq12-idempotencia.txt`) ⚑
 

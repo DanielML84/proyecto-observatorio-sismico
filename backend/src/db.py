@@ -81,3 +81,37 @@ async def guardar_evento(conn: psycopg.AsyncConnection, campos: dict, evento_ori
 
 async def guardar_cuarentena(conn, tipo, motivo, event_id, topic, particion, offset, raw_texto) -> None:
     await conn.execute(SQL_CUARENTENA, (tipo, motivo, event_id, topic, particion, offset, raw_texto))
+
+
+# =====================================================================================
+# Funciones del PRODUCTOR
+# =====================================================================================
+
+async def cargar_versiones_publicadas(conn) -> dict[str, int]:
+    """Lee de PostgreSQL lo que el productor ya publicó: {event_id: updated_ms}.
+    Se guarda en un diccionario para buscar en O(1) de media (en vez de O(N) recorriendo una lista)."""
+    cur = await conn.execute("SELECT event_id, updated_ms FROM version_publicada")
+    return {event_id: updated_ms for event_id, updated_ms in await cur.fetchall()}
+
+
+SQL_MARCAR_PUBLICADA = """
+INSERT INTO version_publicada (event_id, updated_ms) VALUES (%s, %s)
+ON CONFLICT (event_id) DO UPDATE SET updated_ms = EXCLUDED.updated_ms, published_at = now()
+WHERE version_publicada.updated_ms < EXCLUDED.updated_ms
+"""
+
+
+async def marcar_publicada(conn, event_id: str, updated_ms: int) -> None:
+    """Se llama SOLO después de que Kafka confirme el envío (enunciado §5.5)."""
+    await conn.execute(SQL_MARCAR_PUBLICADA, (event_id, updated_ms))
+
+
+SQL_CONSULTA = """
+INSERT INTO consulta_ingesta (fuente, url, http_status, ok, n_eventos, n_publicados, duracion_ms, error)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+"""
+
+
+async def registrar_consulta(conn, fuente, url, http_status, ok, n_eventos, n_publicados, duracion_ms, error) -> None:
+    """Una fila por cada intento de consulta a USGS (correcto o fallido)."""
+    await conn.execute(SQL_CONSULTA, (fuente, url, http_status, ok, n_eventos, n_publicados, duracion_ms, error))

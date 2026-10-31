@@ -1,6 +1,6 @@
 # Observatorio de actividad sísmica · Docker Compose
 # Fase 3: Kafka + creación de topics + productor de prueba + consumidor mínimo.
-# Fase 4-5: + PostgreSQL y consumidor que guarda. Se irán añadiendo el productor real y la API.
+# Fase 5: + productor real (USGS cada 60 s). Falta la API.
 # Base: configuración KRaft de juanarrow/binance-kafka (docker.md explica cada variable),
 # adaptada a los requisitos del enunciado §9: volumen persistente y retención limitada.
 
@@ -90,6 +90,38 @@ services:
         condition: service_completed_successfully   # no arrancar hasta que existan los topics
       postgres:
         condition: service_healthy                  # ni hasta que PostgreSQL acepte conexiones
+    restart: unless-stopped
+
+  # Productor REAL: consulta USGS cada 60 s y publica solo novedades (src/productor.py)
+  productor:
+    build: ./backend
+    image: observatorio-backend
+    command: ["python", "-m", "src.productor"]
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: terremotos.live
+      USGS_FEED_URL: https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson
+      INTERVALO_S: 60          # frecuencia de consulta (enunciado §4.1)
+      HTTP_TIMEOUT_S: 20
+      RAW_DIR: /data/raw
+      RAW_RETENCION_H: 24      # los originales se borran a las 24 h
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./data/raw:/data/raw   # originales visibles en el equipo (carpeta excluida de Git)
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    healthcheck:               # "sano" si ha completado un ciclo en los últimos 3 minutos
+      test: ["CMD", "python", "-c", "import os,time,sys; sys.exit(0 if time.time()-os.path.getmtime('/tmp/latido')<180 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
     restart: unless-stopped
 
   # Productor de PRUEBA: envía 1 terremoto de ejemplo y termina.

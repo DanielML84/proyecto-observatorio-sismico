@@ -24,9 +24,21 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Una consulta de verificación pedía `updated_at` en `evento_version` (no existe esa columna): error de Claude.
   Corregida con `to_timestamp(updated_ms / 1000.0)`.
 
+- **Productor real** (`productor.py`): diccionario en memoria + `version_publicada` en PostgreSQL; publicar →
+  confirmación de Kafka → marcar como publicada; reintentos 2/4/8 s (timeout, red, 429, 5xx, JSON); cada intento
+  en `consulta_ingesta`; originales `.geojson.gz` en `data/raw/` con retención de 24 h; healthcheck por latido.
+  - Simulación previa con la muestra (sin red): ciclo 1 → 187 publicados; ciclo 2 → 0; revisión simulada → 1.
+  - **Con datos reales (31/10, 06:48–06:53 UTC):** 220 eventos por respuesta; tras la primera carga, 0 publicados
+    por minuto; cuarentena: `type=explosion` (1), **`type=quarry blast` (1, tipo nuevo no visto en la muestra)** y el caso sintético `lat_fuera_de_rango`.
+- **Problema:** se guardaba un original por minuto aunque no hubiera cambios, porque USGS cambia
+  `metadata.generated` en cada respuesta y el hash del archivo completo siempre era distinto.
+  **Solución:** huella calculada solo sobre `features`. Probado: si solo cambia `generated` → no se guarda; si cambia un terremoto → sí.
+- **Observación sin explicar:** las consultas salen cada ~55 s en lugar de 60 s (diferencias entre
+  `solicitada_at`). Causa no confirmada (¿reloj de la VM de Docker Desktop?). Pendiente de medir.
+
 ### Siguiente paso
-- Productor real: consulta USGS cada 60 s, compara con `version_publicada`, publica, registra en `consulta_ingesta`,
-  conserva el GeoJSON original con retención, y reintentos con espera progresiva.
+- Reconstruir el productor con la corrección del hash y comprobar que `data/raw` deja de crecer cada minuto.
+- Fase 6: asignar país (punto en polígono) + cargar la tabla `pais`.
 
 ---
 

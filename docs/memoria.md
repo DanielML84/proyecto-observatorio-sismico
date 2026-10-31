@@ -94,6 +94,10 @@ UTC de ocurrencia; valores originales en `evento_version.raw` (JSONB) y en `cuar
 ### 5.2 Prueba de las reglas sobre datos reales
 Muestra del feed del 28/10 (187 eventos): **185 válidos, 2 excluidos (`type=explosion`), 0 en cuarentena**.
 
+Primeros datos reales del productor (31/10/2026, 06:48 UTC, 220 eventos por respuesta): exclusiones
+`type=explosion` (1) y **`type=quarry blast` (1)**. Es un tipo de evento que no aparecía en la muestra de exploración;
+la regla genérica `type != earthquake` lo excluye sin cambiar el código.
+
 *(El análisis completo de las 6 dimensiones sobre los datos almacenados se hará con consultas SQL cuando el productor real lleve tiempo funcionando.)*
 ## 6. Modelo conceptual, lógico y físico 🟡
 
@@ -168,6 +172,10 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D16 | Estado del productor en PostgreSQL (`version_publicada`) | Diccionario en memoria o archivo | Debe sobrevivir a un reinicio | FAQ 10 |
 | D17 | Una tabla `cuarentena` con `tipo` invalido/excluido | Dos tablas | Un único sitio para todo lo que no entra en el análisis, con su motivo y referencia al mensaje | Enunciado §4.1 y §6 |
 | D18 | Dimensión fecha precargada (2024–2027) con `generate_series` | Calcular la fecha en cada consulta | Modelo dimensional (como en clase); agregar por día/mes/día de la semana | FAQ 20; sesión 5 |
+| D19 | Estado del productor: diccionario en memoria (O(1)) + copia en `version_publicada` | Solo lista o solo BD | Velocidad en cada ciclo y persistencia ante reinicios | Enunciado §10; FAQ 10 y 33 |
+| D20 | Reintentos 2/4/8 s solo para fallos temporales (timeout, red, 429, 5xx, JSON); 4xx no se reintenta | Reintentar siempre / nunca | Espera progresiva sin insistir en errores que no se arreglan esperando | Enunciado §5.6 |
+| D21 | Originales `.geojson.gz` en `data/raw/`, guardados solo si cambian los `features`, con retención de 24 h | Guardar cada respuesta sin comprimir | Conservar el original sin copias idénticas; `metadata.generated` cambia siempre, por eso se compara solo `features` | Enunciado §5.2 |
+| D22 | No publicar features sin `id` o `updated` (se cuentan en `consulta_ingesta.error`) | Publicarlos | Sin id/updated no hay control de versiones y se reenviarían cada minuto | Enunciado §5.3 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1
