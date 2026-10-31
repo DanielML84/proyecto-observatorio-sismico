@@ -1,0 +1,25 @@
+/* Bloque blanco, como el de los filtros. */
+.tabla-eventos { padding: 16px; background: white; margin: 0 0 20px; }
+h2 { margin: 0 0 12px; font-size: 1.2rem; }
+
+/* Avisos: el significado lo da el texto en negrita; el color lo refuerza. */
+.nota { margin: 0 0 12px; padding: 8px 12px; border-left: 4px solid #b45309; background: #fef3c7; color: #5c3a06; }
+.nota.grave { border-left-color: #b91c1c; background: #fee2e2; color: #7f1d1d; }
+
+/* Si la tabla no cabe, se desplaza ella en vez de ensanchar toda la página. */
+.contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+caption { caption-side: top; text-align: left; padding-bottom: 8px; font-size: .85rem; color: #42596b; }
+th { text-align: left; border-bottom: 2px solid #94a3b8; padding: 0; white-space: nowrap; }
+td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; }
+.dato { white-space: nowrap; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }   /* cifras alineadas para comparar de un vistazo */
+.vacio { text-align: center; color: #42596b; padding: 20px; }
+
+/* El botón de la cabecera ocupa toda la celda y parece un título. */
+th button { width: 100%; padding: 8px 10px; border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-align: left; cursor: pointer; }
+th button:hover { background: #eef5f6; }
+
+.paginas { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; font-size: .9rem; }
+.paginas button { padding: 6px 12px; border: 1px solid #176b70; border-radius: 4px; background: white; color: #176b70; font: inherit; cursor: pointer; }
+.paginas button:disabled { border-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }

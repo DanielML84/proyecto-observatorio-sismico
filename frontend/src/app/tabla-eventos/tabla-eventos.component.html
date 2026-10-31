@@ -1,0 +1,69 @@
+<!-- Se guarda el estado en una variable para no repetir estado() en cada línea. -->
+@let e = estado();
+
+<section class="tabla-eventos" aria-labelledby="titulo-tabla">
+  <h2 id="titulo-tabla">Tabla de terremotos</h2>
+
+  <!-- Avisos también aquí: quien use solo la tabla debe saber si los datos son antiguos o parciales. -->
+  @if (e.falloApi && e.ultimoAcceso !== null) {
+    <p class="nota grave"><strong>Datos antiguos:</strong> es la última lectura correcta, del {{ local(e.ultimoAcceso) }}.</p>
+  }
+  @if (e.truncated) {
+    <p class="nota">
+      <strong>Lista truncada:</strong> son los {{ totalFilas() }} eventos más recientes de {{ e.total ?? 'ND' }}.
+      El orden se aplica solo a estos {{ totalFilas() }}.
+    </p>
+  }
+
+  <!-- tabindex y role: permiten desplazar con el teclado la tabla cuando no cabe en pantallas estrechas. -->
+  <div class="contenedor" tabindex="0" role="region" aria-labelledby="titulo-tabla">
+    <table>
+      <!-- caption: resumen de la tabla, que un lector de pantalla lee antes que las filas. -->
+      <caption>
+        {{ totalFilas() }} terremotos, ordenados por {{ tituloOrden() }}
+        ({{ direccion() === 'asc' ? 'ascendente' : 'descendente' }}). Los valores que faltan aparecen como ND, siempre al final.
+      </caption>
+      <thead>
+        <tr>
+          @for (c of columnas; track c.id) {
+            <!-- Un botón en la cabecera: se puede usar con ratón y con teclado. -->
+            <th scope="col" [attr.aria-sort]="ariaSort(c.id)">
+              <button type="button" (click)="ordenar(c)">
+                {{ c.titulo }}
+                <span aria-hidden="true">{{ columna() === c.id ? (direccion() === 'asc' ? '▲' : '▼') : '' }}</span>
+              </button>
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        <!-- track f.id: Angular reutiliza las filas que no cambian al refrescar. -->
+        @for (f of visibles(); track f.id) {
+          <tr>
+            <td class="dato">{{ fecha(f.fecha) }}</td>
+            <td class="dato num">{{ cifra(f.magnitud) }}</td>
+            <td class="dato num">{{ cifra(f.profundidad) }}</td>
+            <td>{{ f.pais }}</td>
+            <td>{{ f.lugar }}</td>
+          </tr>
+        } @empty {
+          <!-- colspan: una sola celda que ocupa las cinco columnas. -->
+          <tr>
+            <td colspan="5" class="vacio">
+              {{ e.falloApi ? 'Todavía no hay ninguna lectura de la API.' : 'Ningún terremoto cumple estos filtros en este periodo.' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- La paginación solo aparece si hay más de una página. -->
+  @if (totalPaginas() > 1) {
+    <nav class="paginas" aria-label="Páginas de la tabla">
+      <button type="button" [disabled]="pagina() === 1" (click)="cambiarPagina(-1)">Anterior</button>
+      <span aria-live="polite">Página {{ pagina() }} de {{ totalPaginas() }}</span>
+      <button type="button" [disabled]="pagina() === totalPaginas()" (click)="cambiarPagina(1)">Siguiente</button>
+    </nav>
+  }
+</section>

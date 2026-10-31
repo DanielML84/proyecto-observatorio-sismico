@@ -5,9 +5,10 @@ import type { FeatureCollection } from 'geojson';
 import { ApiService, Config, Eventos, FILTROS_VACIOS, Filtros, MetadatosEventos, SIN_PAIS } from './api.service';
 import { ESTADO_INICIAL, EstadoSistema, EstadoSistemaComponent } from './estado-sistema/estado-sistema.component';
 import { FiltrosComponent, PaisOpcion } from './filtros/filtros.component';
+import { TablaEventosComponent } from './tabla-eventos/tabla-eventos.component';
 
 @Component({
-  selector: 'app-root', standalone: true, imports: [LeafletDirective, EstadoSistemaComponent, FiltrosComponent],
+  selector: 'app-root', standalone: true, imports: [LeafletDirective, EstadoSistemaComponent, FiltrosComponent, TablaEventosComponent],
   templateUrl: './app.component.html', styleUrl: './app.component.css'
 })
 export class AppComponent implements OnDestroy {
@@ -17,6 +18,7 @@ export class AppComponent implements OnDestroy {
   // Opciones del desplegable. «Sin país asignado» no está en el catálogo: existe aunque este no cargue.
   readonly paises = signal<PaisOpcion[]>([{ id: SIN_PAIS, nombre: 'Sin país asignado' }]);
   readonly cargando = signal(false);                    // hay una consulta en marcha
+  readonly eventos = signal<Eventos['features']>([]);   // última lectura correcta: la comparten mapa y tabla
   readonly options: L.MapOptions = { center: L.latLng(18, 0), zoom: 2, minZoom: 2, maxZoom: 8, preferCanvas: true, worldCopyJump: false };
   // Angular entrega aquí la única instancia del servicio.
   private api = inject(ApiService);
@@ -90,6 +92,7 @@ export class AppComponent implements OnDestroy {
       if (eventos.status === 'rejected') throw eventos.reason;
       const data = eventos.value;
       const { count, omitted } = this.pintar(data);
+      this.eventos.set(data.features);                  // después de pintar: si falla, la tabla sigue igual que el mapa
       const meta = data.metadata;
       this.actualizar({
         ...saludRecibida, falloApi: false, count, omitted,
