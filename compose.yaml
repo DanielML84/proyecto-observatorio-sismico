@@ -1,6 +1,6 @@
 # Observatorio de actividad sísmica · Docker Compose
 # Fase 3: Kafka + creación de topics + productor de prueba + consumidor mínimo.
-# Fase 5: + productor real (USGS cada 60 s). Falta la API.
+# Fase 8: los 5 servicios obligatorios (productor, kafka, consumidor, postgres, api) + kafka-init.
 # Base: configuración KRaft de juanarrow/binance-kafka (docker.md explica cada variable),
 # adaptada a los requisitos del enunciado §9: volumen persistente y retención limitada.
 
@@ -125,6 +125,30 @@ services:
       timeout: 5s
       retries: 3
       start_period: 90s
+    restart: unless-stopped
+
+  # API de consulta (FastAPI + Uvicorn). Lee de PostgreSQL datos ya procesados (src/api.py).
+  api:
+    build: ./backend
+    image: observatorio-backend
+    command: ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]   # 0.0.0.0: acepta conexiones de fuera del contenedor (enunciado §9)
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200}   # orígenes permitidos (separados por comas)
+    ports:
+      - "127.0.0.1:8000:8000"   # SOLO la API se publica, y solo en este equipo (para ngrok en el host, enunciado §9)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/salud', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
 
   # Productor de PRUEBA: envía 1 terremoto de ejemplo y termina.

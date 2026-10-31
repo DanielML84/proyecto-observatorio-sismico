@@ -1,0 +1,19 @@
+Fase 8 · Comparación «últimas 24 h» frente a 2025 · 31/10/2026 (periodo 30/10 09:28 → 31/10 09:28 UTC)
+=======================================================================================================
+
+/api/estadisticas (mundial, earthquake):
+  mag >= 4   : reciente 25 | media diaria 2025 50,14 (18.302/365) | variación -50,1 %
+  mag >= 4,5 : reciente 13 | media diaria 2025 23,45 ( 8.559/365) | variación -44,6 %
+  -> subir el filtro a 4,5 apenas reduce la diferencia: la hipótesis «falta sobre todo M4,0-4,5» NO se confirma.
+
+Distribución de los 365 días de 2025 (mag >= 4; dimensión fecha + LEFT JOIN, los días con 0 cuentan):
+$ SELECT ROUND(AVG(n),2) media, MIN(n), percentile_disc(0.1)…, percentile_disc(0.5)…, MAX(n),
+         COUNT(*) FILTER (WHERE n <= 25), COUNT(*)
+  FROM (SELECT f.fecha_id, COUNT(e.event_id) n FROM fecha f LEFT JOIN evento_actual e
+        ON e.fecha_id = f.fecha_id AND e.source='usgs-fdsn' AND e.mag >= 4 [AND NOT zona Kamchatka]
+        WHERE f.anio = 2025 GROUP BY f.fecha_id) t;
+
+                 media | minimo | p10 | mediana | maximo | dias_con_25_o_menos | dias
+ con Kamchatka   50.14 |     20 |  31 |      43 |    645 |   10 (2,7 %)        |  365
+ sin Kamchatka   39.25 |     19 |  26 |      37 |    119 |   29 (7,9 %)        |  365
+ (zona Kamchatka = lat 45..60, lon 150..170)

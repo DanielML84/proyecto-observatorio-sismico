@@ -195,7 +195,16 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    una evaluación de riesgo. Evidencia: `docs/evidencias/fase7-historico.txt`.
 2. *Sesgo de cobertura:* en el feed de 24 h sin filtro de magnitud, el 77 % de los eventos son de EE. UU. (redes de
    detección densas). Para comparar regiones hay que filtrar por magnitud (Fase 6).
-3. *Comparación reciente frente a histórico:* pendiente (API y panel).
+3. ✅ **El recuento de las últimas 24 h está en la parte baja del rango de 2025, pero no es excepcional; la comparación
+   con la media exagera la diferencia.** *Datos:* periodo 30/10/2026 09:28 → 31/10/2026 09:28 UTC, mundial, earthquake,
+   mag ≥ 4 → **25** eventos. Media diaria de 2025 = 50,14 (−50,1 %); pero la **mediana** de los 365 días de 2025 es 43 y el
+   p10 es 31; solo **10 de 365 días (2,7 %)** tuvieron 25 o menos. Excluyendo la secuencia de Kamchatka: media 39,25,
+   mediana 37, p10 26 y **29 días (7,9 %)** con 25 o menos. Con mag ≥ 4,5: 13 frente a 23,45 (−44,6 %). *Interpretación:* la
+   media está inflada por días extremos (máximo 645, el día del M8,8); la mediana y los percentiles describen mejor un día
+   típico. *Limitaciones:* un solo día es una muestra muy pequeña; el feed en tiempo real puede completarse más tarde
+   (pendiente: volver a descargar el periodo del catálogo hacia el 03/11 para medirlo). No es una predicción ni una
+   evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`.
+   → *Mejora aplicada:* `/api/estadisticas` devuelve ahora la mediana, el p10, el p90 y el % de días de 2025 con un recuento ≤ al reciente.
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
 
 *Datos ya recogidos:*

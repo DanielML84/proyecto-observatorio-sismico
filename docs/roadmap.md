@@ -63,9 +63,10 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Carga con las mismas reglas de limpieza, por Kafka (`historico_cargar.py`) ⚑
 
 ### Fase 8 · API FastAPI  *(FAQ paso 7)*
-- [ ] `/api/eventos` según contrato, con filtros
-- [ ] `/api/salud` y `/api/estadisticas`
-- [ ] CORS ⚑
+- [x] `/api/eventos` según contrato, con filtros y paginación (`backend/src/api.py`)
+- [x] `/api/salud` y `/api/estadisticas`
+- [x] CORS ⚑
+- [ ] ~03/11: volver a descargar del CATÁLOGO las 24 h del 30/10 09:28 → 31/10 09:28 UTC y compararlas con el feed → medir el retraso y la completitud (Actualidad)
 
 ## Semana 3 · 11/11 – 18/11 · Panel, pruebas y memoria
 

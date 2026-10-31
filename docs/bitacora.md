@@ -78,8 +78,28 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
     a 1.375 en julio y 1.254 en agosto, y luego baja; el resto del mundo es estable. La zona = 21,7 % del año. La media
     diaria sin la zona sería 39,25 (frente a 50,14). → **Primera conclusión redactada** (memoria §7).
 
+- **Fase 8 · API:** `api.py` (FastAPI 0.115.6, Uvicorn): `/api/eventos` (GeoJSON, filtros start/end/min_mag/country_id,
+  `SIN_PAIS`, paginación, máximo 5.000), `/api/estadisticas` (totales, nulos, país, subregión, ventanas de 1 h UTC con
+  `generate_series`, tramos de magnitud de 0,5, clases de profundidad, comparación con 2025 usando `mag >= max(4, min_mag)`),
+  `/api/salud`. Una sola función de filtros para todas las rutas. Excluye las fuentes `prueba…`. Si la BD falla → 503.
+  CORS por variable de entorno. Puerto publicado solo `127.0.0.1:8000`.
+  - Probada antes en el entorno de Claude con un **PostgreSQL embebido (pgserver)** y el mismo `01_esquema.sql`: filtros,
+    nulos, SIN_PAIS, paginación, estadísticas, CORS (permitido/rechazado), 422 y 503 → todo correcto.
+  - Real (31/10 09:28 UTC): 208 terremotos en 24 h (156 EE. UU., 45 sin país); **comparación mag ≥ 4: 25 frente a la
+    media de 2025 de 50,14 → −50,1 %**.
+  - **Hipótesis:** la diferencia se debe sobre todo a que el feed en tiempo real está incompleto para M4–4,5 fuera de
+    EE. UU. (el catálogo de 2025 ya está revisado). Por comprobar: (1) comparación con `min_mag=4.5`; (2) volver a descargar
+    del catálogo ese mismo periodo dentro de unos días.
+  - Observación sin explicar: 0 eventos entre 3,5 y 4,0 en esas 24 h (13 entre 4,0 y 4,5).
+  - Pregunta generated/last_ingestion: Daniel las tenía al revés (generated cambia siempre; last_ingestion se congela). Corregido.
+
+  - Con mag ≥ 4,5: 13 frente a 23,45 (−44,6 %) → la hipótesis de que faltan sobre todo M4,0–4,5 **no se confirma**.
+  - Distribución diaria de 2025 (dimensión fecha): mediana 43, p10 31, máximo 645; solo 10/365 días ≤ 25 (sin Kamchatka:
+    mediana 37, p10 26, 29/365). → **Conclusión 3 redactada**: bajo, pero no excepcional; la media exagera.
+  - API mejorada: `dias_2025` (mediana, p10, p90, % de días ≤ recuento reciente cuando el periodo es de 24 h). Probado con pgserver.
+
 ### Siguiente paso
-- Fase 8: API FastAPI.
+- Commit Fase 8; Fase 9: panel Angular.
 
 ---
 

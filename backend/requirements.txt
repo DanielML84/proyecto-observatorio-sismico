@@ -3,3 +3,7 @@ aiokafka==0.12.0          # cliente Kafka asíncrono (exigido por el enunciado; 
 psycopg[binary]==3.2.3    # driver de PostgreSQL (versión 3, con soporte asíncrono)
 shapely==2.0.6            # geometría: punto en polígono para asignar el país (enunciado §4.3)
 numpy==2.5.4              # dependencia de shapely; se fija la versión instalada el 31/10 para que el build sea reproducible
+fastapi==0.115.6          # API de consulta (enunciado §2)
+starlette==0.41.3         # base de FastAPI (fijada para reproducibilidad)
+pydantic==2.10.4          # validación de parámetros de FastAPI (fijada para reproducibilidad)
+uvicorn==0.32.1           # servidor que ejecuta la API (escucha en 0.0.0.0:8000)
