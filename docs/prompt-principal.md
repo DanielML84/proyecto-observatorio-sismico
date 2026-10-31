@@ -107,6 +107,7 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
 ```text
 proyecto-observatorio-sismico/
 ├── README.md
+├── CLAUDE.md                  instrucciones que Claude Code lee automáticamente
 ├── .gitignore
 ├── .gitattributes             finales de línea LF (necesario para Docker/Linux)
 ├── frontend/                  Angular + Leaflet (base del profesor)
