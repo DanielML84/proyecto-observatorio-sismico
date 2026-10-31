@@ -13,6 +13,7 @@ export type EstadoSistema = {
   generated: number | null;         // cuándo generó la API la respuesta que se está mostrando
   lastIngestion: number | null;     // última consulta correcta a USGS
   periodo: Periodo | null;          // periodo de la última lectura correcta
+  filtrosLectura: string | null;    // filtros que aplicó la API en la lectura que se está mostrando
   count: number;                    // eventos dibujados
   omitted: number;                  // eventos descartados por coordenadas inválidas
   total: number | null;             // eventos que cumplen los filtros en la API
@@ -23,7 +24,7 @@ export type EstadoSistema = {
 // Valores antes de la primera lectura: nada se da por conocido.
 export const ESTADO_INICIAL: EstadoSistema = {
   modo: 'cargando', errorConfig: false, falloApi: false, falloSalud: false, desactualizados: null,
-  ultimoAcceso: null, generated: null, lastIngestion: null, periodo: null,
+  ultimoAcceso: null, generated: null, lastIngestion: null, periodo: null, filtrosLectura: null,
   count: 0, omitted: 0, total: null, truncated: false, catalogo: 'Cargando catálogo'
 };
 

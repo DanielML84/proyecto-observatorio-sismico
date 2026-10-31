@@ -42,6 +42,11 @@
     </p>
   }
 
+  <!-- Respuesta correcta sin resultados: no es un error, pero conviene decirlo para que no lo parezca. -->
+  @if (e.modo === 'api' && !e.falloApi && e.total === 0) {
+    <p class="aviso"><strong>Sin resultados:</strong> ningún terremoto cumple estos filtros en este periodo.</p>
+  }
+
   <!-- Línea de resumen con el modo de funcionamiento. -->
   @switch (e.modo) {
     @case ('demo') { <p class="modo"><strong>DEMOSTRACIÓN · datos ficticios.</strong> Ejemplo estático: no representa actividad real.</p> }
@@ -55,6 +60,8 @@
     <div><dt>Respuesta generada</dt><dd>{{ utc(e.generated) }}</dd></div>
     <div><dt>Última ingesta de USGS</dt><dd>{{ utc(e.lastIngestion) }}</dd></div>
     <div><dt>Periodo consultado</dt><dd>{{ utc(e.periodo?.start) }} → {{ utc(e.periodo?.end) }}</dd></div>
+    <!-- Viene de la respuesta: si una consulta nueva falla, aquí sigue lo que describe el mapa. -->
+    <div><dt>Filtros de esta lectura</dt><dd>{{ e.filtrosLectura ?? 'ND' }}</dd></div>
   </dl>
 
   <small>{{ e.catalogo }} · Eventos dibujados: {{ e.count }} · Omitidos por coordenadas inválidas: {{ e.omitted }}</small>

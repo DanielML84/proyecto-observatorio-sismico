@@ -1,6 +1,10 @@
 <main>
   <header><p class="eyebrow">BIG DATA · PROYECTO DE AULA</p><h1>Observatorio de actividad sísmica</h1><p>Mapa base, fronteras y eventos en capas independientes.</p></header>
   <app-estado-sistema [estado]="estado()" />
+  <!-- Los filtros los resuelve la API, así que en modo demo no se muestran. -->
+  @if (estado().modo === 'api') {
+    <app-filtros [paises]="paises()" [aplicados]="filtros()" [cargando]="cargando()" (aplicar)="aplicarFiltros($event)" />
+  }
   <div class="map" leaflet [leafletOptions]="options" (leafletMapReady)="onMapReady($event)" aria-label="Mapa interactivo de terremotos"></div>
   <footer><strong>Profundidad</strong><span>🟡 Menos de 70 km</span><span>🟠 70–299,99 km</span><span>🟣 300 km o más</span><span>⚪ No disponible</span><p>Tamaño: escala visual creciente con la magnitud; no representa energía ni área afectada. Sin magnitud: radio mínimo. El mapa base puede desactivarse en el selector de capas.</p><p>Base proporcionada: añade filtros, gráficos, tabla accesible y conclusiones para completar el proyecto.</p></footer>
 </main>

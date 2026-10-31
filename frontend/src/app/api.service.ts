@@ -31,6 +31,7 @@ export type MetadatosEventos = {
   total?: number;                  // eventos que cumplen los filtros
   truncated?: boolean;             // true = hay más eventos que los incluidos
   periodo?: Periodo;
+  filtros?: { min_mag: number | null; country_id: string | null };  // filtros que la API ha aplicado de verdad
 };
 
 // Una FeatureCollection de GeoJSON con nuestros metadatos añadidos.
@@ -45,6 +46,20 @@ export type Salud = {
   segundos_desde_ultima_ingesta: number | null;
   datos_desactualizados: boolean;
 };
+
+// Filtros del panel. null = sin filtro: la API usa su valor por defecto.
+export type Filtros = {
+  start: string | null;        // ISO 8601 UTC, inclusivo
+  end: string | null;          // ISO 8601 UTC, exclusivo
+  min_mag: number | null;
+  country_id: string | null;   // ADM0_A3, o SIN_PAIS para los eventos sin país
+};
+
+// Código que entiende la API para «Sin país asignado» (por_pais lo devuelve con country_id = null).
+export const SIN_PAIS = 'SIN_PAIS';
+
+// Estado inicial y resultado de pulsar «Limpiar»: sin filtros, la API devuelve las últimas 24 h.
+export const FILTROS_VACIOS: Filtros = { start: null, end: null, min_mag: null, country_id: null };
 
 // providedIn 'root' = Angular crea una sola instancia para toda la aplicación.
 @Injectable({ providedIn: 'root' })
@@ -73,8 +88,8 @@ export class ApiService implements OnDestroy {
   }
 
   // Terremotos: en demo, el archivo de ejemplo; en api, nuestro backend (nunca USGS directamente).
-  async eventos(config: Config): Promise<Eventos> {
-    const url = config.mode === 'demo' ? 'datos/terremotos-demo.geojson' : this.url(config, '/api/eventos');
+  async eventos(config: Config, filtros: Filtros): Promise<Eventos> {
+    const url = config.mode === 'demo' ? 'datos/terremotos-demo.geojson' : this.url(config, '/api/eventos', filtros);
     const data = await this.leerJson<Eventos>(url, this.cabeceras(config));
     // Si llega otra cosa (por ejemplo, la página HTML de aviso de ngrok), se trata como un fallo.
     if (data.type !== 'FeatureCollection' || !Array.isArray(data.features)) throw new Error('Se esperaba FeatureCollection');
@@ -86,9 +101,14 @@ export class ApiService implements OnDestroy {
     return this.leerJson<Salud>(this.url(config, '/api/salud'), this.cabeceras(config));
   }
 
-  // Une la URL base y la ruta, tolerando una barra final en config.json.
-  private url(config: Config, ruta: string): string {
-    return `${config.apiUrl.replace(/\/$/, '')}${ruta}`;
+  // Une la URL base, la ruta y los filtros, tolerando una barra final en config.json.
+  private url(config: Config, ruta: string, filtros?: Filtros): string {
+    const consulta = new URLSearchParams();          // codifica los valores para que viajen bien en la URL
+    for (const [nombre, valor] of Object.entries(filtros ?? {})) {
+      if (valor !== null) consulta.set(nombre, String(valor));   // los filtros vacíos no se envían
+    }
+    const texto = consulta.toString();
+    return `${config.apiUrl.replace(/\/$/, '')}${ruta}${texto ? `?${texto}` : ''}`;
   }
 
   // La cabecera de ngrok evita su página intermedia; no autentica a nadie (CONTRATO-API).
