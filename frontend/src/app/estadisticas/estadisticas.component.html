@@ -1,0 +1,53 @@
+<section class="estadisticas" aria-labelledby="titulo-estadisticas" [class.actualizando]="cargando()">
+  <h2 id="titulo-estadisticas">Estadísticas</h2>
+
+  <!-- Se guarda la lectura en d; dentro del bloque ya no puede ser null. -->
+  @if (datos(); as d) {
+    @if (antiguas()) {
+      <p class="nota grave" role="alert">
+        <strong>Estadísticas antiguas:</strong> no se han podido actualizar. Son las generadas el {{ utc(d.generated) }};
+        pueden no coincidir con el mapa ni con la tabla.
+      </p>
+    }
+    @if (truncado()) {
+      <p class="nota">
+        <strong>Calculadas por la API sobre los {{ cifra(d.total) }} terremotos,</strong>
+        no sobre la muestra truncada del mapa y la tabla.
+      </p>
+    }
+
+    <!-- Periodo y filtros salen de la respuesta: describen estos gráficos, no lo escrito en el formulario. -->
+    <p class="resumen">
+      <strong>{{ cifra(d.total) }} terremotos</strong> · {{ utc(d.periodo.start) }} → {{ utc(d.periodo.end) }}
+      · {{ filtrosTexto() ?? 'ND' }}
+    </p>
+
+    <app-grafico-horas [horas]="d.por_hora_utc" [periodo]="d.periodo" />
+
+    <div class="rejilla">
+      <div>
+        <app-grafico-barras titulo="Terremotos por país" [filas]="paises()" [limite]="10" />
+        <!-- Aviso de interpretación: este gráfico no compara cuánto tiembla en cada país. -->
+        <p class="ayuda">Sin filtro de magnitud, el recuento refleja sobre todo la cobertura de detección: las redes densas de EE. UU. registran magnitudes muy pequeñas que en otras zonas no se detectan.</p>
+      </div>
+      <app-grafico-barras titulo="Terremotos por subregión" [filas]="subregiones()" [limite]="10" />
+      <div>
+        <app-grafico-barras titulo="Distribución de magnitud (tramos de 0,5)" [filas]="magnitudes()" />
+        <p class="ayuda">
+          <!-- Con filtro de magnitud la API ya no cuenta los nulos: decir 0 sería falso. -->
+          @if (d.filtros.min_mag === null) {
+            Sin valor de magnitud: {{ cifra(d.distribucion_magnitud.sin_valor) }}.
+          } @else {
+            Los registros sin magnitud no cumplen el filtro y no se cuentan aquí.
+          }
+        </p>
+      </div>
+      <div>
+        <app-grafico-barras titulo="Distribución de profundidad" [filas]="profundidades()" />
+        <p class="ayuda">Sin valor de profundidad: {{ cifra(d.distribucion_profundidad.sin_valor) }}. Colores como en el mapa.</p>
+      </div>
+    </div>
+  } @else {
+    <p class="ayuda">Todavía no hay estadísticas.</p>
+  }
+</section>

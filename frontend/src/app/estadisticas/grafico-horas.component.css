@@ -1,0 +1,29 @@
+.horas { margin: 0; font-size: .85rem; }
+figcaption { font-weight: 700; padding-bottom: 8px; }
+
+/* Columna estrecha para el eje Y y el resto para el dibujo. */
+.plano { display: grid; grid-template-columns: 44px 1fr; height: 180px; }
+.eje-y { display: flex; flex-direction: column; justify-content: space-between; padding-right: 8px; text-align: right; font-size: .75rem; line-height: 1; color: #42596b; font-variant-numeric: tabular-nums; }
+.zona { position: relative; min-width: 0; }
+svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+/* Líneas guía: finas y sólidas, un paso más oscuras que el fondo. */
+.guias { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; }
+.guias i { display: block; height: 1px; background: #e2e8f0; }
+
+.completa { fill: #176b70; }
+.parcial { fill: #8fbcbe; }                               /* el mismo tono, más claro: es dato incompleto, no otra serie */
+.marca { fill: #e2e8f0; }
+
+.eje-x { display: flex; justify-content: space-between; margin: 4px 0 0 44px; font-size: .75rem; color: #42596b; font-variant-numeric: tabular-nums; }
+/* min-height: la línea no salta al pasar de una frase corta a otra larga. */
+.lectura { margin: 8px 0 0; min-height: 1.3em; }
+.nota { margin: 4px 0 0; font-size: .8rem; color: #42596b; }
+.muestra { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; background: #8fbcbe; }
+
+details { margin-top: 6px; font-size: .8rem; color: #42596b; }
+summary { cursor: pointer; }
+table { margin-top: 6px; border-collapse: collapse; }
+th { text-align: left; padding: 2px 16px 2px 0; }
+td { padding: 2px 16px 2px 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }

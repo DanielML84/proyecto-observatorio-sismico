@@ -1,0 +1,12 @@
+.estadisticas { padding: 16px; background: white; margin: 0 0 20px; transition: opacity .15s; }
+/* Mientras llega la consulta se mantiene el dibujo anterior atenuado: sin parpadeos ni saltos. */
+.estadisticas.actualizando { opacity: .6; }
+h2 { margin: 0 0 8px; font-size: 1.2rem; }
+.resumen { margin: 0 0 16px; font-size: .9rem; }
+
+.nota { margin: 0 0 12px; padding: 8px 12px; border-left: 4px solid #b45309; background: #fef3c7; color: #5c3a06; }
+.nota.grave { border-left-color: #b91c1c; background: #fee2e2; color: #7f1d1d; }
+
+/* Dos columnas que pasan a una en pantallas estrechas. */
+.rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 24px 32px; margin-top: 24px; }
+.ayuda { margin: 6px 0 0; font-size: .8rem; color: #42596b; }

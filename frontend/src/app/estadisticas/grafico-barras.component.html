@@ -1,0 +1,41 @@
+<table class="barras">
+  <caption>{{ titulo() }}</caption>
+  <!-- colgroup fija el ancho de las columnas: la de la barra se queda con todo el espacio restante. -->
+  <colgroup><col class="col-etiqueta"><col><col class="col-valor"></colgroup>
+  <!-- Encabezados solo para lectores de pantalla: visualmente, cada fila ya se explica sola. -->
+  <thead class="oculto">
+    <tr><th scope="col">Categoría</th><th scope="col">Barra</th><th scope="col">Terremotos</th></tr>
+  </thead>
+  <tbody>
+    @for (f of visibles(); track f.etiqueta) {
+      <tr>
+        <th scope="row">{{ f.etiqueta }}</th>
+        <!-- aria-hidden: la barra repite la cifra de la celda siguiente; el lector de pantalla lee solo la cifra. -->
+        <td class="pista" aria-hidden="true">
+          <!-- Un valor 0 no dibuja barra: el cero se ve en la cifra. -->
+          @if (f.n > 0) {
+            <span class="barra" [style.width.%]="ancho(f.n)" [style.background]="color(f)"></span>
+          }
+        </td>
+        <td class="valor">{{ cifra(f.n) }}</td>
+      </tr>
+    } @empty {
+      <tr><td colspan="3" class="vacio">Sin datos en esta consulta.</td></tr>
+    }
+  </tbody>
+</table>
+
+<!-- Si se ha agrupado en «Otros», la lista completa sigue disponible. -->
+@if (agrupado()) {
+  <details>
+    <summary>Ver la lista completa ({{ filas().length }})</summary>
+    <table class="lista">
+      <caption class="oculto">{{ titulo() }}: lista completa</caption>
+      <tbody>
+        @for (f of filas(); track f.etiqueta) {
+          <tr><th scope="row">{{ f.etiqueta }}</th><td>{{ cifra(f.n) }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </details>
+}

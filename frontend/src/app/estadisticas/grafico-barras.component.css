@@ -1,0 +1,22 @@
+/* Tres columnas: etiqueta, barra y cifra. fixed: la barra no cambia de ancho según el texto de cada fila. */
+table.barras { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .85rem; }
+caption { caption-side: top; text-align: left; font-weight: 700; padding-bottom: 8px; }
+.col-etiqueta { width: 38%; }
+.col-valor { width: 56px; }
+tbody th { font-weight: 400; text-align: left; padding: 4px 8px 4px 0; overflow-wrap: anywhere; }
+.pista { padding: 4px 0; }
+.valor { padding: 4px 0 4px 8px; text-align: right; font-variant-numeric: tabular-nums; color: #334155; }
+.vacio { padding: 12px 0; color: #42596b; }
+
+/* Barra fina, con el extremo del dato redondeado y recta en la línea base. min-width: un 1 entre miles sigue visible. */
+.barra { display: block; height: 14px; min-width: 2px; border-radius: 0 4px 4px 0; }
+tr:hover .barra { filter: brightness(1.15); }             /* la fila bajo el ratón responde */
+
+details { margin-top: 6px; font-size: .8rem; color: #42596b; }
+summary { cursor: pointer; }
+.lista { margin-top: 6px; width: 100%; border-collapse: collapse; }
+.lista th { font-weight: 400; text-align: left; padding: 2px 8px 2px 0; }
+.lista td { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Visible para lectores de pantalla, invisible en pantalla. */
+.oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

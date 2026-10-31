@@ -265,6 +265,7 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D28 | `count` previo y división automática del intervalo si > 20.000 | Confiar en que ningún mes lo supere | No truncar en silencio | Enunciado §4.2; documentación FDSN (`limit`) |
 | D29 | Carga del histórico por Kafka con el mismo consumidor (`source = 'usgs-fdsn'`) | Proceso batch directo a PostgreSQL | Una sola ruta de calidad, país e idempotencia para los dos accesos a USGS | FAQ 21 |
 | D30 | Comparación con `mag >= 4` en los dos periodos | `mag > 4` | Es lo que hace realmente `minmagnitude=4` (incluye 4,0) | Muestra de enero |
+| D31 | Con `min_mag`, contar aparte los eventos sin magnitud (`magnitud_excluidos_por_filtro`) | Esconderlos | El contrato exige contabilizarlos por separado; detectado en la revisión del bloque 4 del panel | Contrato API |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1

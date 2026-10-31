@@ -2,13 +2,14 @@ import { Component, OnDestroy, inject, signal } from '@angular/core';
 import { LeafletDirective } from '@bluehalo/ngx-leaflet';
 import * as L from 'leaflet';
 import type { FeatureCollection } from 'geojson';
-import { ApiService, Config, Eventos, FILTROS_VACIOS, Filtros, MetadatosEventos, SIN_PAIS } from './api.service';
+import { ApiService, Config, Estadisticas, Eventos, FILTROS_VACIOS, Filtros, MetadatosEventos, SIN_PAIS } from './api.service';
+import { EstadisticasComponent } from './estadisticas/estadisticas.component';
 import { ESTADO_INICIAL, EstadoSistema, EstadoSistemaComponent } from './estado-sistema/estado-sistema.component';
 import { FiltrosComponent, PaisOpcion } from './filtros/filtros.component';
 import { TablaEventosComponent } from './tabla-eventos/tabla-eventos.component';
 
 @Component({
-  selector: 'app-root', standalone: true, imports: [LeafletDirective, EstadoSistemaComponent, FiltrosComponent, TablaEventosComponent],
+  selector: 'app-root', standalone: true, imports: [LeafletDirective, EstadoSistemaComponent, FiltrosComponent, EstadisticasComponent, TablaEventosComponent],
   templateUrl: './app.component.html', styleUrl: './app.component.css'
 })
 export class AppComponent implements OnDestroy {
@@ -19,6 +20,9 @@ export class AppComponent implements OnDestroy {
   readonly paises = signal<PaisOpcion[]>([{ id: SIN_PAIS, nombre: 'Sin país asignado' }]);
   readonly cargando = signal(false);                    // hay una consulta en marcha
   readonly eventos = signal<Eventos['features']>([]);   // última lectura correcta: la comparten mapa y tabla
+  readonly estadisticas = signal<Estadisticas | null>(null);          // última lectura correcta de estadísticas
+  readonly estadisticasAntiguas = signal(false);                      // el último intento de leerlas ha fallado
+  readonly filtrosEstadisticas = signal<string | null>(null);         // filtros con los que se calcularon
   readonly options: L.MapOptions = { center: L.latLng(18, 0), zoom: 2, minZoom: 2, maxZoom: 8, preferCanvas: true, worldCopyJump: false };
   // Angular entrega aquí la única instancia del servicio.
   private api = inject(ApiService);
@@ -78,9 +82,10 @@ export class AppComponent implements OnDestroy {
     this.cargando.set(true);
     const filtros = this.filtros();                     // la misma copia para todas las llamadas de este ciclo
     // allSettled espera a todas las llamadas y no se detiene si una falla; así sabemos cuál ha fallado.
-    const [eventos, salud] = await Promise.allSettled([
+    const [eventos, salud, estadisticas] = await Promise.allSettled([
       this.api.eventos(config, filtros),
-      config.mode === 'api' ? this.api.salud(config) : null   // el modo demo no tiene backend al que preguntar
+      config.mode === 'api' ? this.api.salud(config) : null,   // el modo demo no tiene backend al que preguntar
+      config.mode === 'api' ? this.api.estadisticas(config, filtros) : null   // mismos filtros que los eventos
     ]);
     if (this.destroyed) return;
     this.cargando.set(false);
@@ -89,6 +94,12 @@ export class AppComponent implements OnDestroy {
     const saludRecibida = { falloSalud: salud.status === 'rejected', desactualizados: lecturaSalud?.datos_desactualizados ?? null };
     try {
       if (this.pendiente) return;                       // estos datos ya no son los pedidos: no se pintan
+      // Las estadísticas se tratan aparte: si fallan solo ellas, el mapa y la tabla se actualizan igual.
+      this.estadisticasAntiguas.set(estadisticas.status === 'rejected');
+      if (estadisticas.status === 'fulfilled' && estadisticas.value) {
+        this.estadisticas.set(estadisticas.value);
+        this.filtrosEstadisticas.set(this.textoFiltros(estadisticas.value));
+      }
       if (eventos.status === 'rejected') throw eventos.reason;
       const data = eventos.value;
       const { count, omitted } = this.pintar(data);
@@ -128,11 +139,11 @@ export class AppComponent implements OnDestroy {
   }
 
   // Describe los filtros que la API dice haber aplicado (no los del formulario, que pueden ser más nuevos).
-  private textoFiltros(meta?: MetadatosEventos): string | null {
-    if (!meta?.filtros) return null;                    // el GeoJSON de demo no trae filtros
-    const { min_mag, country_id } = meta.filtros;
+  private textoFiltros(respuesta?: Pick<MetadatosEventos, 'filtros'>): string | null {
+    if (!respuesta?.filtros) return null;               // el GeoJSON de demo no trae filtros
+    const { min_mag, country_id } = respuesta.filtros;
     const partes = [];
-    if (min_mag !== null) partes.push(`Magnitud ≥ ${min_mag}`);
+    if (min_mag !== null) partes.push(`Magnitud ≥ ${min_mag.toLocaleString('es-ES')}`);
     if (country_id) partes.push(`País: ${this.paises().find(p => p.id === country_id)?.nombre ?? country_id}`);
     return partes.length ? partes.join(' · ') : 'Sin filtro de magnitud ni de país';
   }

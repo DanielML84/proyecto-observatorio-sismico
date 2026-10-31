@@ -1,0 +1,49 @@
+<figure class="horas">
+  <figcaption>Terremotos por ventana de 1 hora UTC (hora de ocurrencia)</figcaption>
+
+  <div class="plano">
+    <!-- Eje Y: cifras limpias de 0 al techo. Son texto HTML para que no se deformen con el SVG. -->
+    <div class="eje-y" aria-hidden="true">
+      <span>{{ techo() }}</span><span>{{ techo() / 2 }}</span><span>0</span>
+    </div>
+    <div class="zona">
+      <!-- Líneas guía finas, por detrás de las columnas. -->
+      <div class="guias" aria-hidden="true"><i></i><i></i><i></i></div>
+      <!-- preserveAspectRatio none: el dibujo se estira al ancho disponible. El texto equivalente está debajo. -->
+      <svg [attr.viewBox]="vista()" preserveAspectRatio="none" role="img"
+           aria-label="Columnas por hora. El resumen en texto y la tabla están debajo."
+           (pointermove)="mover($event)" (pointerleave)="seleccion.set(null)">
+        @if (seleccion() !== null) {
+          <rect class="marca" [attr.x]="seleccion()" y="0" width="1" [attr.height]="techo()"></rect>
+        }
+        <path class="completa" [attr.d]="trazoCompletas()"></path>
+        <path class="parcial" [attr.d]="trazoParciales()"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Eje X: tres rótulos bastan; el valor exacto está en la lectura y en la tabla. -->
+  <div class="eje-x" aria-hidden="true">
+    @for (r of rotulos(); track $index) { <span>{{ r }}</span> }
+  </div>
+
+  <p class="lectura">{{ lectura() }}</p>
+  @if (hayParciales()) {
+    <p class="nota"><span class="muestra" aria-hidden="true"></span>Tono claro: ventana parcial, el periodo consultado no la cubre entera.</p>
+  }
+
+  <details>
+    <summary>Ver como tabla</summary>
+    @if (tablaResumida()) {
+      <p class="nota">Periodo largo: se muestran las {{ filasPico }} ventanas con más terremotos.</p>
+    }
+    <table>
+      <thead><tr><th scope="col">Ventana (inicio, UTC)</th><th scope="col">Terremotos</th></tr></thead>
+      <tbody>
+        @for (v of filasTabla(); track v.inicio) {
+          <tr><td>{{ fecha(v.inicio) }}{{ v.parcial ? ' (parcial)' : '' }}</td><td class="num">{{ v.n }}</td></tr>
+        }
+      </tbody>
+    </table>
+  </details>
+</figure>

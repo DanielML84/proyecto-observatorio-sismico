@@ -61,6 +61,24 @@ export const SIN_PAIS = 'SIN_PAIS';
 // Estado inicial y resultado de pulsar «Limpiar»: sin filtros, la API devuelve las últimas 24 h.
 export const FILTROS_VACIOS: Filtros = { start: null, end: null, min_mag: null, country_id: null };
 
+// Una ventana fija de 1 hora UTC.
+export type VentanaHora = { hora: string; n: number };
+
+// Parte de /api/estadisticas que usa el panel. La comparación histórica se añadirá en el bloque 5.
+export type Estadisticas = {
+  generated: number;
+  periodo: Periodo & { horas: number };
+  filtros: { min_mag: number | null; country_id: string | null };
+  unidad: string;
+  total: number;
+  sin_valor: { magnitud: number; profundidad: number; pais: number };
+  por_pais: { country_id: string | null; nombre: string; n: number }[];
+  por_subregion: { subregion: string; n: number }[];
+  por_hora_utc: VentanaHora[];
+  distribucion_magnitud: { tramo: number; tramos: { desde: number; hasta: number; n: number }[]; sin_valor: number };
+  distribucion_profundidad: { clases: { clase: string; n: number }[]; sin_valor: number };
+};
+
 // providedIn 'root' = Angular crea una sola instancia para toda la aplicación.
 @Injectable({ providedIn: 'root' })
 export class ApiService implements OnDestroy {
@@ -99,6 +117,11 @@ export class ApiService implements OnDestroy {
   // Estado de la API y de la última ingesta. Un 503 (base de datos caída) llega aquí como error.
   salud(config: Config): Promise<Salud> {
     return this.leerJson<Salud>(this.url(config, '/api/salud'), this.cabeceras(config));
+  }
+
+  // Estadísticas con los mismos filtros que los eventos: pasan por la misma función url().
+  estadisticas(config: Config, filtros: Filtros): Promise<Estadisticas> {
+    return this.leerJson<Estadisticas>(this.url(config, '/api/estadisticas', filtros), this.cabeceras(config));
   }
 
   // Une la URL base, la ruta y los filtros, tolerando una barra final en config.json.

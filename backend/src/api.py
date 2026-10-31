@@ -164,6 +164,13 @@ async def estadisticas(
                    COUNT(*) FILTER (WHERE country_id IS NULL)
             FROM evento_actual e WHERE {where}""")
 
+        # Contrato: «la magnitud nula no cumple un filtro min_mag y debe contabilizarse por separado».
+        # Se cuentan los eventos SIN magnitud con el mismo periodo y país, pero SIN el filtro de magnitud.
+        excluidos_sin_mag = 0
+        if min_mag is not None:
+            w_nm, p_nm = filtros(start, end, None, country_id)
+            (excluidos_sin_mag,), = await q(f"SELECT COUNT(*) FROM evento_actual e WHERE {w_nm} AND e.mag IS NULL", p_nm)
+
         # Recuento por país (incluye «Sin país asignado» gracias al LEFT JOIN)
         por_pais = await q(f"""
             SELECT e.country_id, COALESCE(p.nombre_es, 'Sin país asignado'), COUNT(*)
@@ -232,7 +239,9 @@ async def estadisticas(
         "filtros": {"min_mag": min_mag, "country_id": country_id, "tipo": "earthquake"},
         "unidad": "número de terremotos (estado actual: una fila por terremoto)",
         "total": total,
-        "sin_valor": {"magnitud": sin_mag, "profundidad": sin_prof, "pais": sin_pais},
+        "sin_valor": {"magnitud": sin_mag, "profundidad": sin_prof, "pais": sin_pais,
+                      # Eventos del mismo periodo/país que se quedan fuera SOLO por no tener magnitud (null si no hay min_mag)
+                      "magnitud_excluidos_por_filtro": excluidos_sin_mag if min_mag is not None else None},
         "por_pais": [{"country_id": c, "nombre": n, "n": k} for c, n, k in por_pais],
         "por_subregion": [{"subregion": s, "n": k} for s, k in por_subregion],
         "por_hora_utc": [{"hora": h.replace(tzinfo=timezone.utc).isoformat(), "n": k} for h, k in por_hora],
