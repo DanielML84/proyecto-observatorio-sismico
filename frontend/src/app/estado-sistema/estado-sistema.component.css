@@ -1,0 +1,13 @@
+/* Bloque blanco con el mismo borde que tenía la caja de información original. */
+.estado { padding: 16px; border-left: 4px solid #176b70; background: white; margin: 20px 0; }
+.modo { margin: 0 0 12px; }
+
+/* Avisos: el color refuerza, pero el significado lo da el texto en negrita. */
+.aviso { margin: 0 0 12px; padding: 10px 12px; border-left: 4px solid #b45309; background: #fef3c7; color: #5c3a06; }
+.aviso.grave { border-left-color: #b91c1c; background: #fee2e2; color: #7f1d1d; }
+
+/* Los cuatro datos en columnas que se recolocan solas en pantallas estrechas. */
+dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin: 0 0 12px; }
+dt { font-size: .8rem; color: #42596b; }
+dd { margin: 2px 0 0; font-weight: 600; overflow-wrap: anywhere; }
+small { color: #42596b; }

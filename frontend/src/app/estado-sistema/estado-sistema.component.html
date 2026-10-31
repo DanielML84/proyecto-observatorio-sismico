@@ -1,0 +1,61 @@
+<!-- Se guarda el estado en una variable para no repetir estado() en cada línea. -->
+@let e = estado();
+
+<!-- aria-label: un lector de pantalla anuncia para qué sirve este bloque. -->
+<section class="estado" aria-label="Estado del sistema">
+
+  <!-- Avisos con texto, no solo color. role="alert" hace que el lector de pantalla los lea al aparecer. -->
+  @if (e.errorConfig) {
+    <p class="aviso grave" role="alert"><strong>Error de configuración:</strong> revisa public/config.json.</p>
+  }
+
+  <!-- API caída: se distingue si hay algo guardado o no, para no presentar datos antiguos como recientes. -->
+  @if (e.falloApi && e.ultimoAcceso !== null) {
+    <p class="aviso grave" role="alert">
+      <strong>La API no responde: datos antiguos.</strong>
+      Se conserva la última lectura, del {{ local(e.ultimoAcceso) }}. Revisa API, túnel y CORS.
+    </p>
+  }
+  @if (e.falloApi && e.ultimoAcceso === null) {
+    <p class="aviso grave" role="alert">
+      <strong>La API no responde</strong> y todavía no hay ninguna lectura. Revisa API, túnel y CORS.
+    </p>
+  }
+
+  <!-- La API responde, pero el productor lleva más de 5 minutos sin una ingesta correcta. -->
+  @if (e.desactualizados === true) {
+    <p class="aviso" role="alert">
+      <strong>Datos desactualizados:</strong> la última ingesta correcta de USGS fue el {{ utc(e.lastIngestion) }}.
+    </p>
+  }
+
+  <!-- Los eventos han llegado, pero no se ha podido confirmar que la ingesta esté al día. -->
+  @if (e.falloSalud && !e.falloApi) {
+    <p class="aviso" role="alert"><strong>Aviso:</strong> no se ha podido comprobar el estado de la ingesta.</p>
+  }
+
+  <!-- La API no ha enviado todos los eventos: el mapa es una muestra. -->
+  @if (e.truncated) {
+    <p class="aviso" role="alert">
+      <strong>Lista truncada:</strong> se muestran {{ e.count }} de {{ e.total ?? 'ND' }} eventos.
+      Estrecha los filtros para verlos todos.
+    </p>
+  }
+
+  <!-- Línea de resumen con el modo de funcionamiento. -->
+  @switch (e.modo) {
+    @case ('demo') { <p class="modo"><strong>DEMOSTRACIÓN · datos ficticios.</strong> Ejemplo estático: no representa actividad real.</p> }
+    @case ('api') { <p class="modo"><strong>API · datos del backend.</strong> {{ e.falloApi ? 'Última consulta fallida.' : 'Última consulta completada.' }}</p> }
+    @default { @if (!e.errorConfig) { <p class="modo">Cargando configuración…</p> } }
+  }
+
+  <!-- dl = lista de pares «dato: valor»; es la etiqueta adecuada para esto y se lee bien sin estilos. -->
+  <dl>
+    <div><dt>Último acceso correcto (hora local)</dt><dd>{{ local(e.ultimoAcceso) }}</dd></div>
+    <div><dt>Respuesta generada</dt><dd>{{ utc(e.generated) }}</dd></div>
+    <div><dt>Última ingesta de USGS</dt><dd>{{ utc(e.lastIngestion) }}</dd></div>
+    <div><dt>Periodo consultado</dt><dd>{{ utc(e.periodo?.start) }} → {{ utc(e.periodo?.end) }}</dd></div>
+  </dl>
+
+  <small>{{ e.catalogo }} · Eventos dibujados: {{ e.count }} · Omitidos por coordenadas inválidas: {{ e.omitted }}</small>
+</section>
