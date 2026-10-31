@@ -113,7 +113,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./data/raw:/data/raw   # originales visibles en el equipo (carpeta excluida de Git)
+      - ./data:/data           # data/raw (originales del feed) y data/historico (año 2025); excluidos de Git
     depends_on:
       kafka-init:
         condition: service_completed_successfully

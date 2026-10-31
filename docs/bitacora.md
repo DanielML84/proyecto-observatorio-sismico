@@ -57,8 +57,29 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
     pequeñas que solo detectan las redes densas de EE. UU. Es un sesgo de **cobertura de detección**, no de actividad (enunciado §8).
   - Reproducibilidad: `numpy` (dependencia de shapely) no estaba fijado → `numpy==2.5.4`.
 
+- **Fase 7 · histórico 2025:** `historico_descargar.py` (count previo, división si > 20.000, archivos tal cual,
+  `manifest.json`, `consulta_ingesta`, reutiliza lo ya descargado) y `historico_cargar.py` (deduplica por id con el
+  `updated` mayor y publica por Kafka con `source='usgs-fdsn'`). El productor monta ahora `./data:/data`;
+  `data/historico/` fuera de Git.
+  - Comprobado en la muestra de enero: `minmagnitude=4` incluye mag = 4,0 (70 eventos) → filtro `mag >= 4`.
+  - Deduplicación probada con un caso sintético de frontera (se queda la versión con el `updated` mayor).
+  - Real: 12 consultas, 18.302 eventos (13 MB), count = descargados en todos los meses, 0 repetidos entre meses;
+    máximo mensual 2.684 (julio). Primera media diaria provisional (mientras el consumidor seguía procesando): 41,16.
+  - **Llama la atención:** julio (2.684) y agosto (2.222) casi duplican al resto de meses (~1.200–1.600). Pendiente de
+    investigar con datos (¿réplicas de un gran terremoto?).
+
+  - Carga completa: 18.302 guardados + 0 en cuarentena = 18.302 ✓. **Media diaria 2025 (mag ≥ 4) = 50,14.**
+  - Pico de julio y agosto: el terremoto más fuerte del periodo es el **M8,8 de Kamchatka del 29/07/2025**, más otro
+    M7,4 en el este de Kamchatka (20/07). Hipótesis: réplicas → pendiente de confirmar con la distribución espacial.
+  - La pregunta de por qué se divide entre 365 no la sabía → explicada (los días con cero eventos también cuentan).
+  - Evidencia: `docs/evidencias/fase7-historico.txt`.
+
+  - **Hipótesis confirmada:** en la zona de Kamchatka (lat 45–60, lon 150–170) se pasa de 19,3 eventos/mes (ene–jun)
+    a 1.375 en julio y 1.254 en agosto, y luego baja; el resto del mundo es estable. La zona = 21,7 % del año. La media
+    diaria sin la zona sería 39,25 (frente a 50,14). → **Primera conclusión redactada** (memoria §7).
+
 ### Siguiente paso
-- Fase 7: histórico 2025 (12 consultas mensuales, count previo, deduplicación, registro de consultas).
+- Fase 8: API FastAPI.
 
 ---
 

@@ -59,8 +59,8 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Filtrar `type == earthquake` y registrar exclusiones ⚑
 
 ### Fase 7 · Histórico 2025
-- [ ] Descarga por meses (mag ≥ 4), registro de consultas, deduplicación
-- [ ] Carga con las mismas reglas de limpieza ⚑
+- [x] Descarga por meses (mag ≥ 4), registro de consultas, deduplicación (`historico_descargar.py`, `manifest.json`)
+- [x] Carga con las mismas reglas de limpieza, por Kafka (`historico_cargar.py`) ⚑
 
 ### Fase 8 · API FastAPI  *(FAQ paso 7)*
 - [ ] `/api/eventos` según contrato, con filtros

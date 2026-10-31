@@ -53,7 +53,33 @@ o modificación, y queda trazado en el historial de Git.
 | Histórico (muestra) | API FDSN de USGS | Enero de 2025, mag ≥ 4, `eventtype=earthquake`, `orderby=time-asc` | Una consulta (URL del enunciado), 1.413 eventos: `docs/material-profesor/ejemplos/historico-2025-01-mag4.geojson` |
 | Geografía | Natural Earth Admin 0, copia del profesor | 177 entidades, escala 1:110 M | `frontend/public/datos/paises.geojson`; SHA-256 verificado contra `FUENTES-Y-LICENCIAS.md` |
 | Recientes (producción) | Feed USGS | — | ⬜ Fase 5 |
-| Histórico 2025 completo | API FDSN | — | ⬜ Fase 7 |
+| Histórico 2025 completo | API FDSN `fdsnws/event/1/query` | 2025-01-01 → 2026-01-01, `minmagnitude=4`, `eventtype=earthquake`, `orderby=time-asc`, mundo | 12 consultas mensuales el 31/10/2026 (~07:19 UTC); 18.302 eventos; ver la tabla siguiente |
+
+**Registro de consultas del histórico** (`data/historico/manifest.json`; regenerable con
+`docker compose run --rm productor python -m src.historico_descargar`; cada petición también en `consulta_ingesta`):
+
+| Intervalo [inicio, fin] | `count` previo | Descargados | Extraído (UTC) |
+|---|---:|---:|---|
+| 2025-01-01 → 2025-02-01 | 1413 | 1413 | 2026-10-31T07:18:36Z |
+| 2025-02-01 → 2025-03-01 | 1394 | 1394 | 2026-10-31T07:18:38Z |
+| 2025-03-01 → 2025-04-01 | 1178 | 1178 | 2026-10-31T07:18:41Z |
+| 2025-04-01 → 2025-05-01 | 1316 | 1316 | 2026-10-31T07:18:43Z |
+| 2025-05-01 → 2025-06-01 | 1228 | 1228 | 2026-10-31T07:18:45Z |
+| 2025-06-01 → 2025-07-01 | 1156 | 1156 | 2026-10-31T07:18:47Z |
+| 2025-07-01 → 2025-08-01 | 2684 | 2684 | 2026-10-31T07:18:49Z |
+| 2025-08-01 → 2025-09-01 | 2222 | 2222 | 2026-10-31T07:18:52Z |
+| 2025-09-01 → 2025-10-01 | 1604 | 1604 | 2026-10-31T07:18:54Z |
+| 2025-10-01 → 2025-11-01 | 1509 | 1509 | 2026-10-31T07:18:57Z |
+| 2025-11-01 → 2025-12-01 | 1321 | 1321 | 2026-10-31T07:18:59Z |
+| 2025-12-01 → 2026-01-01 | 1277 | 1277 | 2026-10-31T07:19:01Z |
+| **Total** | | **18.302** | |
+
+- Ningún intervalo supera 20.000 (máximo: 2.684, julio) → no hizo falta subdividir (el código lo haría automáticamente).
+- `count` = descargados en los 12 intervalos → sin truncamiento.
+- Repetidos entre archivos (frontera de mes): **0** (la deduplicación está implementada y probada con un caso sintético).
+- `minmagnitude=4` **incluye** la magnitud 4,0 (70 eventos con mag = 4,0 en enero) → el filtro equivalente en el periodo reciente es `mag >= 4`.
+- Los archivos (13 MB) no se suben a Git (enunciado §12); se regeneran con el comando anterior. El histórico es una
+  **instantánea** del catálogo en la fecha de extracción.
 
 **Características de la API FDSN relevantes** (documentación oficial de `fdsnws/event/1`):
 - Máximo de 20.000 eventos por consulta. Si se supera, responde **HTTP 400** (no trunca).
@@ -152,7 +178,24 @@ la *última versión publicada* por el productor y las *consultas* a USGS.
 - `ix_consulta_ok_fecha (ok, solicitada_at DESC)`: obtener la última consulta correcta para el estado del sistema.
 
 **Comprobación:** insertar dos veces el mismo `event_id` → `duplicate key value violates unique constraint`.
-## 7. Análisis y conclusiones ⬜
+## 7. Análisis y conclusiones 🟡
+
+**Referencia histórica (comparación §8.4):** 2025, mundial, `type = earthquake`, `mag >= 4` → **18.302 eventos**
+→ **media diaria = 18.302 / 365 = 50,14** (el denominador incluye los días con cero eventos, FAQ 23).
+Evidencia: `docs/evidencias/fase7-historico.txt`.
+
+**Candidatas a conclusión (pendientes de redactar con filtros, periodo y denominador):**
+1. ✅ **El pico de julio y agosto de 2025 se concentra en Kamchatka.** *Datos:* histórico 2025, mundial, `type = earthquake`,
+   `mag >= 4`, 18.302 eventos; zona = rectángulo lat 45–60, lon 150–170 (aproximación propia). Entre enero y junio la zona
+   registra 19,3 eventos/mes de media; en julio 1.375 (×71) y en agosto 1.254 (×65), tras el M8,8 del 29/07/2025, y después
+   baja mes a mes (596, 287, 233, 114). En el resto del mundo no hay pico en julio (968–1.393 al mes). La zona aporta el
+   **21,7 %** de los eventos del año. *Interpretación:* el aumento es compatible con una secuencia de réplicas localizada,
+   no con un aumento global. *Consecuencia para la comparación:* la media diaria de 2025 (50,14) incluye esta secuencia;
+   sin la zona sería 39,25. Hay que tenerlo en cuenta al comparar el periodo reciente con 2025. No es una predicción ni
+   una evaluación de riesgo. Evidencia: `docs/evidencias/fase7-historico.txt`.
+2. *Sesgo de cobertura:* en el feed de 24 h sin filtro de magnitud, el 77 % de los eventos son de EE. UU. (redes de
+   detección densas). Para comparar regiones hay que filtrar por magnitud (Fase 6).
+3. *Comparación reciente frente a histórico:* pendiente (API y panel).
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
 
 *Datos ya recogidos:*
@@ -209,6 +252,10 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D24 | Regla de frontera `covered_by` + desempate alfabético | `within` (excluye el borde); el país más cercano | Determinista y documentada; el país más cercano está prohibido | Enunciado §4.3 |
 | D25 | Reparar USA/SDN con `make_valid` en memoria | Editar el GeoJSON; ignorar el error | No modificar el material del profesor; área idéntica | — |
 | D26 | Fijar también `numpy` (dependencia indirecta) | Solo las dependencias directas | Build reproducible | Enunciado §9 |
+| D27 | Histórico en dos pasos: descargar (archivos + manifiesto) y cargar | Descargar y cargar a la vez | «Descarga una vez y reutiliza»; la carga se puede repetir sin volver a pedir a USGS | Enunciado §4.2 |
+| D28 | `count` previo y división automática del intervalo si > 20.000 | Confiar en que ningún mes lo supere | No truncar en silencio | Enunciado §4.2; documentación FDSN (`limit`) |
+| D29 | Carga del histórico por Kafka con el mismo consumidor (`source = 'usgs-fdsn'`) | Proceso batch directo a PostgreSQL | Una sola ruta de calidad, país e idempotencia para los dos accesos a USGS | FAQ 21 |
+| D30 | Comparación con `mag >= 4` en los dos periodos | `mag > 4` | Es lo que hace realmente `minmagnitude=4` (incluye 4,0) | Muestra de enero |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1

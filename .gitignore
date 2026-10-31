@@ -12,6 +12,7 @@ venv/
 
 # --- Datos descargados (grandes y regenerables con los scripts) ---
 data/raw/
+data/historico/
 data/tmp/
 
 # --- Sistema / editor ---
