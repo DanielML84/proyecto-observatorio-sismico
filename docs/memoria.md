@@ -25,6 +25,24 @@ o modificación, y queda trazado en el historial de Git.
 
 ## 2. Diccionario de datos ⬜
 
+*(Se completa al cerrar el modelo.)*
+
+## 3bis. Integración geográfica (enunciado §4.3) 🟡
+
+- **Método:** punto en polígono con Shapely 2.0.6 sobre el catálogo Natural Earth del profesor (WGS84 en
+  ambos lados). Índice espacial STRtree. Código: `backend/src/geografia.py`.
+- **Unicidad de la clave:** `ADM0_A3` es único (177/177) → se usa como `country_id` (no se asume que sea ISO).
+- **Regla de frontera:** `covered_by` (un punto sobre la frontera cuenta como dentro). Con varias coincidencias,
+  gana el `country_id` menor alfabéticamente y se cuenta. Observado: 0 coincidencias múltiples.
+- **Sin país:** NULL = «Sin país asignado» (mar, costa simplificada o territorio no incluido); no se asigna el
+  país más cercano ni se usa el texto de `place`. En datos reales: 44 de 225 eventos (20 %).
+- **Calidad del catálogo:** USA y SDN tienen polígonos con autointersección (no válidos para GEOS); se reparan
+  en memoria con `make_valid` sin cambiar el área. El archivo original no se toca.
+- **Verificación:** STRtree y un bucle simple sobre los 177 polígonos dan el mismo país en 185/185 puntos.
+- Evidencia: `docs/evidencias/fase6-paises.txt`.
+- **Limitación:** las fronteras son simplificadas (escala 1:110M), así que un terremoto costero puede quedar sin país o
+  en el país vecino. No se afirma precisión cartográfica.
+
 *(Se completa cuando exista el modelo físico, Fase 4.)*
 
 ## 3. Procedencia y registro de consultas 🟡
@@ -136,6 +154,11 @@ la *última versión publicada* por el productor y las *consultas* a USGS.
 **Comprobación:** insertar dos veces el mismo `event_id` → `duplicate key value violates unique constraint`.
 ## 7. Análisis y conclusiones ⬜
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
+
+*Datos ya recogidos:*
+- Búsqueda de versiones: diccionario O(1) de media frente a lista O(N) (productor, D19).
+- Integración geográfica: STRtree frente a bucle sobre los 177 polígonos → 22,3 ms frente a 224,3 ms para 185 puntos
+  (≈10x; entorno de Claude, medición única → hay que repetirla en el equipo de Daniel con 3 tamaños).
 ## 9. Evidencias de las pruebas de aceptación 🟡
 
 | Prueba (enunciado §11) | Esperado | Observado | Evidencia |
@@ -182,6 +205,10 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D20 | Reintentos 2/4/8 s solo para fallos temporales (timeout, red, 429, 5xx, JSON); 4xx no se reintenta | Reintentar siempre / nunca | Espera progresiva sin insistir en errores que no se arreglan esperando | Enunciado §5.6 |
 | D21 | Originales `.geojson.gz` en `data/raw/`, guardados solo si cambian los `features`, con retención de 24 h | Guardar cada respuesta sin comprimir | Conservar el original sin copias idénticas; `metadata.generated` cambia siempre, por eso se compara solo `features` | Enunciado §5.2 |
 | D22 | No publicar features sin `id` o `updated` (se cuentan en `consulta_ingesta.error`) | Publicarlos | Sin id/updated no hay control de versiones y se reenviarían cada minuto | Enunciado §5.3 |
+| D23 | Shapely + STRtree para el punto en polígono | GeoPandas `sjoin`; bucle simple | Dependencia ligera; mismo resultado que el bucle y ≈10x más rápido | Enunciado §4.3 y §10 |
+| D24 | Regla de frontera `covered_by` + desempate alfabético | `within` (excluye el borde); el país más cercano | Determinista y documentada; el país más cercano está prohibido | Enunciado §4.3 |
+| D25 | Reparar USA/SDN con `make_valid` en memoria | Editar el GeoJSON; ignorar el error | No modificar el material del profesor; área idéntica | — |
+| D26 | Fijar también `numpy` (dependencia indirecta) | Solo las dependencias directas | Build reproducible | Enunciado §9 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1

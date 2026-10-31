@@ -1,0 +1,35 @@
+Fase 6 · Integración geográfica (punto en polígono) · 31/10/2026
+=================================================================
+
+Catálogo: frontend/public/datos/paises.geojson (Natural Earth, 177 entidades, ADM0_A3 único 177/177)
+Geometrías no válidas (Shapely/GEOS): USA y SDN, por autointersección
+  USA: Self-intersection[-140.986, 69.712] (frontera Alaska-Canadá) -> make_valid -> MultiPolygon válido, área igual (1122.282)
+  SDN: Self-intersection[33.963, 9.464]                              -> make_valid -> MultiPolygon válido, área igual (156.445)
+
+Verificación en el entorno de Claude (muestra del feed 28/10, 185 terremotos):
+  Madrid(-3.7,40.4)=ESP | Tokio=JPN | Atlántico(-30,25)=None | Chile(-72,-35)=CHL | Alaska(-150,64)=USA
+  STRtree vs bucle sobre los 177 polígonos: MISMO resultado en 185/185 puntos
+  Tiempo: STRtree 22.3 ms vs bucle 224.3 ms (≈10x)  ·  coincidencias múltiples: 0  ·  sin país: 42/185
+
+$ docker compose logs consumidor --tail 5
+[consumidor] catálogo de países cargado: 177 entidades; geometrías reparadas: ['USA', 'SDN']
+
+$ docker compose run --rm consumidor python -m src.rellenar_paises
+[rellenar_paises] eventos=225 con_pais=181 sin_pais=44 coincidencias_multiples=0
+(225 = 222 reales + 3 sintéticos PRUEBA-)
+
+$ SELECT COALESCE(p.nombre_es, 'Sin país asignado') AS pais, COUNT(*) AS terremotos
+  FROM evento_actual e LEFT JOIN pais p ON p.country_id = e.country_id
+  WHERE e.source = 'usgs-feed-all_day' GROUP BY 1 ORDER BY 2 DESC LIMIT 10;
+       pais        | terremotos
+-------------------+------------
+ Estados Unidos    |        170
+ Sin país asignado |         44
+ Puerto Rico       |          2
+ México            |          1
+ Rusia             |          1
+ Perú              |          1
+ Chile             |          1
+ Colombia          |          1
+ China             |          1
+(9 rows)       -> total 222 (los datos reales del feed, sin magnitud mínima)

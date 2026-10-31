@@ -115,3 +115,22 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 async def registrar_consulta(conn, fuente, url, http_status, ok, n_eventos, n_publicados, duracion_ms, error) -> None:
     """Una fila por cada intento de consulta a USGS (correcto o fallido)."""
     await conn.execute(SQL_CONSULTA, (fuente, url, http_status, ok, n_eventos, n_publicados, duracion_ms, error))
+
+
+# =====================================================================================
+# Dimensión PAÍS
+# =====================================================================================
+
+SQL_PAIS = """
+INSERT INTO pais (country_id, nombre_es, admin, continente, subregion)
+VALUES (%(country_id)s, %(nombre_es)s, %(admin)s, %(continente)s, %(subregion)s)
+ON CONFLICT (country_id) DO UPDATE SET nombre_es = EXCLUDED.nombre_es, admin = EXCLUDED.admin,
+    continente = EXCLUDED.continente, subregion = EXCLUDED.subregion
+"""
+
+
+async def cargar_paises(conn, paises: list[dict]) -> None:
+    """Carga (o actualiza) los 177 países. Idempotente: ejecutarlo varias veces deja la tabla igual."""
+    async with conn.transaction():
+        async with conn.cursor() as cur:
+            await cur.executemany(SQL_PAIS, paises)

@@ -1,3 +1,5 @@
 # Dependencias Python FIJADAS (versión exacta) para que la imagen sea reproducible (enunciado §9).
 aiokafka==0.12.0          # cliente Kafka asíncrono (exigido por el enunciado; misma versión que binance-kafka)
 psycopg[binary]==3.2.3    # driver de PostgreSQL (versión 3, con soporte asíncrono)
+shapely==2.0.6            # geometría: punto en polígono para asignar el país (enunciado §4.3)
+numpy==2.5.4              # dependencia de shapely; se fija la versión instalada el 31/10 para que el build sea reproducible

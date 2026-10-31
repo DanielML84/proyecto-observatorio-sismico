@@ -85,6 +85,9 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PAISES_GEOJSON: /data/paises.geojson
+    volumes:
+      - ./frontend/public/datos/paises.geojson:/data/paises.geojson:ro   # catálogo del profesor, solo lectura
     depends_on:
       kafka-init:
         condition: service_completed_successfully   # no arrancar hasta que existan los topics

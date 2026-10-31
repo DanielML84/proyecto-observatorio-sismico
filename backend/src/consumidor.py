@@ -17,6 +17,7 @@ import os
 from aiokafka import AIOKafkaConsumer
 
 from src import db
+from src.geografia import Catalogo
 from src.validacion import Rechazo, validar
 
 BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
@@ -24,7 +25,7 @@ TOPIC = os.environ.get("KAFKA_TOPIC", "terremotos.live")
 GROUP_ID = os.environ.get("KAFKA_GROUP_ID", "consumidor-observatorio")
 
 
-async def procesar(conn, registro) -> str:
+async def procesar(conn, catalogo, registro) -> str:
     """Procesa UN registro de Kafka y devuelve un texto con el resultado (para el log)."""
     texto = registro.value.decode("utf-8", errors="replace")
     donde = (registro.topic, registro.partition, registro.offset)
@@ -40,12 +41,18 @@ async def procesar(conn, registro) -> str:
         await db.guardar_cuarentena(conn, resultado.tipo, resultado.motivo, resultado.event_id, *donde, texto)
         return f"{'excluido' if resultado.tipo == 'excluido' else 'cuarentena'}: {resultado.motivo}"
 
-    return await db.guardar_evento(conn, resultado.campos, mensaje["event"])
+    campos = resultado.campos
+    campos["country_id"] = catalogo.asignar(campos["lon"], campos["lat"])   # punto en polígono (None = sin país)
+    return await db.guardar_evento(conn, campos, mensaje["event"])
 
 
 async def main():
     conn = await db.conectar()
     print("[consumidor] conectado a PostgreSQL")
+    catalogo = Catalogo()
+    await db.cargar_paises(conn, catalogo.paises)
+    print(f"[consumidor] catálogo de países cargado: {len(catalogo.paises)} entidades; "
+          f"geometrías reparadas: {catalogo.reparadas}")
     consumidor = AIOKafkaConsumer(
         TOPIC,
         bootstrap_servers=BOOTSTRAP,
@@ -58,7 +65,7 @@ async def main():
     try:
         async for registro in consumidor:
             clave = registro.key.decode("utf-8") if registro.key else None
-            resultado = await procesar(conn, registro)       # si falla la BD, lanza excepción y NO se confirma
+            resultado = await procesar(conn, catalogo, registro)       # si falla la BD, lanza excepción y NO se confirma
             await consumidor.commit()                        # confirmar offset SOLO tras guardar
             print(f"[consumidor] p={registro.partition} off={registro.offset} clave={clave} -> {resultado}")
     finally:

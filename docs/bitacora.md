@@ -43,8 +43,22 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Duda de Daniel: ¿`up -d --build productor` duplica servicios? No: recrea el contenedor. Y aunque hubiera
   dos productores, la idempotencia del consumidor evitaría duplicar datos.
 
+- **Fase 6 · país:** `geografia.py` (Shapely 2.0.6, STRtree, `covered_by`, desempate alfabético, None = sin país);
+  el consumidor carga los 177 países al arrancar y asigna el país; `rellenar_paises.py` para los ya guardados;
+  catálogo montado en solo lectura.
+  - **Hallazgo:** las geometrías de USA y SDN no son válidas (autointersección); se reparan en memoria con
+    `make_valid` (el área no cambia).
+  - **Error de Claude detectado por su propia prueba:** con `predicate="covers"` todo salía sin país (el sentido
+    del predicado está invertido en `STRtree.query`). Corregido a `covered_by`. Verificado frente a un bucle simple:
+    mismo resultado en 185/185; STRtree ~10 veces más rápido.
+  - Resultado real: 225 eventos → 181 con país, 44 sin país, 0 coincidencias múltiples. Por país (reales):
+    EE. UU. 170, sin país 44, Puerto Rico 2…
+  - **Observación para el análisis:** el 77 % de los eventos son de EE. UU. porque el feed incluye magnitudes muy
+    pequeñas que solo detectan las redes densas de EE. UU. Es un sesgo de **cobertura de detección**, no de actividad (enunciado §8).
+  - Reproducibilidad: `numpy` (dependencia de shapely) no estaba fijado → `numpy==2.5.4`.
+
 ### Siguiente paso
-- Fase 6: asignar país (punto en polígono) + cargar la tabla `pais`.
+- Fase 7: histórico 2025 (12 consultas mensuales, count previo, deduplicación, registro de consultas).
 
 ---
 

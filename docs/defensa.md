@@ -72,3 +72,13 @@
 | ¿Cómo evitas guardar copias idénticas del original? | Huella SHA-256 de los `features`; solo se guarda si cambia. Se excluye `metadata.generated`, que USGS cambia en cada respuesta (lo descubrimos con los datos reales). | Memoria, D21 |
 | ¿Cómo demuestras que no se pierde ni se duplica ningún terremoto? | Con una conciliación: publicados = actuales + cuarentena, y un LEFT JOIN que busca los ids publicados que no están en ninguna de las dos tablas → 0 filas. | `fase5-conciliacion.txt` |
 | Si arrancas dos productores por error, ¿se duplican los datos? | Se publicarían mensajes repetidos en Kafka, pero la base no cambia: clave primaria + UPSERT con `WHERE updated_ms <` = escritura idempotente. | Memoria §5 y §9 |
+
+## Fase 6 · País (📘 respuestas modelo)
+| Pregunta | Respuesta modelo | Evidencia |
+|---|---|---|
+| ¿Cómo asignas el país a un terremoto? | Construyo un punto con (longitud, latitud) y busco qué polígono del catálogo Natural Earth lo cubre (punto en polígono, Shapely). No uso el texto de `place`. | `geografia.py` |
+| ¿Y si está en el mar? | No lo cubre ningún polígono → `country_id` NULL → «Sin país asignado». Se conserva en el análisis; no se asigna al país más cercano. | Enunciado §4.3 |
+| ¿Por qué `LEFT JOIN` y no `INNER JOIN` al contar por país? | `INNER JOIN` solo devuelve filas con pareja en `pais`, así que **eliminaría** los 44 terremotos sin país y desaparecerían del análisis. El enunciado exige mantener la categoría «Sin país asignado». `LEFT JOIN` conserva todos y `COALESCE` les pone el nombre. | `fase6-paises.txt` |
+| ¿Qué es el STRtree y por qué lo usas? | Un índice espacial: agrupa los polígonos por sus rectángulos envolventes y descarta de golpe los lejanos, en vez de probar los 177 uno a uno. Medido: mismo resultado y ≈10 veces más rápido. | Memoria §8 |
+| ¿Qué pasa con un punto justo en la frontera? | `covered_by` lo cuenta como dentro; si lo cubren dos países, gana el `country_id` alfabéticamente menor (regla determinista). En datos reales: 0 casos. | Memoria §3bis |
+| ¿Por qué el 77 % de los terremotos son de EE. UU.? | Porque el feed incluye magnitudes muy pequeñas que solo detectan las redes densas de EE. UU. Es un sesgo de cobertura de detección, no de actividad sísmica real. Para comparar regiones hay que filtrar, por ejemplo, magnitud ≥ 4. | Enunciado §8 |

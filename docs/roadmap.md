@@ -54,7 +54,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Probar la secuencia de la FAQ 12 + magnitud nula, latitud 145 y explosión (`fase5-faq12-idempotencia.txt`) ⚑
 
 ### Fase 6 · País y calidad  *(FAQ paso 6)*
-- [ ] Punto en polígono (Shapely/GeoPandas) → `country_id` o «Sin país asignado»
+- [x] Punto en polígono (Shapely, STRtree) → `country_id` o «Sin país asignado» (`backend/src/geografia.py`, `fase6-paises.txt`)
 - [x] Reglas de validación + cuarentena con motivo (`backend/src/validacion.py`)
 - [x] Filtrar `type == earthquake` y registrar exclusiones ⚑
 
