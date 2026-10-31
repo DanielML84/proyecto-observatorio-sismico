@@ -2,6 +2,7 @@
 // todos vienen de la API, nunca de la muestra de eventos, que puede estar truncada (encargo, punto 8).
 import { Component, computed, input } from '@angular/core';
 import type { Estadisticas } from '../api.service';
+import { ComparacionHistoricaComponent } from './comparacion-historica.component';
 import { FilaBarra, GraficoBarrasComponent } from './grafico-barras.component';
 import { GraficoHorasComponent } from './grafico-horas.component';
 
@@ -16,7 +17,7 @@ const CLASES_PROFUNDIDAD: { clase: string; color: string }[] = [
 const decimal = (valor: number): string => valor.toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 @Component({
-  selector: 'app-estadisticas', standalone: true, imports: [GraficoBarrasComponent, GraficoHorasComponent],
+  selector: 'app-estadisticas', standalone: true, imports: [ComparacionHistoricaComponent, GraficoBarrasComponent, GraficoHorasComponent],
   templateUrl: './estadisticas.component.html', styleUrl: './estadisticas.component.css'
 })
 export class EstadisticasComponent {
@@ -47,6 +48,20 @@ export class EstadisticasComponent {
   readonly profundidades = computed<FilaBarra[]>(() => {
     const clases = this.datos()?.distribucion_profundidad.clases ?? [];
     return CLASES_PROFUNDIDAD.map(c => ({ etiqueta: c.clase, n: clases.find(x => x.clase === c.clase)?.n ?? 0, color: c.color }));
+  });
+
+  // Eventos que el filtro de magnitud deja fuera por no tener magnitud. null = no hay filtro de magnitud.
+  readonly excluidos = computed(() => {
+    const n = this.datos()?.sin_valor.magnitud_excluidos_por_filtro ?? null;
+    return n === null ? null : `${this.cifra(n)} sin magnitud no ${n === 1 ? 'incluido' : 'incluidos'}`;
+  });
+
+  // Ejemplo: «M≥4: 25 terremotos · 3 sin magnitud no incluidos».
+  readonly resumenMagnitud = computed(() => {
+    const d = this.datos();
+    const excluidos = this.excluidos();
+    if (!d || d.filtros.min_mag === null || excluidos === null) return null;
+    return `M≥${d.filtros.min_mag.toLocaleString('es-ES')}: ${this.cifra(d.total)} terremotos · ${excluidos}`;
   });
 
   // Fecha y hora en UTC, con la zona escrita.

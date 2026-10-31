@@ -1,0 +1,66 @@
+<section class="comparacion" aria-labelledby="titulo-comparacion">
+  <h3 id="titulo-comparacion">Comparación con 2025 (M≥{{ magnitudTexto() }})</h3>
+
+  <!-- Primero lo que cambia cómo leer las cifras. Sin estos avisos, algunos porcentajes parecerían hallazgos. -->
+  @if (solapa2025()) {
+    <p class="aviso"><strong>Periodo dentro de 2025:</strong> se compara con un año que ya lo incluye. Sirve para situar ese periodo en su año, no para comparar dos periodos distintos.</p>
+  }
+  @if (fueraDeCobertura()) {
+    <p class="aviso"><strong>Recuento posiblemente incompleto:</strong> el periodo empieza más de 24 h atrás. Solo hay datos desde que el sistema empezó a recoger el feed, así que la variación puede salir baja por falta de datos, no de terremotos.</p>
+  }
+  @if (periodoFuturo()) {
+    <p class="aviso"><strong>El periodo termina en el futuro:</strong> el esperado cuenta días que aún no han ocurrido.</p>
+  }
+  @if (baseMuyPequena()) {
+    <p class="aviso"><strong>Base muy pequeña:</strong> se espera menos de 1 terremoto, así que el porcentaje apenas dice nada. Compara las cifras absolutas.</p>
+  }
+
+  <!-- Las tres cifras principales. El signo y las palabras dan el sentido: un color de bueno o malo no tendría sentido aquí. -->
+  <div class="cifras">
+    <div><span class="rotulo">Recuento del periodo</span><strong>{{ reciente() }}</strong></div>
+    <div><span class="rotulo">Esperado según la media de 2025</span><strong>{{ esperado() }}</strong></div>
+    <div><span class="rotulo">Variación</span><strong>{{ variacion() }}</strong><span class="rotulo">Diferencia: {{ diferencia() }}</span></div>
+  </div>
+
+  @if (filtroElevado()) {
+    <p class="ayuda">Solo cuenta M≥{{ magnitudTexto() }}, porque el histórico no incluye magnitudes menores. Por eso {{ reciente() }} no coincide con el total de {{ total().toLocaleString('es-ES') }} terremotos.</p>
+  }
+
+  <!-- La media se dispara por los picos, así que se sitúa el recuento entre los días de 2025. -->
+  <p class="titulo-dias">Un día de 2025 con los mismos filtros</p>
+
+  @if (es24h()) {
+    <!-- Figura decorativa: las mismas cifras están escritas justo debajo. -->
+    <div class="escala" aria-hidden="true">
+      <div class="linea"></div>
+      <div class="banda" [style.left.%]="posicion(datos().dias_2025.p10)" [style.width.%]="posicion(datos().dias_2025.p90) - posicion(datos().dias_2025.p10)"></div>
+      <span class="marca mediana" [style.left.%]="posicion(datos().dias_2025.mediana)"></span>
+      <span class="marca media" [style.left.%]="posicion(datos().media_diaria_2025)"></span>
+      <span class="marca reciente" [style.left.%]="posicion(datos().reciente)"></span>
+    </div>
+    <div class="extremos" aria-hidden="true"><span>0</span><span>{{ maximo() }}</span></div>
+  }
+
+  <!-- Leyenda y datos a la vez: la forma de cada marca junto a su nombre y su valor. -->
+  <ul class="valores">
+    @if (es24h()) {
+      <li><span class="clave reciente" aria-hidden="true"></span>Recuento del periodo: <strong>{{ reciente() }}</strong></li>
+    }
+    <li><span class="clave media" aria-hidden="true"></span>Media: <strong>{{ media() }}</strong></li>
+    <li><span class="clave mediana" aria-hidden="true"></span>Mediana: <strong>{{ mediana() }}</strong></li>
+    <li><span class="clave banda" aria-hidden="true"></span>P10 a P90: <strong>{{ p10() }} a {{ p90() }}</strong></li>
+  </ul>
+
+  <!-- ND cuando el periodo no dura 24 h: un recuento de una semana no se compara con días sueltos. -->
+  <p class="ayuda">
+    @if (pctDias() !== null) {
+      Días de 2025 con un recuento igual o menor: <strong>{{ pctDiasTexto() }} %</strong>.
+    } @else {
+      Días de 2025 con un recuento igual o menor: <strong>ND</strong> (solo se calcula para periodos de 24 h).
+    }
+    Total de 2025 con estos filtros: {{ historico() }}.
+  </p>
+
+  <!-- La nota de la API, tal cual: periodo incompleto, Kamchatka y no es una predicción. -->
+  <p class="nota">{{ datos().nota }}</p>
+</section>

@@ -64,19 +64,39 @@ export const FILTROS_VACIOS: Filtros = { start: null, end: null, min_mag: null, 
 // Una ventana fija de 1 hora UTC.
 export type VentanaHora = { hora: string; n: number };
 
-// Parte de /api/estadisticas que usa el panel. La comparación histórica se añadirá en el bloque 5.
+// Comparación del periodo consultado con 2025. La calcula siempre la API.
+export type ComparacionHistorica = {
+  filtro_magnitud: string;              // texto como «>= 4.0»: el histórico solo tiene magnitud 4 o más
+  reciente: number;
+  historico_2025_total: number;
+  media_diaria_2025: number;
+  esperado_en_periodo: number;          // media escalada a la duración del periodo
+  diferencia: number;
+  variacion_pct: number | null;         // null = no hay base: se muestra «ND»
+  dias_2025: {
+    mediana: number | null;
+    p10: number | null;
+    p90: number | null;
+    pct_dias_con_recuento_menor_o_igual: number | null;  // solo para periodos de 24 h
+  };
+  nota: string;
+};
+
+// Respuesta de /api/estadisticas.
 export type Estadisticas = {
   generated: number;
   periodo: Periodo & { horas: number };
   filtros: { min_mag: number | null; country_id: string | null };
   unidad: string;
   total: number;
-  sin_valor: { magnitud: number; profundidad: number; pais: number };
+  // magnitud_excluidos_por_filtro: null sin filtro de magnitud; con filtro, los eventos que quedan fuera por no tener magnitud.
+  sin_valor: { magnitud: number; profundidad: number; pais: number; magnitud_excluidos_por_filtro: number | null };
   por_pais: { country_id: string | null; nombre: string; n: number }[];
   por_subregion: { subregion: string; n: number }[];
   por_hora_utc: VentanaHora[];
   distribucion_magnitud: { tramo: number; tramos: { desde: number; hasta: number; n: number }[]; sin_valor: number };
   distribucion_profundidad: { clases: { clase: string; n: number }[]; sin_valor: number };
+  comparacion_historica: ComparacionHistorica;
 };
 
 // providedIn 'root' = Angular crea una sola instancia para toda la aplicación.

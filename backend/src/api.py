@@ -227,6 +227,16 @@ async def estadisticas(
                   WHERE f.anio = 2025 GROUP BY f.fecha_id) t""", [reciente] + p_his)
         ingesta = await ultima_ingesta(conn)
 
+        # Cobertura del feed: la PRIMERA descarga correcta ya traía las 24 h anteriores (ventana móvil).
+        # Limitación documentada: si el sistema estuvo parado > 24 h en medio, habría un hueco que esto no detecta.
+        (primera_ingesta,), = await q(
+            "SELECT MIN(solicitada_at) FROM consulta_ingesta WHERE ok AND fuente = 'usgs-feed-all_day'", [])
+
+    cobertura_desde = primera_ingesta - timedelta(hours=24) if primera_ingesta else None
+    inicio_2025, fin_2025 = datetime(2025, 1, 1, tzinfo=timezone.utc), datetime(2026, 1, 1, tzinfo=timezone.utc)
+    dentro_2025 = start >= inicio_2025 and end <= fin_2025                   # cubierto por el histórico descargado
+    cubierto_feed = cobertura_desde is not None and start >= cobertura_desde and end <= datetime.now(timezone.utc)
+
     horas_periodo = (end - start).total_seconds() / 3600
     media_diaria = historico / DIAS_2025
     esperado = media_diaria * horas_periodo / 24          # media escalada a la duración del periodo consultado
@@ -265,6 +275,8 @@ async def estadisticas(
                 "pct_dias_con_recuento_menor_o_igual": (round(dias_menor_igual / DIAS_2025 * 100, 1)
                                                          if abs(horas_periodo - 24) < 0.01 else None),
             },
+            "cobertura_feed_desde": cobertura_desde.isoformat() if cobertura_desde else None,
+            "periodo_cubierto": dentro_2025 or cubierto_feed,   # False -> el recuento reciente puede estar incompleto
             "nota": ("El periodo reciente puede estar incompleto por retrasos de publicación de USGS. "
                      "La media de 2025 incluye la secuencia de réplicas de Kamchatka (jul-dic). "
                      "No es una predicción ni una evaluación de riesgo."),

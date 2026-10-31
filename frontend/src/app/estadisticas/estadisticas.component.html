@@ -20,7 +20,12 @@
     <p class="resumen">
       <strong>{{ cifra(d.total) }} terremotos</strong> · {{ utc(d.periodo.start) }} → {{ utc(d.periodo.end) }}
       · {{ filtrosTexto() ?? 'ND' }}
+      <!-- Solo con filtro de magnitud: el contrato pide contar aparte los eventos sin magnitud. -->
+      @if (excluidos(); as texto) { · {{ texto }} }
     </p>
+
+    <app-comparacion-historica [datos]="d.comparacion_historica" [periodo]="d.periodo" [generated]="d.generated"
+                               [minMag]="d.filtros.min_mag" [total]="d.total" />
 
     <app-grafico-horas [horas]="d.por_hora_utc" [periodo]="d.periodo" />
 
@@ -34,11 +39,11 @@
       <div>
         <app-grafico-barras titulo="Distribución de magnitud (tramos de 0,5)" [filas]="magnitudes()" />
         <p class="ayuda">
-          <!-- Con filtro de magnitud la API ya no cuenta los nulos: decir 0 sería falso. -->
-          @if (d.filtros.min_mag === null) {
-            Sin valor de magnitud: {{ cifra(d.distribucion_magnitud.sin_valor) }}.
+          <!-- Con filtro, los eventos sin magnitud se cuentan aparte (sin_valor.magnitud_excluidos_por_filtro). -->
+          @if (resumenMagnitud(); as resumen) {
+            {{ resumen }}.
           } @else {
-            Los registros sin magnitud no cumplen el filtro y no se cuentan aquí.
+            Sin valor de magnitud: {{ cifra(d.distribucion_magnitud.sin_valor) }}.
           }
         </p>
       </div>

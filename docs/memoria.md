@@ -266,6 +266,7 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D29 | Carga del histórico por Kafka con el mismo consumidor (`source = 'usgs-fdsn'`) | Proceso batch directo a PostgreSQL | Una sola ruta de calidad, país e idempotencia para los dos accesos a USGS | FAQ 21 |
 | D30 | Comparación con `mag >= 4` en los dos periodos | `mag > 4` | Es lo que hace realmente `minmagnitude=4` (incluye 4,0) | Muestra de enero |
 | D31 | Con `min_mag`, contar aparte los eventos sin magnitud (`magnitud_excluidos_por_filtro`) | Esconderlos | El contrato exige contabilizarlos por separado; detectado en la revisión del bloque 4 del panel | Contrato API |
+| D32 | La API devuelve `cobertura_feed_desde` (primera ingesta correcta − 24 h) y `periodo_cubierto` | Que el panel adivine la cobertura | Avisar con exactitud cuando un periodo no está cubierto por datos y el recuento puede ser incompleto. Limitación: no detecta huecos por paradas > 24 h (recuperables con el catálogo, `updatedafter`) | Enunciado §5 y §8.4 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1
