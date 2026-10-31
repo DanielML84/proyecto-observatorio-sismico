@@ -46,17 +46,17 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Modelo conceptual → lógico → físico (`sql/01_esquema.sql`)
 - [x] Tablas: evento actual, versiones, país, fecha, cuarentena, versión publicada, consulta de ingesta
 - [x] PostgreSQL en compose (volumen `pg-data`, healthcheck, `.env`) + prueba de UNIQUE (`fase4-postgres-esquema.txt`) ⚑
-- [ ] Consumidor escribe en PostgreSQL → consulta SQL lo muestra ⚑
+- [x] Consumidor escribe en PostgreSQL → consulta SQL lo muestra ⚑
 
 ### Fase 5 · Duplicados y revisiones  *(FAQ paso 5 · lo más importante)*
 - [ ] Productor real: USGS cada 60 s, compara `id` + `updated`, reintentos
-- [ ] Consumidor idempotente: transacción + upsert + offset después de escribir
-- [ ] Probar la secuencia de la FAQ pregunta 12 (E1, E1, E1', E1, E2) ⚑
+- [x] Consumidor idempotente: transacción + upsert + offset después de escribir (`backend/src/db.py`)
+- [x] Probar la secuencia de la FAQ 12 + magnitud nula, latitud 145 y explosión (`fase5-faq12-idempotencia.txt`) ⚑
 
 ### Fase 6 · País y calidad  *(FAQ paso 6)*
 - [ ] Punto en polígono (Shapely/GeoPandas) → `country_id` o «Sin país asignado»
-- [ ] Reglas de validación + cuarentena con motivo
-- [ ] Filtrar `type == earthquake` y registrar exclusiones ⚑
+- [x] Reglas de validación + cuarentena con motivo (`backend/src/validacion.py`)
+- [x] Filtrar `type == earthquake` y registrar exclusiones ⚑
 
 ### Fase 7 · Histórico 2025
 - [ ] Descarga por meses (mag ≥ 4), registro de consultas, deduplicación
@@ -91,4 +91,6 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [ ] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
 - [ ] README reproducible
 - [ ] Lista final de comprobación de la guía de entregables
+- [ ] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
+- [ ] Semana de estudio: Daniel repasa la guía y responde `defensa.md` en voz alta
 - [ ] Preparar la defensa: flujo completo + una decisión técnica propia ⚑

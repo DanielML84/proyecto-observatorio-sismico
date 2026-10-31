@@ -1,6 +1,6 @@
 # Observatorio de actividad sísmica · Docker Compose
 # Fase 3: Kafka + creación de topics + productor de prueba + consumidor mínimo.
-# Fase 4: + PostgreSQL. Se irán añadiendo el productor real y la API.
+# Fase 4-5: + PostgreSQL y consumidor que guarda. Se irán añadiendo el productor real y la API.
 # Base: configuración KRaft de juanarrow/binance-kafka (docker.md explica cada variable),
 # adaptada a los requisitos del enunciado §9: volumen persistente y retención limitada.
 
@@ -75,14 +75,21 @@ services:
   # Consumidor (versión mínima): lee terremotos.live y muestra cada mensaje en su log.
   consumidor:
     build: ./backend                     # imagen Python común (backend/Dockerfile)
+    image: observatorio-backend          # mismo nombre en todos los servicios Python -> una sola imagen
     command: ["python", "-m", "src.consumidor"]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092   # nombre del servicio, NO localhost (FAQ 28)
       KAFKA_TOPIC: terremotos.live
       KAFKA_GROUP_ID: consumidor-observatorio
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       kafka-init:
         condition: service_completed_successfully   # no arrancar hasta que existan los topics
+      postgres:
+        condition: service_healthy                  # ni hasta que PostgreSQL acepte conexiones
     restart: unless-stopped
 
   # Productor de PRUEBA: envía 1 terremoto de ejemplo y termina.
@@ -90,6 +97,7 @@ services:
   #   docker compose run --rm productor-prueba
   productor-prueba:
     build: ./backend
+    image: observatorio-backend
     command: ["python", "-m", "src.productor_prueba"]
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092

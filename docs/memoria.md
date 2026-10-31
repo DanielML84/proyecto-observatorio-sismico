@@ -71,7 +71,30 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 **Problema técnico encontrado:** al aplanar con `pd.json_normalize` aparecen dos columnas `type`
 (la del Feature y `properties.type`). Se renombran a `feature_type` y `geom_type`.
 
-## 5. Calidad de datos ⬜
+## 5. Calidad de datos 🟡
+
+### 5.1 Reglas del consumidor (`backend/src/validacion.py`)
+| # | Regla | Resultado si falla | Motivo registrado | Dimensión |
+|---|---|---|---|---|
+| 1 | Mensaje con `schema_version = 1` y `event` | Cuarentena | `schema_version_desconocida`, `sin_evento` | Validez |
+| 2 | `id` de texto no vacío | Cuarentena | `sin_id` | Unicidad |
+| 3 | `updated` y `time` enteros (ms) | Cuarentena | `updated_invalido`, `time_invalido` | Validez |
+| 4 | `type == "earthquake"` | **Excluido** (no es un error) | `type=<valor>` | Consistencia (alcance) |
+| 5 | Geometría `Point` con lon/lat numéricas | Cuarentena | `geometria_no_point`, `coordenadas_*` | Validez |
+| 6 | lat ∈ [−90, 90], lon ∈ [−180, 180] | Cuarentena | `lat_fuera_de_rango`, `lon_fuera_de_rango` | Validez |
+| 7 | Profundidad numérica si existe (negativa **permitida**) | Cuarentena | `profundidad_no_numerica` | Validez |
+| 8 | Magnitud numérica si existe (NULL y negativa **permitidas**) | Cuarentena | `mag_no_numerica` | Completitud / Validez |
+| 9 | Fecha del evento dentro de la dimensión fecha (2024–2027) | Cuarentena | `fecha_fuera_de_dimension` | Consistencia |
+| — | Mismo `(id, updated)` ya guardado | Se ignora (sin error) | log `version_repetida` | Unicidad |
+| — | `updated` anterior al vigente | Se guarda en el historial; NO cambia el estado actual | log `version_antigua` | Consistencia |
+
+**Transformaciones:** `time` y `updated` (ms) → `TIMESTAMPTZ` UTC, conservando `updated_ms`; `fecha_id` = día
+UTC de ocurrencia; valores originales en `evento_version.raw` (JSONB) y en `cuarentena.raw`.
+
+### 5.2 Prueba de las reglas sobre datos reales
+Muestra del feed del 28/10 (187 eventos): **185 válidos, 2 excluidos (`type=explosion`), 0 en cuarentena**.
+
+*(El análisis completo de las 6 dimensiones sobre los datos almacenados se hará con consultas SQL cuando el productor real lleve tiempo funcionando.)*
 ## 6. Modelo conceptual, lógico y físico 🟡
 
 SQL: [`sql/01_esquema.sql`](../sql/01_esquema.sql). Evidencia: `docs/evidencias/fase4-postgres-esquema.txt`.
@@ -103,7 +126,22 @@ la *última versión publicada* por el productor y las *consultas* a USGS.
 **Comprobación:** insertar dos veces el mismo `event_id` → `duplicate key value violates unique constraint`.
 ## 7. Análisis y conclusiones ⬜
 ## 8. Complejidad, mediciones, costes y mejoras ⬜
-## 9. Evidencias de las pruebas de aceptación ⬜
+## 9. Evidencias de las pruebas de aceptación 🟡
+
+| Prueba (enunciado §11) | Esperado | Observado | Evidencia |
+|---|---|---|---|
+| Recibir un evento nuevo | Una fila actual | `PRUEBA-E1 -> insertado`; 1 fila | `fase5-faq12-idempotencia.txt` |
+| Reenviar la misma versión | No aumenta el número | `ignorado: version_repetida`; sigue 1 fila | ídem |
+| Recibir una versión posterior | Cambian los datos actuales | `actualizado`; mag 4,2 → 4,6 | ídem |
+| Recibir después una versión antigua | No sustituye a la más reciente | `ignorado`; mag sigue en 4,6 | ídem |
+| Magnitud nula | Se conserva y se muestra ND | Guardada con `mag` NULL (panel: pendiente) | ídem |
+| Coordenadas inválidas | Cuarentena y motivo | `lat_fuera_de_rango`, offset 4 | ídem |
+| Evento marítimo | Sin país; permanece | ⬜ Fase 6 | |
+| Reiniciar consumidor | Reanuda sin duplicar | ⬜ | |
+| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ Fase 10 | |
+| Reproducción histórica | Por Kafka, aislada | ⬜ Fase 11 | |
+
+Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados de los datos reales (enunciado §6).
 ## 10. Reproducción histórica ⬜
 
 ---

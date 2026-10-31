@@ -33,7 +33,20 @@ manipular y defender lo que se genera, como se haría en una empresa.
    Las respuestas de la defensa las escribo yo y tú las corriges.
 8. Tengo TDAH: me ayuda una organización visual, sencilla y por pasos cortos.
 
-**Ciclo para cada pieza del sistema:**
+**MODO DE TRABAJO ACTUAL (desde el 30/10, decidido por Daniel): «construir primero, estudiar después».**
+Primero se termina el proyecto completo y funcionando; después Daniel lo estudia de principio a fin.
+- Claude construye cada fase en **bloques grandes y completos**, con el código comentado línea a línea.
+- En cada bloque, Daniel solo ejecuta los comandos de verificación, pega los resultados y hace el commit.
+  Explicaciones en el chat: **breves** (qué hace el bloque y qué hay que ver al probarlo).
+- **Al final de cada bloque, una pregunta de comprobación corta** (a Daniel le ayudan a comprender).
+- Para las fases con mucho ir y venir de pruebas (API, panel, despliegue) se usa **Claude Code** en VS Code,
+  que ejecuta Docker en el Windows de Daniel. Los commits los sigue haciendo Daniel.
+- El material de estudio se va acumulando en `docs/memoria.md` y `docs/defensa.md` (respuestas
+  modelo marcadas «para estudiar»), y al final en `docs/guia-estudio.md`: el recorrido completo de un
+  terremoto, archivo por archivo, con preguntas de autoevaluación.
+- Siguen vigentes: no inventar, referenciar, commits los hace Daniel, actualizar la bitácora y el roadmap.
+
+**Ciclo para cada pieza del sistema** (se aplica de forma resumida en el modo actual):
 1. **Concepto:** qué es y para qué sirve.
 2. **Decisión:** opciones, cuál elegimos y por qué, con referencia.
 3. **Generación:** la IA escribe el código y yo lo reviso.

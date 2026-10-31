@@ -5,6 +5,31 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 3 · Sábado 31/10/2026
+
+### Qué se hizo
+- **Consumidor → PostgreSQL (idempotente):**
+  - `validacion.py`: reglas con motivos fijos (schema, id, updated, time, type, geometría, rangos, profundidad, magnitud, fecha).
+  - `db.py`: versión con `ON CONFLICT DO NOTHING`; UPSERT en `evento_actual` con `WHERE updated_ms <` y
+    `RETURNING (xmax = 0)` para distinguir insertado/actualizado; cuarentena con UNIQUE (topic, partición, offset);
+    todo en una transacción.
+  - `consumidor.py`: valida → guarda → confirma el offset.
+  - Imagen única `observatorio-backend`; `psycopg[binary]==3.2.3`.
+  - Comprobado antes en el entorno de Claude: los 8 casos clasificados bien; muestra real del 28/10 = 185 válidos + 2 excluidos (explosion); SQL validado con pglast.
+- **Prueba FAQ 12 + calidad** (`pruebas_faq12.py`, datos sintéticos `PRUEBA-*`): 8 mensajes → 3 actuales
+  (E1 = 4,6), 4 versiones y 2 en cuarentena. Evidencia: `docs/evidencias/fase5-faq12-idempotencia.txt`.
+  - Observación: el consumidor intercala particiones; dentro de la partición 0 el orden de E1 se mantiene.
+
+### Problemas y solución
+- Una consulta de verificación pedía `updated_at` en `evento_version` (no existe esa columna): error de Claude.
+  Corregida con `to_timestamp(updated_ms / 1000.0)`.
+
+### Siguiente paso
+- Productor real: consulta USGS cada 60 s, compara con `version_publicada`, publica, registra en `consulta_ingesta`,
+  conserva el GeoJSON original con retención, y reintentos con espera progresiva.
+
+---
+
 ## Sesión 2 · Viernes 30/10/2026
 
 ### Qué se hizo
@@ -67,6 +92,11 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   - Evidencia: `docs/evidencias/fase4-postgres-esquema.txt`.
 - ⚠️ Recordatorio: el SQL de `/docker-entrypoint-initdb.d` solo se ejecuta con el volumen vacío. Si se cambia
   el esquema: `docker compose down -v` (borra los volúmenes) o una migración.
+
+### Cambio de método (decisión de Daniel, 30/10)
+«Construir primero, estudiar después»: terminar el proyecto completo y funcionando en bloques grandes,
+y dedicar los últimos días a estudiarlo de principio a fin con una guía de estudio. Registrado en el
+prompt principal. Objetivo: tener todo funcionando hacia el 12–13/11 y dejar unos 5 días de estudio.
 
 ### Siguiente paso (próxima sesión)
 1. Consumidor → PostgreSQL: UPSERT en `evento_actual` condicionado por `updated_ms` + INSERT en

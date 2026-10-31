@@ -1,0 +1,53 @@
+Fase 5 · Consumidor idempotente con PostgreSQL · secuencia FAQ 12 + casos de calidad · 31/10/2026
+================================================================================================
+Datos SINTÉTICOS (prefijo PRUEBA-, source='prueba-faq12'), generados por backend/src/pruebas_faq12.py
+
+$ docker compose run --rm productor-prueba python -m src.pruebas_faq12
+[pruebas] FAQ12 #1 primera versión           id=PRUEBA-E1         -> p=0 off=0
+[pruebas] FAQ12 #2 repetición idéntica       id=PRUEBA-E1         -> p=0 off=1
+[pruebas] FAQ12 #3 revisión posterior        id=PRUEBA-E1         -> p=0 off=2
+[pruebas] FAQ12 #4 versión antigua tardía    id=PRUEBA-E1         -> p=0 off=3
+[pruebas] FAQ12 #5 otro terremoto            id=PRUEBA-E2         -> p=2 off=0
+[pruebas] Calidad: magnitud nula             id=PRUEBA-MAGNULA    -> p=2 off=1
+[pruebas] Calidad: latitud 145               id=PRUEBA-LAT145     -> p=0 off=4
+[pruebas] Calidad: explosión                 id=PRUEBA-EXPLOSION  -> p=1 off=2
+
+$ docker compose logs -f consumidor
+[consumidor] conectado a PostgreSQL
+[consumidor] escuchando topic=terremotos.live grupo=consumidor-observatorio
+[consumidor] p=0 off=0 clave=PRUEBA-E1 -> insertado
+[consumidor] p=1 off=2 clave=PRUEBA-EXPLOSION -> excluido: type=explosion
+[consumidor] p=2 off=0 clave=PRUEBA-E2 -> insertado
+[consumidor] p=2 off=1 clave=PRUEBA-MAGNULA -> insertado
+[consumidor] p=0 off=1 clave=PRUEBA-E1 -> ignorado: version_repetida
+[consumidor] p=0 off=2 clave=PRUEBA-E1 -> actualizado
+[consumidor] p=0 off=3 clave=PRUEBA-E1 -> ignorado: version_repetida
+[consumidor] p=0 off=4 clave=PRUEBA-LAT145 -> cuarentena: lat_fuera_de_rango
+(Las particiones se intercalan, pero dentro de la partición 0 el orden de PRUEBA-E1 se mantiene.)
+
+$ SELECT event_id, mag, updated_at FROM evento_actual WHERE source = 'prueba-faq12' ORDER BY event_id;
+    event_id    | mag |       updated_at
+----------------+-----+------------------------
+ PRUEBA-E1      | 4.6 | 2026-10-27 10:09:00+00
+ PRUEBA-E2      | 3.1 | 2026-10-27 10:12:00+00
+ PRUEBA-MAGNULA |     | 2026-10-27 10:20:00+00
+(3 rows)
+
+$ SELECT event_id, to_timestamp(updated_ms / 1000.0) AS updated, mag FROM evento_version WHERE source = 'prueba-faq12' ORDER BY event_id, updated_ms;
+    event_id    |        updated         | mag
+----------------+------------------------+-----
+ PRUEBA-E1      | 2026-10-27 10:05:00+00 | 4.2
+ PRUEBA-E1      | 2026-10-27 10:09:00+00 | 4.6
+ PRUEBA-E2      | 2026-10-27 10:12:00+00 | 3.1
+ PRUEBA-MAGNULA | 2026-10-27 10:20:00+00 |
+(4 rows)
+
+$ SELECT tipo, motivo, event_id, kafka_offset FROM cuarentena;
+   tipo   |       motivo       |     event_id     | kafka_offset
+----------+--------------------+------------------+--------------
+ excluido | type=explosion     | PRUEBA-EXPLOSION |            2
+ invalido | lat_fuera_de_rango | PRUEBA-LAT145    |            4
+(2 rows)
+
+RESULTADO: 8 mensajes -> 3 eventos actuales (E1 = 4.6, NO retrocede a 4.2), 4 versiones, 2 en cuarentena.
+Coincide con la FAQ 12 (2 terremotos, 3 versiones) + los casos de magnitud nula, coordenadas inválidas y explosión.
