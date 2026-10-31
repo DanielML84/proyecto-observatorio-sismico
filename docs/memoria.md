@@ -98,6 +98,12 @@ Primeros datos reales del productor (31/10/2026, 06:48 UTC, 220 eventos por resp
 `type=explosion` (1) y **`type=quarry blast` (1)**. Es un tipo de evento que no aparecía en la muestra de exploración;
 la regla genérica `type != earthquake` lo excluye sin cambiar el código.
 
+### 5.3 Conciliación entre tablas (Consistencia)
+Todo lo publicado por el productor debe acabar en `evento_actual` o en `cuarentena`.
+Resultado (31/10, ~07:00 UTC): **222 publicados = 221 terremotos + 1 exclusión real (`quarry blast`)**, y
+**0 ids perdidos**. Evidencia y consultas: `docs/evidencias/fase5-conciliacion.txt`.
+Los casos sintéticos se separan por el prefijo `PRUEBA-`. Sin esa marca, la conciliación habría dado un falso descuadre.
+
 *(El análisis completo de las 6 dimensiones sobre los datos almacenados se hará con consultas SQL cuando el productor real lleve tiempo funcionando.)*
 ## 6. Modelo conceptual, lógico y físico 🟡
 

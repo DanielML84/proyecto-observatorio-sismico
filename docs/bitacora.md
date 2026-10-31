@@ -36,8 +36,14 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - **Observación sin explicar:** las consultas salen cada ~55 s en lugar de 60 s (diferencias entre
   `solicitada_at`). Causa no confirmada (¿reloj de la VM de Docker Desktop?). Pendiente de medir.
 
+- Productor reconstruido: `estado cargado: 222 versiones` → `publicados=0` (confirma la persistencia del estado).
+- **Conciliación (Consistencia):** 222 publicados = 221 actuales + 1 cuarentena real; 0 ids perdidos.
+  Primero pareció un descuadre: Claude contó `PRUEBA-EXPLOSION` como real. Los datos sintéticos se separan por el prefijo.
+  Evidencia: `docs/evidencias/fase5-conciliacion.txt`.
+- Duda de Daniel: ¿`up -d --build productor` duplica servicios? No: recrea el contenedor. Y aunque hubiera
+  dos productores, la idempotencia del consumidor evitaría duplicar datos.
+
 ### Siguiente paso
-- Reconstruir el productor con la corrección del hash y comprobar que `data/raw` deja de crecer cada minuto.
 - Fase 6: asignar país (punto en polígono) + cargar la tabla `pais`.
 
 ---

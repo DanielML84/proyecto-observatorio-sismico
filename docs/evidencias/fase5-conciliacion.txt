@@ -1,0 +1,21 @@
+Fase 5 · Conciliación entre tablas (dimensión CONSISTENCIA) · 31/10/2026 ~07:00 UTC
+=================================================================================
+Pregunta: ¿todo lo que el productor publicó ha acabado en evento_actual o en cuarentena?
+
+$ SELECT (SELECT COUNT(*) FROM version_publicada) AS publicados,
+         (SELECT COUNT(*) FROM evento_actual WHERE source = 'usgs-feed-all_day') AS actuales,
+         (SELECT COUNT(*) FROM cuarentena WHERE event_id NOT LIKE 'PRUEBA-%') AS cuarentena_real;
+ publicados | actuales | cuarentena_real
+------------+----------+-----------------
+        222 |      221 |               1          -> 221 + 1 = 222  CUADRA
+
+$ -- ids publicados que no están ni en evento_actual ni en cuarentena
+  SELECT v.event_id, v.published_at FROM version_publicada v
+  LEFT JOIN evento_actual a ON a.event_id = v.event_id
+  LEFT JOIN cuarentena  c ON c.event_id = v.event_id
+  WHERE a.event_id IS NULL AND c.event_id IS NULL;
+(0 rows)                                          -> ningún evento perdido
+
+Exclusión real: 1 (type=quarry blast). Las filas PRUEBA-EXPLOSION y PRUEBA-LAT145 son casos sintéticos
+y se excluyen del cálculo gracias al prefijo PRUEBA- (enunciado §6: casos de prueba separados e identificados).
+Rango de event_time de los 221 terremotos: 2026-10-30 06:53:43 UTC → 2026-10-31 06:52:01 UTC (ventana de 24 h).
