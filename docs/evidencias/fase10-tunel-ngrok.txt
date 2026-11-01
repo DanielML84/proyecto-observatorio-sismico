@@ -13,3 +13,31 @@ Panel de inspección http://localhost:4040 -> estado "online", URL pública:
 $ (navegador) https://unbolted-decorated-heaving.ngrok-free.dev/api/salud
 {"api":"ok","base_datos":"ok","generated":1793523051228,"last_ingestion":1793523022013,
  "segundos_desde_ultima_ingesta":29,"datos_desactualizados":false}
+
+Netlify (01/11/2026): repo conectado, Base directory "frontend", build "npm run build",
+publish "frontend/dist/observatorio/browser". Web pública: https://adorable-zabaione-a69bde.netlify.app/
+.env: CORS_ORIGINS=http://localhost:4200,https://adorable-zabaione-a69bde.netlify.app
+$ docker compose up -d api      -> panel de Netlify carga datos reales a través de ngrok.
+
+Visibilidad: los proyectos nuevos de Netlify son PRIVADOS por defecto (piden login). Cambiado en
+Project configuration > General > Visitor access > Project visibility -> Public.
+Prueba desde el móvil con datos móviles (01/11/2026 10:20 hora local): panel con datos reales,
+224 eventos dibujados, última ingesta 09:19:56 UTC. Captura: fase10-movil-netlify.png
+
+Comprobación de CORS (01/11/2026 09:23 UTC)
+$ curl.exe -s -D - -o NUL -H "Origin: https://web-falsa.example" http://localhost:8000/api/salud
+HTTP/1.1 200 OK
+date: Sun, 01 Nov 2026 09:23:17 GMT
+server: uvicorn
+content-length: 152
+content-type: application/json
+                                   <- SIN access-control-allow-origin: el navegador NO deja leer la respuesta
+
+$ curl.exe -s -D - -o NUL -H "Origin: https://adorable-zabaione-a69bde.netlify.app" http://localhost:8000/api/salud
+HTTP/1.1 200 OK
+...
+access-control-allow-origin: https://adorable-zabaione-a69bde.netlify.app
+vary: Origin                       <- origen autorizado
+
+Nota: en los dos casos el servidor responde 200 con los datos. CORS no bloquea la petición: es el NAVEGADOR
+quien, sin esa cabecera, impide a la web leer la respuesta. Por eso CORS no es autenticación (enunciado §9).

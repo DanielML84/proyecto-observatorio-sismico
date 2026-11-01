@@ -18,15 +18,22 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - **Fase 10 · túnel:** servicio `tunel` (imagen oficial `ngrok/ngrok`) en `compose.yaml`, apuntando a
   `http://api:8000`, con profile `tunel` y token en `.env`. URL pública:
   https://unbolted-decorated-heaving.ngrok-free.dev → `/api/salud` responde OK desde internet.
+- **Fase 10 · Netlify:** repo conectado (base `frontend`), `config.json` con la URL de ngrok, origen de Netlify
+  añadido a `CORS_ORIGINS` en `.env` → https://adorable-zabaione-a69bde.netlify.app/ muestra datos reales.
 
 ### Problemas
 - No se pudo instalar ngrok en Windows: Microsoft Store en blanco; `winget -s msstore` → `0x8a15005e`
   (certificate pinning); con el bypass temporal (desactivado después) → `0x8007041d` al instalar; el .exe directo,
   bloqueado por Defender (falso positivo que la propia ngrok reconoce).
   **Solución:** ngrok en contenedor (opción B del README del profesor). Causa exacta del fallo de la Store: no lo sé.
+- Desde el móvil, la web de Netlify pedía login («This site is private»): los proyectos nuevos de Netlify son
+  privados por defecto. **Solución:** Project visibility → Public. Prueba con datos móviles OK (224 eventos),
+  captura `fase10-movil-netlify.png`.
+
+- CORS comprobado con curl: el origen falso no recibe `access-control-allow-origin`; el de Netlify sí. **Fase 10 cerrada.**
 
 ### Siguiente paso
-- Poner la URL en `frontend/public/config.json` → Netlify → origen de Netlify en `CORS_ORIGINS` → prueba desde el móvil.
+- Fase 11: reproducción acelerada aislada («REPRODUCCIÓN») por `terremotos.replay` y las 11 pruebas de aceptación.
 
 ## Sesión 4 · Sábado 31/10/2026
 

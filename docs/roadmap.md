@@ -77,8 +77,8 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Revisión final: pruebas repetidas, build de producción, CORS, móvil y modo demo (`docs/evidencias/fase9-panel.txt`)
 
 ### Fase 10 · Despliegue  *(FAQ paso 10)*
-- [ ] Cuentas ngrok y Netlify
-- [ ] Túnel + publicación + prueba desde otro dispositivo ⚑
+- [x] Cuentas ngrok y Netlify (ngrok en contenedor, servicio `tunel`; Netlify en público)
+- [x] Túnel + publicación + prueba desde otro dispositivo ⚑ (`docs/evidencias/fase10-*`)
 
 ### Fase 11 · Reproducción y pruebas de aceptación  *(FAQ paso 11)*
 - [ ] Replay acelerado aislado («REPRODUCCIÓN»)
