@@ -1,0 +1,118 @@
+Fase 13 · Análisis de calidad (analisis/calidad.sql) · 01/11/2026 ~18:22 UTC
+
+PS C:\Users\Usuario\Desktop\proyecto-observatorio-sismico> Get-Content analisis/calidad.sql | docker compose exec -T postgres psql -U observatorio -d observatorio
+=== 0. DENOMINADORES: qué conjunto se mide ==============================================
+      source       | terremotos_actuales |   desde    |   hasta    
+-------------------+---------------------+------------+------------
+ usgs-fdsn         |               18302 | 2025-01-01 | 2025-12-31
+ usgs-feed-all_day |                 549 | 2026-10-30 | 2026-11-01
+ prueba-faq12      |                   3 | 2026-10-27 | 2026-10-27
+
+ versiones_guardadas | versiones_sinteticas | mensajes_en_cuarentena | cuarentena_sintetica 
+---------------------+----------------------+------------------------+----------------------
+               19022 |                    4 |                      3 |                    2
+
+=== 1. COMPLETITUD: % de terremotos (reales) con el campo informado ======================
+      source       |   n   | pct_mag | pct_mag_type | pct_depth | pct_place | pct_status | pct_pais 
+-------------------+-------+---------+--------------+-----------+-----------+------------+----------
+ usgs-fdsn         | 18302 |  100.00 |       100.00 |    100.00 |    100.00 |     100.00 |    21.59
+ usgs-feed-all_day |   549 |  100.00 |       100.00 |    100.00 |    100.00 |     100.00 |    79.05
+
+=== 2. UNICIDAD ===========================================================================
+--- 2a. Estado actual: filas frente a ids distintos (deben coincidir)
+ filas | ids_distintos 
+-------+---------------
+ 18854 |         18854
+
+--- 2b. Historial: versiones (id, updated) repetidas (debe ser 0)
+ versiones_repetidas 
+---------------------
+                   0
+
+--- 2c. Cuántas versiones distintas se han visto de cada terremoto (reales)
+ n_versiones | terremotos 
+-------------+------------
+           1 |      18766
+           2 |         53
+           3 |         20
+           4 |          6
+           5 |          2
+           6 |          1
+           7 |          2
+          32 |          1
+
+=== 3. VALIDEZ (terremotos reales) ========================================================
+ coord_fuera_rango | mag_min | mag_max | mag_negativa | prof_min | prof_max | prof_negativa | prof_mayor_700 
+-------------------+---------+---------+--------------+----------+----------+---------------+----------------
+                 0 |   -0.93 |     8.8 |            7 |    -3.04 |  669.556 |             9 |              0
+
+--- 3b. Mensajes rechazados por regla (reales y sintéticos por separado)
+  origen   |   tipo   |       motivo       | mensajes 
+-----------+----------+--------------------+----------
+ real      | excluido | type=quarry blast  |        1
+ sintético | excluido | type=explosion     |        1
+ sintético | invalido | lat_fuera_de_rango |        1
+
+=== 4. CONSISTENCIA =======================================================================
+--- 4a. Claves: país inexistente / día que no corresponde a event_time (deben ser 0)
+ pais_inexistente | dia_incoherente | actualizado_antes_de_ocurrir 
+------------------+-----------------+------------------------------
+                0 |               0 |                            0
+
+--- 4b. Secuencia de revisiones: el estado actual tiene la versión MÁS RECIENTE del historial (debe ser 0)
+ actual_no_es_la_ultima 
+------------------------
+                      0
+
+--- 4c. Unidades/escalas de magnitud (reales)
+ mag_type | count 
+----------+-------
+ mb       | 16382
+ mww      |  1483
+ ml       |   399
+ mwr      |   356
+ md       |   195
+ mw       |    29
+ mwb      |     6
+ mb_lg    |     1
+
+=== 5. ACTUALIDAD (solo feed en vivo) =====================================================
+--- 5a. Retrasos en minutos: ocurrencia -> última actualización USGS -> nuestra ingesta
+ terremotos | mediana_min_ocurrencia_a_updated | mediana_min_ocurrencia_a_ingesta | p90_min_ocurrencia_a_ingesta | mediana_s_ingesta_a_guardado 
+------------+----------------------------------+----------------------------------+------------------------------+------------------------------
+        549 |                             11.3 |                            453.3 |                       1228.1 |                         1.58
+
+--- 5b. Consultas al feed: correctas, fallidas y huecos de más de 5 min entre consultas correctas
+ correctas | fallidas |            primera            |            ultima             
+-----------+----------+-------------------------------+-------------------------------
+      1096 |        1 | 2026-10-31 06:48:01.744891+00 | 2026-11-01 18:22:01.509959+00
+
+           anterior            |           siguiente           | horas_sin_consultar 
+-------------------------------+-------------------------------+---------------------
+ 2026-10-31 13:34:34.90652+00  | 2026-10-31 13:41:07.380835+00 |                0.11
+ 2026-10-31 15:27:34.979409+00 | 2026-11-01 08:16:00.82855+00  |               16.81
+ 2026-11-01 10:09:49.460362+00 | 2026-11-01 10:19:56.77977+00  |                0.17
+ 2026-11-01 15:46:04.976286+00 | 2026-11-01 17:05:09.373774+00 |                1.32
+
+=== 6. TRANSFORMACIONES: cuántos registros afecta cada una (terremotos reales) =============
+ fechas_ms_a_utc | con_pais_asignado | sin_pais_asignado | en_geometrias_reparadas 
+-----------------+-------------------+-------------------+-------------------------
+           18851 |              4386 |             14465 |                     483
+
+PS C:\Users\Usuario\Desktop\proyecto-observatorio-sismico> 
+--- Consultas complementarias (01/11/2026 ~18:25 UTC) ---
+-- Retraso actualización USGS -> nuestra descarga, solo eventos actualizados con el productor en marcha
+-- (existe una consulta correcta en los 2 min anteriores a updated_at)
+ eventos | mediana_s | p90_s
+---------+-----------+-------
+     174 |        61 |    96
+
+-- Terremotos con más de 10 versiones
+   event_id    | versiones | mag_min | mag_max |            place            |         event_time
+---------------+-----------+---------+---------+-----------------------------+----------------------------
+ aka2026vqjriv |        33 |     4.3 |     4.5 | 24 km SE of Kasilof, Alaska | 2026-11-01 11:30:21.662+00
+
+-- Consultas fallidas
+         solicitada_at         | http_status |                                         error
+-------------------------------+-------------+----------------------------------------------------------------------------------------
+ 2026-11-01 10:19:54.558935+00 |             | intento 1: red/timeout: <urlopen error [Errno -5] No address associated with hostname>

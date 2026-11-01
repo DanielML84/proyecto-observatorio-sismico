@@ -6,7 +6,7 @@
 
 ---
 
-## 1. Objetivo y funcionamiento general 🟡
+## 1. Objetivo y funcionamiento general ✅
 
 **Pregunta:** ¿dónde se está registrando actividad sísmica y cómo se compara con un periodo
 histórico equivalente?
@@ -16,18 +16,95 @@ USGS feed (cada 60 s) → productor (Python, aiokafka) → Kafka → consumidor 
 → PostgreSQL → API (FastAPI) → ngrok (HTTPS) → panel (Angular + Leaflet, Netlify)
 ```
 
-**Alcance (provisional, propuesta del enunciado §4.2):** histórico del año 2025, ámbito mundial,
-magnitud ≥ 4 y tipo `earthquake`. Los mismos filtros se aplican al periodo reciente para la comparación.
+Cinco servicios obligatorios en Docker Compose (`productor`, `kafka`, `consumidor`, `postgres`, `api`) y auxiliares:
+`kafka-init` (crea los topics), `consumidor-replay` (reproducción aislada, §10), `tunel` (ngrok en contenedor, D43) y,
+con *profile*, `productor-replay`, `productor-prueba` y `medir` (§8).
+Panel publicado: https://adorable-zabaione-a69bde.netlify.app/ · API por túnel: https://unbolted-decorated-heaving.ngrok-free.dev
+(solo responde mientras el equipo del autor está encendido).
+
+**Alcance (propuesta del enunciado §4.2, adoptada):** histórico del año 2025, ámbito mundial, magnitud ≥ 4 y tipo
+`earthquake`. Los mismos filtros se aplican al periodo reciente para la comparación.
 
 **Material reutilizado y desarrollo propio:** el material del profesor está sin modificar en
 `docs/material-profesor/` y en el primer commit (`5c052ff`). Todo lo posterior es desarrollo propio
 o modificación, y queda trazado en el historial de Git.
 
-## 2. Diccionario de datos ⬜
+## 2. Diccionario de datos ✅
 
-*(Se completa al cerrar el modelo.)*
+Fuente: `sql/01_esquema.sql` y `sql/02_reproduccion.sql`. Todas las fechas se guardan en **UTC** (`TIMESTAMPTZ`);
+los campos `_ms` son milisegundos Unix tal como los da USGS. El esquema `replay` repite las tablas de hechos con las
+mismas columnas (§10).
 
-## 3bis. Integración geográfica (enunciado §4.3) 🟡
+### 2.1 Hecho principal · `evento_actual` (una fila = un terremoto, en su versión más reciente)
+
+| Campo | Significado | Tipo o unidad | Origen | Tratamiento de ausencias |
+|---|---|---|---|---|
+| `event_id` | Identificador del terremoto en USGS. Clave primaria | Texto | `id` del Feature | Obligatorio; sin él → cuarentena `sin_id` |
+| `updated_ms` | Versión vigente: momento de la última actualización en USGS | Entero, ms Unix | `properties.updated` | Obligatorio; sin él → cuarentena `updated_invalido` |
+| `updated_at` | `updated_ms` en formato fecha, para leerlo | Fecha y hora UTC | Derivado | Obligatorio |
+| `event_time` | Momento en que **ocurrió** el terremoto | Fecha y hora UTC | `properties.time` | Obligatorio; sin él → cuarentena `time_invalido` |
+| `fecha_id` | Día UTC de `event_time`; enlaza con la dimensión `fecha` | Fecha | Derivado | Obligatorio; fuera de 2024–2027 → cuarentena `fecha_fuera_de_dimension` |
+| `mag` | Magnitud | Decimal (sin unidad; depende de `mag_type`) | `properties.mag` | **Se admite nulo** (no es 0); se muestra «ND» y no cumple un filtro de magnitud mínima. No numérica → cuarentena |
+| `mag_type` | Escala de la magnitud (ml, mb, mww, md…) | Texto | `properties.magType` | Se admite nulo |
+| `depth_km` | Profundidad del foco | Decimal, km | 3.ª coordenada | Se admite nulo. **Negativa se acepta** (referida al geoide WGS84, FAQ de USGS) |
+| `lon` / `lat` | Longitud / latitud del epicentro | Decimal, grados WGS84 | 1.ª / 2.ª coordenada | Obligatorias; fuera de [-180, 180] / [-90, 90] → cuarentena |
+| `place` | Descripción del lugar escrita por USGS | Texto | `properties.place` | Se admite nulo. **No se usa** para asignar país |
+| `status` | Estado de la revisión: `automatic` o `reviewed` | Texto | `properties.status` | Se admite nulo |
+| `country_id` | Entidad del catálogo Natural Earth donde cae el punto | Texto (`ADM0_A3`) | Calculado (punto en polígono, §3bis) | **Nulo = «Sin país asignado»** (mar, costa simplificada…); nunca se asigna el país más cercano |
+| `source` | Procedencia del mensaje (`usgs-feed-all_day`, `usgs-fdsn`, `prueba-…`, `replay-caso-controlado`) | Texto | Sobre del mensaje | Obligatorio. `prueba%` nunca sale por la API |
+| `ingested_at` | Cuándo lo descargó **nuestro** productor | Fecha y hora UTC | Sobre del mensaje | Obligatorio |
+| `processed_at` | Cuándo lo escribió el consumidor | Fecha y hora UTC | `now()` de PostgreSQL | Automático |
+| `replayed_at` | Solo en reproducción: cuándo se reprodujo | Fecha y hora UTC | Sobre del mensaje | Nulo en los datos actuales |
+
+### 2.2 Historial · `evento_version` (una fila = una versión observada)
+
+Clave primaria `(event_id, updated_ms)`: la misma versión nunca se guarda dos veces. Repite `mag`, `depth_km`, `lon`,
+`lat`, `event_time`, `status`, `source`, `ingested_at` y `replayed_at` con el mismo significado que arriba, **tal como
+venían en esa versión**, y añade:
+
+| Campo | Significado | Tipo | Tratamiento de ausencias |
+|---|---|---|---|
+| `received_at` | Cuándo recibió el consumidor esta versión | Fecha y hora UTC | Automático |
+| `raw` | El Feature **original** de USGS, sin modificar | JSONB | Obligatorio |
+
+### 2.3 Dimensiones
+
+| Tabla · campo | Significado | Tipo | Origen |
+|---|---|---|---|
+| `pais.country_id` | Identificador de la entidad (clave). Se comprobó que es único | Texto | `ADM0_A3` de Natural Earth (no siempre es un código ISO oficial) |
+| `pais.nombre_es` / `admin` | Nombre en español / en inglés | Texto | `NAME_ES` / `ADMIN` |
+| `pais.continente` / `subregion` | Continente y subregión (para agregar) | Texto | `CONTINENT` / `SUBREGION` |
+| `fecha.fecha_id` | Un día UTC (clave) | Fecha | `generate_series` 2024-01-01 … 2027-12-31 (1 461 días) |
+| `fecha.anio`, `mes`, `dia`, `dia_semana` | Partes del día; `dia_semana` ISO (1 = lunes … 7 = domingo) | Entero pequeño | Derivados |
+
+### 2.4 Tablas de control
+
+| Tabla · campo | Significado | Tipo | Ausencias |
+|---|---|---|---|
+| `cuarentena.tipo` | `invalido` (no se puede tratar) o `excluido` (válido pero fuera de alcance, p. ej. `type=explosion`) | Texto con CHECK | Obligatorio |
+| `cuarentena.motivo` | Regla que lo rechazó (`lat_fuera_de_rango`, `json_invalido`, `modo_no_corresponde…`) | Texto | Obligatorio |
+| `cuarentena.event_id` | Id, si se pudo leer | Texto | Nulo si el mensaje estaba roto |
+| `cuarentena.kafka_topic/partition/offset` | Dónde está el mensaje en Kafka; únicos juntos (reprocesar no duplica) | Texto / enteros | Obligatorios |
+| `cuarentena.raw` | El mensaje tal cual llegó | Texto (puede no ser JSON) | Obligatorio |
+| `version_publicada.event_id` / `updated_ms` | Última versión que el **productor** publicó de cada evento (su «memoria» entre reinicios) | Texto / ms Unix | Obligatorios |
+| `version_publicada.published_at` | Cuándo se publicó | Fecha y hora UTC | Automático |
+| `consulta_ingesta.fuente`, `url` | Qué se consultó (`usgs-feed-all_day`, `usgs-fdsn`) | Texto | Obligatorios |
+| `consulta_ingesta.solicitada_at` | Cuándo se hizo la petición | Fecha y hora UTC | Automático |
+| `consulta_ingesta.http_status`, `ok`, `error` | Resultado de la petición | Entero / booleano / texto | `http_status` nulo si no hubo respuesta (timeout) |
+| `consulta_ingesta.n_eventos`, `n_publicados`, `duracion_ms` | Eventos recibidos, enviados a Kafka y duración | Enteros | Nulos si la petición falló |
+
+### 2.5 Mensaje de Kafka (contrato v1, `docs/contrato-mensaje.md`)
+
+| Campo | Significado | Tipo |
+|---|---|---|
+| `schema_version` | Versión del contrato (1) | Entero |
+| `source` | Procedencia (ver `evento_actual.source`) | Texto |
+| `mode` | `live` o `replay`; tiene que corresponder al topic, si no → cuarentena | Texto |
+| `ingested_at` | Hora de descarga del productor | Texto ISO 8601 UTC |
+| `replayed_at` | Hora de reproducción (solo `replay`) | Texto ISO 8601 UTC o nulo |
+| `event` | El Feature de USGS **sin modificar**. Clave del mensaje: `event.id` | Objeto GeoJSON |
+
+## 3bis. Integración geográfica (enunciado §4.3) ✅
 
 - **Método:** punto en polígono con Shapely 2.0.6 sobre el catálogo Natural Earth del profesor (WGS84 en
   ambos lados). Índice espacial STRtree. Código: `backend/src/geografia.py`.
@@ -42,17 +119,17 @@ o modificación, y queda trazado en el historial de Git.
 - Evidencia: `docs/evidencias/fase6-paises.txt`.
 - **Limitación:** las fronteras son simplificadas (escala 1:110M), así que un terremoto costero puede quedar sin país o
   en el país vecino. No se afirma precisión cartográfica.
+- Con todos los datos (01/11/2026): 4 386 terremotos reales con país y 14 465 sin país; 483 en las dos geometrías
+  reparadas (§5.4).
 
-*(Se completa cuando exista el modelo físico, Fase 4.)*
-
-## 3. Procedencia y registro de consultas 🟡
+## 3. Procedencia y registro de consultas ✅
 
 | Conjunto | Fuente | Periodo y filtros | Extracción |
 |---|---|---|---|
 | Recientes (muestra de exploración) | Feed USGS `all_day.geojson` | Ventana móvil de 24 h; sin filtros | Una respuesta guardada el 28/10/2026, 11:36 UTC (`metadata.generated`): `docs/material-profesor/ejemplos/feed-all_day-2026-10-28.geojson` (187 eventos) |
 | Histórico (muestra) | API FDSN de USGS | Enero de 2025, mag ≥ 4, `eventtype=earthquake`, `orderby=time-asc` | Una consulta (URL del enunciado), 1.413 eventos: `docs/material-profesor/ejemplos/historico-2025-01-mag4.geojson` |
 | Geografía | Natural Earth Admin 0, copia del profesor | 177 entidades, escala 1:110 M | `frontend/public/datos/paises.geojson`; SHA-256 verificado contra `FUENTES-Y-LICENCIAS.md` |
-| Recientes (producción) | Feed USGS | — | ⬜ Fase 5 |
+| Recientes (producción) | Feed USGS `all_day.geojson` | Ventana móvil de 24 h; sin filtros | Productor cada 60 s desde el 31/10/2026 06:48 UTC. Cada petición en `consulta_ingesta` (1 096 correctas y 1 fallida hasta el 01/11 18:22 UTC); cada respuesta con cambios, guardada comprimida en `data/raw/` (24 h de retención, no se sube a Git) |
 | Histórico 2025 completo | API FDSN `fdsnws/event/1/query` | 2025-01-01 → 2026-01-01, `minmagnitude=4`, `eventtype=earthquake`, `orderby=time-asc`, mundo | 12 consultas mensuales el 31/10/2026 (~07:19 UTC); 18.302 eventos; ver la tabla siguiente |
 
 **Registro de consultas del histórico** (`data/historico/manifest.json`; regenerable con
@@ -88,7 +165,7 @@ o modificación, y queda trazado en el historial de Git.
   los eventos que caen en el límite entre intervalos.
 - `updatedafter` permite recuperar los cambios posteriores a una fecha (útil tras una parada de más de 24 h).
 
-## 4. Exploración de la fuente reciente 🟡
+## 4. Exploración de la fuente reciente ✅
 
 Notebook: `analisis/01_exploracion_feed.ipynb`. Muestra: una respuesta del feed con 187 eventos.
 
@@ -115,7 +192,7 @@ Fuente: https://usgs.gov/faqs/what-does-it-mean-earthquake-occurred-a-depth-0-km
 **Problema técnico encontrado:** al aplanar con `pd.json_normalize` aparecen dos columnas `type`
 (la del Feature y `properties.type`). Se renombran a `feature_type` y `geom_type`.
 
-## 5. Calidad de datos 🟡
+## 5. Calidad de datos ✅
 
 ### 5.1 Reglas del consumidor (`backend/src/validacion.py`)
 | # | Regla | Resultado si falla | Motivo registrado | Dimensión |
@@ -154,8 +231,58 @@ Resultado (31/10, ~07:00 UTC): **222 publicados = 221 terremotos + 1 exclusión 
 **0 ids perdidos**. Evidencia y consultas: `docs/evidencias/fase5-conciliacion.txt`.
 Los casos sintéticos se separan por el prefijo `PRUEBA-`. Sin esa marca, la conciliación habría dado un falso descuadre.
 
-*(El análisis completo de las 6 dimensiones sobre los datos almacenados se hará con consultas SQL cuando el productor real lleve tiempo funcionando.)*
-## 6. Modelo conceptual, lógico y físico 🟡
+### 5.4 Análisis por dimensiones sobre los datos guardados
+
+Consultas: [`analisis/calidad.sql`](../analisis/calidad.sql) (solo lectura). Ejecutadas el **01/11/2026 ~18:22 UTC**.
+Salida completa: `docs/evidencias/fase13-calidad.txt`. Esquema `public`; la reproducción (`replay`) no entra.
+
+**Denominadores.** Terremotos actuales: **18 302** del histórico FDSN (2025) + **549** del feed (30/10–01/11/2026)
++ **3 sintéticos** (`prueba-faq12`), que se excluyen de todo lo demás. Versiones guardadas: 19 022 (4 sintéticas).
+Mensajes en cuarentena: 3 (2 sintéticos). Los porcentajes de abajo usan **terremotos reales** como denominador,
+salvo donde se indica otra cosa.
+
+| Dimensión | Comprobación | Resultado | Acción / decisión |
+|---|---|---|---|
+| **Completitud** | % de terremotos con el campo informado | `mag`, `mag_type`, `depth_km`, `place`, `status`: **100 %** en las dos fuentes. País: **21,6 %** (FDSN) y **79,1 %** (feed) | Los nulos se conservan (no se rellenan con 0). El país vacío no es un error: ver nota 1 |
+| **Unicidad** | Filas frente a ids en el estado actual; versiones `(id, updated)` repetidas | 18 854 filas = 18 854 ids; **0** versiones repetidas | Garantizado por las claves primarias y el UPSERT (§6) |
+| **Unicidad** | Versiones vistas por terremoto (real) | 1 versión: 18 766 · 2: 53 · 3: 20 · 4–7: 11 · **32: 1** | El de 32 (33 al volver a mirar) es `aka2026vqjriv`, M4,3–4,5 en Alaska, revisado una y otra vez por USGS. Se guardan todas; el estado actual tiene la última |
+| **Validez** | Rangos y valores anómalos (reales) | 0 coordenadas fuera de rango; mag de −0,93 a 8,8 (**7 negativas**); profundidad de −3,04 a 669,6 km (**9 negativas**); 0 por encima de 700 km | Se aceptan las negativas: son posibles en la escala de magnitud y la profundidad se mide respecto al geoide (§4). Se señalan, no se borran |
+| **Validez** | Mensajes rechazados por regla | Reales: 1 excluido (`type=quarry blast`). Sintéticos: 1 `type=explosion`, 1 `lat_fuera_de_rango` | Cuarentena con motivo y original; el sintético va identificado (`PRUEBA-…`) |
+| **Consistencia** | País inexistente; día ≠ día UTC de `event_time`; actualizado antes de ocurrir | **0 · 0 · 0** | Claves foráneas y transformación única de fechas |
+| **Consistencia** | ¿El estado actual tiene la versión más reciente del historial? | **0** discrepancias | Secuencia de revisiones correcta (UPSERT con `WHERE updated_ms <`) |
+| **Consistencia** | Escalas de magnitud (`mag_type`) | mb 16 382 · mww 1 483 · ml 399 · mwr 356 · md 195 · mw 29 · mwb 6 · mb_lg 1 | Se guarda la escala junto a la magnitud: mezclar escalas es una limitación de cualquier comparación |
+| **Actualidad** | Retraso ocurrencia → última actualización USGS (feed, 549) | Mediana **11,3 min** | Es el proceso de USGS, no nuestro |
+| **Actualidad** | Retraso actualización USGS → nuestra descarga, solo eventos actualizados con el productor en marcha (174) | Mediana **61 s**, p90 **96 s**; de la descarga al guardado, mediana **1,58 s** | Coherente con consultar cada 60 s. Ver nota 2 |
+| **Actualidad** | Consultas al feed | 1 096 correctas, **1 fallida** (DNS tras reconstruir el contenedor, 01/11 10:19:54 UTC; el reintento funcionó a los 2 s). Huecos > 5 min: 16,8 h (parada nocturna, §5.2bis), 1,3 h (01/11 15:46–17:05 UTC) y 2 de < 11 min (reinicios) | Todos < 24 h → recuperados por la ventana del feed |
+| **Exactitud** | ¿Son correctos los valores? | **No se puede verificar** con estos datos | Ver nota 3 |
+
+**Nota 1 · país.** El histórico es M ≥ 4 de todo el mundo y la mayoría ocurre en el mar (zonas de subducción), así que
+se queda sin país. El feed incluye magnitudes muy pequeñas, sobre todo en tierra en EE. UU., donde la red detecta más.
+Es una consecuencia de la fuente y de la escala del mapa, no un fallo de la integración.
+
+**Nota 2 · actualidad.** Medir «ocurrencia → nuestra ingesta» sobre todos los eventos da una mediana de 453 min, pero
+es engañoso: incluye las cargas de golpe (la primera descarga traía 24 h hacia atrás, y tras la parada nocturna
+entraron 175). Además, `ingested_at` es el de la **última** versión. Por eso se mide el retraso solo cuando el
+productor estaba consultando justo antes de la actualización de USGS.
+
+**Nota 3 · exactitud.** Comprobar que una magnitud es numérica y está en rango **no demuestra que sea exacta**. No
+tenemos otra fuente independiente con la que contrastarla. Lo que sí se contrasta: el `count` de la API FDSN frente a
+lo descargado (iguales, §3) y la asignación de país del STRtree frente a la fuerza bruta (iguales, §8.3).
+Limitaciones: USGS revisa los valores (hasta 33 versiones de un mismo evento), las escalas de magnitud son distintas
+y las fronteras del mapa son simplificadas (1:110 M).
+
+**Antes → acción → después** (terremotos reales; los problemas pueden solaparse):
+
+| Problema | Antes del tratamiento | Acción | Después |
+|---|---|---|---|
+| Misma versión recibida varias veces | Reenvíos en cada consulta del feed (cada 60 s llega toda la ventana de 24 h) y en pruebas | El productor solo publica novedades; el consumidor ignora `(id, updated)` ya guardados | 0 versiones repetidas |
+| Revisiones de un mismo terremoto | 85 terremotos con 2 a 33 versiones | Guardar todas en `evento_version`; el estado actual solo con la más reciente | 1 fila por terremoto, siempre la última versión |
+| Tipo distinto de terremoto | 1 `quarry blast` (+ explosiones en la muestra de exploración) | Excluir con motivo (`type=…`) | Fuera del análisis, conservado en cuarentena |
+| Magnitud / profundidad negativas | 7 / 9 | Conservar y señalar (no son errores según USGS) | Visibles en el análisis |
+| Sin país | 14 465 terremotos (76,7 %) | No inventar país; «Sin país asignado» | Se mantienen en todos los recuentos |
+| Geometrías del catálogo no válidas | 2 países (USA, SDN) | `make_valid` en memoria | 483 terremotos asignados a esos países |
+
+## 6. Modelo conceptual, lógico y físico ✅
 
 SQL: [`sql/01_esquema.sql`](../sql/01_esquema.sql). Evidencia: `docs/evidencias/fase4-postgres-esquema.txt`.
 
@@ -178,19 +305,28 @@ la *última versión publicada* por el productor y las *consultas* a USGS.
 **Físico:** tipos de PostgreSQL 17 (`TIMESTAMPTZ` en UTC, `BIGINT` para los milisegundos de USGS,
 `DOUBLE PRECISION` para la magnitud y las coordenadas, `JSONB` para el original). Restricciones `CHECK` de rango en `lat`/`lon`.
 
-**Índices (justificación provisional; medición en la Fase 12):**
+**Índices (medidos en §8.5):**
 - `ix_evento_actual_time (event_time)`: la API filtra por intervalos de tiempo y agrupa por ventanas horarias.
 - `ix_evento_actual_country (country_id)`: recuentos y filtro por país.
 - `ix_consulta_ok_fecha (ok, solicitada_at DESC)`: obtener la última consulta correcta para el estado del sistema.
 
 **Comprobación:** insertar dos veces el mismo `event_id` → `duplicate key value violates unique constraint`.
-## 7. Análisis y conclusiones 🟡
+
+**Reproducción:** el esquema `replay` (`sql/02_reproduccion.sql`) repite `evento_actual`, `evento_version` y
+`cuarentena` con las mismas columnas (más `replayed_at`) y comparte las dimensiones `pais` y `fecha` (§10, D44).
+
+**Idempotencia y revisiones** (FAQ 12–13): `evento_version` guarda cada versión una sola vez
+(`ON CONFLICT DO NOTHING`); `evento_actual` se actualiza solo si la versión que llega es más reciente
+(`ON CONFLICT … DO UPDATE … WHERE evento_actual.updated_ms < EXCLUDED.updated_ms`). Ambas cosas en una transacción, y
+el offset de Kafka se confirma después (al menos una vez). Comprobado con datos reales: 0 versiones repetidas y
+el estado actual siempre con la última versión (§5.4).
+## 7. Análisis y conclusiones ✅
 
 **Referencia histórica (comparación §8.4):** 2025, mundial, `type = earthquake`, `mag >= 4` → **18.302 eventos**
 → **media diaria = 18.302 / 365 = 50,14** (el denominador incluye los días con cero eventos, FAQ 23).
 Evidencia: `docs/evidencias/fase7-historico.txt`.
 
-**Candidatas a conclusión (pendientes de redactar con filtros, periodo y denominador):**
+**Conclusiones** (cada una con sus datos, filtros, periodo, denominador, interpretación y limitaciones):
 1. ✅ **El pico de julio y agosto de 2025 se concentra en Kamchatka.** *Datos:* histórico 2025, mundial, `type = earthquake`,
    `mag >= 4`, 18.302 eventos; zona = rectángulo lat 45–60, lon 150–170 (aproximación propia). Entre enero y junio la zona
    registra 19,3 eventos/mes de media; en julio 1.375 (×71) y en agosto 1.254 (×65), tras el M8,8 del 29/07/2025, y después
@@ -199,8 +335,16 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    no con un aumento global. *Consecuencia para la comparación:* la media diaria de 2025 (50,14) incluye esta secuencia;
    sin la zona sería 39,25. Hay que tenerlo en cuenta al comparar el periodo reciente con 2025. No es una predicción ni
    una evaluación de riesgo. Evidencia: `docs/evidencias/fase7-historico.txt`.
-2. *Sesgo de cobertura:* en el feed de 24 h sin filtro de magnitud, el 77 % de los eventos son de EE. UU. (redes de
-   detección densas). Para comparar regiones hay que filtrar por magnitud (Fase 6).
+2. ✅ **Sin filtro de magnitud, el recuento por país mide sobre todo dónde hay más sensores, no dónde tiembla más.**
+   *Datos:* feed en vivo, terremotos con `event_time` entre el 30/10 y el 01/11/2026 (consulta del 01/11 ~18:27 UTC),
+   `type = earthquake`, país por punto en polígono. Sin filtro: **550** terremotos, **75,1 %** en EE. UU.; con M ≥ 2,5:
+   111, **18,9 %**; con M ≥ 4: 61, **3,3 %** (2 terremotos). En el histórico 2025 (M ≥ 4, mundial, 18 302) EE. UU. es el
+   **0,4 %** (71). *Interpretación:* las redes sísmicas densas de EE. UU. registran magnitudes muy pequeñas que en otras
+   regiones no se detectan; al exigir la misma magnitud mínima, su peso cae a lo que es habitual a escala mundial.
+   *Consecuencia:* para comparar regiones o con 2025 hay que aplicar el mismo umbral (M ≥ 4); por eso la comparación
+   histórica lo usa siempre y el panel lo advierte bajo el gráfico por país (§7bis). *Limitaciones:* el periodo del feed
+   es corto (≈3 días) y con M ≥ 4 los números son pequeños (2 de 61): no se interpreta la diferencia 3,3 % frente a
+   0,4 %. No es una evaluación de riesgo. Evidencia: `docs/evidencias/fase13-conclusion2.txt`.
 3. ✅ **El recuento de las últimas 24 h está en la parte baja del rango de 2025, pero no es excepcional; la comparación
    con la media exagera la diferencia.** *Datos:* periodo 30/10/2026 09:28 → 31/10/2026 09:28 UTC, mundial, earthquake,
    mag ≥ 4 → **25** eventos. Media diaria de 2025 = 50,14 (−50,1 %); pero la **mediana** de los 365 días de 2025 es 43 y el
@@ -212,7 +356,7 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`.
    → *Mejora aplicada:* `/api/estadisticas` devuelve ahora la mediana, el p10, el p90 y el % de días de 2025 con un recuento ≤ al reciente.
 
-## 7bis. Panel del observatorio (enunciado §8) 🟡
+## 7bis. Panel del observatorio (enunciado §8) ✅
 
 Angular 20.3, ngx-leaflet y Leaflet 1.9.4, sobre el mapa del profesor y sin dependencias nuevas. El panel solo consume nuestra API.
 Evidencia: `docs/evidencias/fase9-panel.txt` y capturas `fase9-bloque*.png`.
@@ -228,6 +372,7 @@ Evidencia: `docs/evidencias/fase9-panel.txt` y capturas `fase9-bloque*.png`.
 | Tabla accesible | `tabla-eventos/` | Igual a la API fila a fila; ordenable con teclado; `aria-sort` |
 | Lista truncada | `estado-sistema/`, `tabla-eventos/` | Todo 2025: «5000 de 18302»; las estadísticas se calculan sobre todos |
 | Refresco de 60 s sin solapes | `app.component` | Ciclos a +0, +60,1 y +120,1 s |
+| Modo REPRODUCCIÓN | `filtros/`, `app.component` | Selector «Datos», banda naranja, «REPRODUCIDO (UTC)» en cada ficha; comparación con 2025 desactivada (`fase11-panel-reproduccion.png`) |
 
 **Cómo se evita un porcentaje engañoso.** El panel enseña siempre el porcentaje que calcula la API, acompañado de un aviso cuando no
 significa lo que parece (D39):
@@ -252,7 +397,7 @@ diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambi
 - Comprobado en Edge a 1280, 390 y 320 px. No se ha probado con un lector de pantalla real.
 - Las pruebas de ingesta parada, lista truncada y eventos sin magnitud son simuladas en el navegador: en la base real no hay eventos sin magnitud.
 
-## 8. Complejidad, mediciones, costes y mejoras 🟡
+## 8. Complejidad, mediciones, costes y mejoras ✅
 
 ### 8.1 Equipo y procedimiento
 
@@ -389,7 +534,7 @@ hardware por una cuota mensual, que no se ha consultado.
 **ROI**: no se estima. El observatorio es un proyecto educativo sin un beneficio económico medible, y el enunciado
 pide no inventarlo.
 
-## 9. Evidencias de las pruebas de aceptación 🟡
+## 9. Evidencias de las pruebas de aceptación ✅
 
 | Prueba (enunciado §11) | Esperado | Observado | Evidencia |
 |---|---|---|---|
@@ -406,7 +551,7 @@ pide no inventarlo.
 | Reproducción histórica | Por Kafka, aislada | 96 eventos por `terremotos.replay` → esquema `replay`; duplicado ignorado, revisión aplicada, versión antigua ignorada; el mismo evento sigue con 4,2 en `public` | `fase11-reproduccion.txt` |
 
 Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados de los datos reales (enunciado §6).
-## 10. Reproducción histórica 🟡
+## 10. Reproducción histórica ✅
 
 **Selección.** Ventana temporal alrededor del terremoto M8,8 de Kamchatka (`us6000qw60`, 29/07/2025 23:24:52 UTC),
 desde 1 h antes hasta 2 h después: **96 eventos reales** (M≥4, todo el mundo) del histórico FDSN ya descargado (Fase 7):

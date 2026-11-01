@@ -1,0 +1,17 @@
+Conclusión 2 · Sesgo de cobertura por país según el umbral de magnitud (01/11/2026 ~18:27 UTC)
+==============================================================================================
+$ docker compose exec postgres psql ... -c "SELECT CASE WHEN source = 'usgs-fdsn' THEN 'Histórico 2025' ELSE 'Feed 30/10-01/11/2026' END AS conjunto,
+    umbral, COUNT(*) AS terremotos, COUNT(*) FILTER (WHERE country_id = 'USA') AS eeuu, ... pct_eeuu, ... pct_sin_pais
+  FROM evento_actual e CROSS JOIN (VALUES ('todas', -99.0), ('M>=2.5', 2.5), ('M>=4', 4.0)) AS u(umbral, minimo)
+  WHERE source IN ('usgs-feed-all_day', 'usgs-fdsn') AND COALESCE(mag, -99) >= minimo GROUP BY 1, 2 ORDER BY 1 DESC, 3 DESC;"
+
+        conjunto       | umbral | terremotos | eeuu | pct_eeuu | pct_sin_pais
+-----------------------+--------+------------+------+----------+--------------
+ Histórico 2025        | M>=2.5 |      18302 |   71 |      0.4 |         78.4
+ Histórico 2025        | M>=4   |      18302 |   71 |      0.4 |         78.4
+ Histórico 2025        | todas  |      18302 |   71 |      0.4 |         78.4
+ Feed 30/10-01/11/2026 | todas  |        550 |  413 |     75.1 |         20.9
+ Feed 30/10-01/11/2026 | M>=2.5 |        111 |   21 |     18.9 |         68.5
+ Feed 30/10-01/11/2026 | M>=4   |         61 |    2 |      3.3 |         73.8
+
+Nota: el histórico solo contiene M>=4 (consulta FDSN con minmagnitude=4), por eso sus tres filas son iguales.

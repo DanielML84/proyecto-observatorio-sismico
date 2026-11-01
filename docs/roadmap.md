@@ -90,7 +90,8 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Costes y propuesta de escalado ⚑ (memoria §8.6–8.8)
 
 ### Fase 13 · Memoria y entrega
-- [ ] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
+- [x] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
+- [ ] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed
 - [ ] README reproducible
 - [ ] Lista final de comprobación de la guía de entregables
 - [ ] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación

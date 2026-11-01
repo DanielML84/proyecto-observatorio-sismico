@@ -54,8 +54,17 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   ≈6–7 h de desarrollo en total (dato de Daniel), luz con el PVPC de octubre de 2026 (0,194 €/kWh, Selectra) y
   100 W supuestos. Resumen ≈46 €/mes + ≈90–105 € de desarrollo. **Fase 12 cerrada.**
 
+- **Fase 13 · memoria:** diccionario de datos (§2); análisis de calidad por las 6 dimensiones con
+  `analisis/calidad.sql` (§5.4, evidencia `fase13-calidad.txt`); Conclusión 2 redactada (EE. UU.: 75,1 % sin filtro →
+  3,3 % con M ≥ 4); secciones viejas actualizadas. Todas las secciones en ✅.
+- Descubierto en calidad: la «ocurrencia → ingesta» (mediana 453 min) engañaba por las cargas de golpe; medido bien
+  (solo con el productor en marcha): mediana 61 s. Un terremoto de Alaska con 33 versiones. La única consulta fallida
+  fue un error DNS al reconstruir el contenedor; el reintento funcionó.
+- Duda sin resolver: hueco de 1,3 h sin consultas el 01/11 (15:46–17:05 UTC). ¿Docker parado durante el descanso?
+
 ### Siguiente paso
-- Fase 13: diccionario de datos (§2), repaso de la memoria, README reproducible, guía de estudio, checklist final.
+- README reproducible → guía de estudio → checklist final de la guía de entregables.
+- ~03/11: re-descarga FDSN del periodo de la Conclusión 3.
 
 ## Sesión 4 · Sábado 31/10/2026
 
