@@ -15,11 +15,18 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   de 24 h, el feed las cubría. Evidencia: `docs/evidencias/recuperacion-parada-nocturna.txt`. Añadido en
   memoria §5.2bis y en defensa.
 
+- **Fase 10 · túnel:** servicio `tunel` (imagen oficial `ngrok/ngrok`) en `compose.yaml`, apuntando a
+  `http://api:8000`, con profile `tunel` y token en `.env`. URL pública:
+  https://unbolted-decorated-heaving.ngrok-free.dev → `/api/salud` responde OK desde internet.
+
 ### Problemas
-- Ninguno.
+- No se pudo instalar ngrok en Windows: Microsoft Store en blanco; `winget -s msstore` → `0x8a15005e`
+  (certificate pinning); con el bypass temporal (desactivado después) → `0x8007041d` al instalar; el .exe directo,
+  bloqueado por Defender (falso positivo que la propia ngrok reconoce).
+  **Solución:** ngrok en contenedor (opción B del README del profesor). Causa exacta del fallo de la Store: no lo sé.
 
 ### Siguiente paso
-- Fase 10: cuenta e instalación de ngrok → túnel `ngrok http 8000` → Netlify → CORS → prueba desde el móvil.
+- Poner la URL en `frontend/public/config.json` → Netlify → origen de Netlify en `CORS_ORIGINS` → prueba desde el móvil.
 
 ## Sesión 4 · Sábado 31/10/2026
 

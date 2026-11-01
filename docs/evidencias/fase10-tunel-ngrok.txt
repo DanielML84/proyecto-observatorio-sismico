@@ -1,0 +1,15 @@
+Fase 10 · Túnel ngrok en contenedor (01/11/2026)
+=================================================
+Instalación en Windows descartada: la Microsoft Store abre en blanco; winget -s msstore falla con
+0x8a15005e (certificate pinning) y, tras el bypass temporal (luego desactivado), con 0x8007041d al instalar.
+Descarga directa del .exe: bloqueada por Windows Defender (falso positivo documentado por ngrok).
+Solución: opción B del README del profesor -> servicio "tunel" (imagen oficial ngrok/ngrok) en compose.yaml,
+comando `http http://api:8000`, token desde .env, profile "tunel".
+
+$ docker compose --profile tunel up -d tunel
+Panel de inspección http://localhost:4040 -> estado "online", URL pública:
+  https://unbolted-decorated-heaving.ngrok-free.dev
+
+$ (navegador) https://unbolted-decorated-heaving.ngrok-free.dev/api/salud
+{"api":"ok","base_datos":"ok","generated":1793523051228,"last_ingestion":1793523022013,
+ "segundos_desde_ultima_ingesta":29,"datos_desactualizados":false}

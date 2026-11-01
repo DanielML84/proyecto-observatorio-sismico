@@ -151,6 +151,26 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  # Túnel ngrok: da a la API una URL pública HTTPS (enunciado §9, opción B del README del profesor).
+  # Corre en un contenedor de la MISMA red Compose, por eso apunta a "http://api:8000" (nombre del servicio).
+  # NO uses localhost:8000 aquí: dentro de este contenedor, localhost es el propio contenedor de ngrok.
+  # Elegimos el contenedor porque en este Windows la instalación por Microsoft Store/winget falla (bitácora sesión 5).
+  # Tiene "profile", así que NO arranca con "docker compose up -d" a secas. Se levanta con:
+  #   docker compose --profile tunel up -d tunel
+  # El authtoken llega por variable de entorno desde .env (ignorado por Git). NUNCA en Git ni en el frontend.
+  tunel:
+    image: ngrok/ngrok:latest
+    command: ["http", "http://api:8000"]
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}   # viene de .env; vacío si no existe (así "docker compose up" sin token sigue funcionando)
+    ports:
+      - "127.0.0.1:4040:4040"   # panel de inspección de ngrok, solo en este equipo (ahí se ve la URL pública)
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles: ["tunel"]
+
   # Productor de PRUEBA: envía 1 terremoto de ejemplo y termina.
   # Tiene "profile", así que NO arranca con "docker compose up": se lanza a mano con
   #   docker compose run --rm productor-prueba
