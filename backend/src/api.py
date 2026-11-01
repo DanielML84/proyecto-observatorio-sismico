@@ -8,18 +8,23 @@ Rutas (docs/material-profesor/CONTRATO-API.md):
 Filtros COMUNES a eventos y estadísticas (una sola función -> mapa y gráficos siempre coherentes):
   start (ISO 8601, inclusivo) · end (ISO 8601, exclusivo) · min_mag · country_id (ADM0_A3 o 'SIN_PAIS')
   Por defecto: últimas 24 horas. Los datos sintéticos (source 'prueba…') nunca se devuelven.
+
+Modo (Fase 11, reproducción aislada):  mode=live (por defecto) lee el esquema public; mode=replay lee el esquema
+  replay (sql/02_reproduccion.sql). En replay, si no se indica periodo, se usa el intervalo ORIGINAL de los eventos
+  reproducidos (si no, un filtro de «últimas 24 h» de 2026 no mostraría nada de 2025: FAQ, reproducción).
 """
 
 import math
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Literal
 
 import psycopg
 from fastapi import FastAPI, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from src.db import CONNINFO
+from src.db import conninfo
 
 MAX_PUNTOS = 5000                      # límite documentado de puntos por respuesta
 INGESTA_ANTIGUA_S = 300                # si la última ingesta correcta tiene más de 5 min -> datos desactualizados
@@ -75,8 +80,30 @@ def filtros(start, end, min_mag, country_id, alias="e") -> tuple[str, list]:
     return " AND ".join(w), p
 
 
-async def conectar():
-    return await psycopg.AsyncConnection.connect(CONNINFO, autocommit=True)
+Modo = Literal["live", "replay"]
+
+
+async def conectar(mode: str = "live"):
+    """mode=replay -> search_path=replay,public: las mismas consultas leen las tablas aisladas de la reproducción."""
+    return await psycopg.AsyncConnection.connect(conninfo("replay" if mode == "replay" else "public"), autocommit=True)
+
+
+async def ultima_reproduccion(conn) -> datetime | None:
+    """En replay no hay «ingesta de USGS»: la referencia es el último evento reproducido."""
+    cur = await conn.execute("SELECT MAX(replayed_at) FROM evento_actual")
+    return (await cur.fetchone())[0]
+
+
+async def periodo_replay(conn, start, end) -> tuple[datetime | None, datetime | None]:
+    """Si no se pide periodo en replay: desde el primer evento reproducido hasta justo después del último
+    (fechas ORIGINALES, sin modificar)."""
+    if start is not None or end is not None:
+        return start, end
+    cur = await conn.execute("SELECT MIN(event_time), MAX(event_time) FROM evento_actual")
+    minimo, maximo = await cur.fetchone()
+    if minimo is None:
+        return None, None
+    return minimo.astimezone(timezone.utc), (maximo + timedelta(seconds=1)).astimezone(timezone.utc)   # end exclusivo; siempre UTC
 
 
 async def ultima_ingesta(conn) -> datetime | None:
@@ -100,21 +127,24 @@ async def eventos(
     country_id: str | None = Query(None, description="ADM0_A3 o SIN_PAIS"),
     limit: int = Query(MAX_PUNTOS, ge=1, le=MAX_PUNTOS),
     offset: int = Query(0, ge=0),
+    mode: Modo = Query("live", description="live (datos actuales) o replay (reproducción aislada)"),
 ):
-    start, end = periodo(start, end)
-    where, params = filtros(start, end, min_mag, country_id)
-    async with await conectar() as conn:
+    async with await conectar(mode) as conn:
+        if mode == "replay":
+            start, end = await periodo_replay(conn, start, end)
+        start, end = periodo(start, end)
+        where, params = filtros(start, end, min_mag, country_id)
         cur = await conn.execute(f"SELECT COUNT(*) FROM evento_actual e WHERE {where}", params)
         total = (await cur.fetchone())[0]
         cur = await conn.execute(f"""
             SELECT e.event_id, e.lon, e.lat, e.depth_km, e.mag, e.mag_type, e.place, e.event_time, e.updated_at,
-                   e.status, e.country_id, p.nombre_es, p.subregion
+                   e.status, e.country_id, p.nombre_es, p.subregion, e.replayed_at
             FROM evento_actual e LEFT JOIN pais p ON p.country_id = e.country_id
             WHERE {where}
             ORDER BY e.event_time DESC, e.event_id
             LIMIT %s OFFSET %s""", params + [limit, offset])
         filas = await cur.fetchall()
-        ingesta = await ultima_ingesta(conn)
+        ingesta = await ultima_ingesta(conn) if mode == "live" else await ultima_reproduccion(conn)
 
     features = [{
         "type": "Feature",
@@ -124,6 +154,7 @@ async def eventos(
             "mag": limpio(f[4]), "magType": f[5], "place": f[6],
             "time": ms(f[7]), "updated": ms(f[8]), "status": f[9],
             "country_id": f[10], "country_name": f[11], "subregion": f[12],
+            "replayed_at": ms(f[13]),          # null en live; en replay, cuándo se reprodujo
         },
     } for f in filas]
     truncado = offset + len(features) < total
@@ -131,8 +162,8 @@ async def eventos(
         "type": "FeatureCollection",
         "metadata": {
             "generated": ms(datetime.now(timezone.utc)),   # cuándo se generó ESTA respuesta
-            "last_ingestion": ms(ingesta),                  # última consulta correcta a USGS
-            "mode": "live",
+            "last_ingestion": ms(ingesta),                  # live: última consulta correcta a USGS; replay: último reproducido
+            "mode": mode,
             "count": len(features), "total": total, "truncated": truncado,
             "limit": limit, "offset": offset,
             "next_offset": offset + len(features) if truncado else None,   # paginación
@@ -143,6 +174,30 @@ async def eventos(
     }
 
 
+def bloque_comun(start, end, min_mag, country_id, total, sin_mag, sin_prof, sin_pais, excluidos_sin_mag,
+                 por_pais, por_subregion, por_hora, dist_mag, dist_prof) -> dict:
+    """Parte de /api/estadisticas que es IGUAL en live y en replay (recuentos, distribuciones, sin valor)."""
+    horas_periodo = (end - start).total_seconds() / 3600
+    return {
+        "periodo": {"start": start.isoformat(), "end": end.isoformat(), "horas": round(horas_periodo, 2)},
+        "filtros": {"min_mag": min_mag, "country_id": country_id, "tipo": "earthquake"},
+        "unidad": "número de terremotos (estado actual: una fila por terremoto)",
+        "total": total,
+        "sin_valor": {"magnitud": sin_mag, "profundidad": sin_prof, "pais": sin_pais,
+                      # Eventos del mismo periodo/país que se quedan fuera SOLO por no tener magnitud (null si no hay min_mag)
+                      "magnitud_excluidos_por_filtro": excluidos_sin_mag if min_mag is not None else None},
+        "por_pais": [{"country_id": c, "nombre": n, "n": k} for c, n, k in por_pais],
+        "por_subregion": [{"subregion": s, "n": k} for s, k in por_subregion],
+        "por_hora_utc": [{"hora": h.replace(tzinfo=timezone.utc).isoformat(), "n": k} for h, k in por_hora],
+        "distribucion_magnitud": {
+            "tramo": 0.5,
+            "tramos": [{"desde": float(d), "hasta": float(d) + 0.5, "n": k} for d, k in dist_mag],
+            "sin_valor": sin_mag,
+        },
+        "distribucion_profundidad": {"clases": [{"clase": c, "n": k} for c, k in dist_prof], "sin_valor": sin_prof},
+    }
+
+
 # ------------------------------------------------------------------ /api/estadisticas
 @app.get("/api/estadisticas")
 async def estadisticas(
@@ -150,10 +205,14 @@ async def estadisticas(
     end: datetime | None = None,
     min_mag: float | None = None,
     country_id: str | None = None,
+    mode: Modo = "live",
 ):
-    start, end = periodo(start, end)
-    where, params = filtros(start, end, min_mag, country_id)
-    async with await conectar() as conn:
+    async with await conectar(mode) as conn:
+        if mode == "replay":
+            start, end = await periodo_replay(conn, start, end)
+        start, end = periodo(start, end)
+        where, params = filtros(start, end, min_mag, country_id)
+
         async def q(sql, p=params):
             cur = await conn.execute(sql, p)
             return await cur.fetchall()
@@ -206,6 +265,18 @@ async def estadisticas(
                         ELSE 'profunda (>=300 km)' END AS clase, COUNT(*)
             FROM evento_actual e WHERE {where} AND depth_km IS NOT NULL GROUP BY 1""")
 
+        if mode == "replay":
+            # La comparación con 2025 no tiene sentido sobre datos reproducidos (SON de 2025): se omite.
+            reproducido = await ultima_reproduccion(conn)
+            return {
+                "generated": ms(datetime.now(timezone.utc)),
+                "last_ingestion": ms(reproducido),
+                "mode": "replay",
+                **bloque_comun(start, end, min_mag, country_id, total, sin_mag, sin_prof, sin_pais, excluidos_sin_mag,
+                               por_pais, por_subregion, por_hora, dist_mag, dist_prof),
+                "comparacion_historica": None,
+            }
+
         # Comparación histórica: MISMOS filtros geográficos y de tipo, magnitud >= max(4, min_mag)
         # (el histórico solo contiene mag >= 4). El denominador incluye los días con cero eventos (365).
         mag_cmp = max(4.0, min_mag or 4.0)
@@ -241,26 +312,14 @@ async def estadisticas(
     media_diaria = historico / DIAS_2025
     esperado = media_diaria * horas_periodo / 24          # media escalada a la duración del periodo consultado
     variacion = round((reciente - esperado) / esperado * 100, 1) if esperado > 0 else None   # ND si no hay base
+    comun = bloque_comun(start, end, min_mag, country_id, total, sin_mag, sin_prof, sin_pais, excluidos_sin_mag,
+                         por_pais, por_subregion, por_hora, dist_mag, dist_prof)
 
     return {
         "generated": ms(datetime.now(timezone.utc)),
         "last_ingestion": ms(ingesta),
-        "periodo": {"start": start.isoformat(), "end": end.isoformat(), "horas": round(horas_periodo, 2)},
-        "filtros": {"min_mag": min_mag, "country_id": country_id, "tipo": "earthquake"},
-        "unidad": "número de terremotos (estado actual: una fila por terremoto)",
-        "total": total,
-        "sin_valor": {"magnitud": sin_mag, "profundidad": sin_prof, "pais": sin_pais,
-                      # Eventos del mismo periodo/país que se quedan fuera SOLO por no tener magnitud (null si no hay min_mag)
-                      "magnitud_excluidos_por_filtro": excluidos_sin_mag if min_mag is not None else None},
-        "por_pais": [{"country_id": c, "nombre": n, "n": k} for c, n, k in por_pais],
-        "por_subregion": [{"subregion": s, "n": k} for s, k in por_subregion],
-        "por_hora_utc": [{"hora": h.replace(tzinfo=timezone.utc).isoformat(), "n": k} for h, k in por_hora],
-        "distribucion_magnitud": {
-            "tramo": 0.5,
-            "tramos": [{"desde": float(d), "hasta": float(d) + 0.5, "n": k} for d, k in dist_mag],
-            "sin_valor": sin_mag,
-        },
-        "distribucion_profundidad": {"clases": [{"clase": c, "n": k} for c, k in dist_prof], "sin_valor": sin_prof},
+        "mode": "live",
+        **comun,
         "comparacion_historica": {
             "filtro_magnitud": f">= {mag_cmp}",
             "reciente": reciente,

@@ -270,11 +270,42 @@ diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambi
 | Coordenadas inválidas | Cuarentena y motivo | `lat_fuera_de_rango`, offset 4 | ídem |
 | Evento marítimo | Sin país; permanece | Eventos reales como «Fiji region» se guardan sin país y el panel los muestra como «Sin país asignado» (47 de 218) | `fase9-bloque4-estadisticas.png`; `fase9-panel.txt` |
 | Reiniciar consumidor | Reanuda sin duplicar | ⬜ | |
-| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ Fase 10 (ya comprobado parando el contenedor de la API, sin túnel) | `fase9-panel.txt` |
-| Reproducción histórica | Por Kafka, aislada | ⬜ Fase 11 | |
+| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ pendiente de ejecutar con el túnel real (ya comprobado parando el contenedor de la API) | `fase9-panel.txt` |
+| Reproducción histórica | Por Kafka, aislada | 96 eventos por `terremotos.replay` → esquema `replay`; duplicado ignorado, revisión aplicada, versión antigua ignorada; el mismo evento sigue con 4,2 en `public` | `fase11-reproduccion.txt` |
 
 Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados de los datos reales (enunciado §6).
-## 10. Reproducción histórica ⬜
+## 10. Reproducción histórica 🟡
+
+**Selección.** La secuencia del terremoto M8,8 de Kamchatka (`us6000qw60`, 29/07/2025 23:24:52 UTC), desde 1 h antes
+hasta 2 h después: **96 eventos reales** del histórico FDSN ya descargado (Fase 7). Se eligió porque garantiza actividad
+en la demostración y enlaza con la Conclusión 1 (§7). Se ordenan por fecha original.
+
+**Cómo se inicia y a qué velocidad.** `docker compose run --rm productor-replay` (`backend/src/productor_replay.py`):
+1 evento cada 2 s (`REPLAY_INTERVALO_S`), unos 3–4 minutos. Para repetirla desde cero se vacía **solo** el esquema
+`replay`: `TRUNCATE replay.evento_actual, replay.evento_version, replay.cuarentena`.
+
+**Cómo se separa de los datos actuales.**
+- Topic propio `terremotos.replay`, leído por el servicio `consumidor-replay`, con grupo de consumidores propio.
+- Es el **mismo código** que el consumidor live (enunciado: «reutiliza el procesamiento del consumidor»); solo cambian
+  variables de entorno (`KAFKA_TOPIC`, `DB_ESQUEMA=replay`, `MODO_ESPERADO=replay`).
+- Esquema PostgreSQL propio `replay` con las mismas tablas de hechos (`sql/02_reproduccion.sql`). Las dimensiones
+  `pais` y `fecha` se comparten. El `search_path` hace que las mismas consultas escriban en `replay`.
+- Defensa extra: un mensaje cuyo `mode` no corresponde al topic va a cuarentena (`modo_no_corresponde`).
+
+**Fechas.** Se conserva `event_time` original y se añade `replayed_at` (hora de reproducción). La API, con `mode=replay`
+y sin fechas, consulta el intervalo de los eventos reproducidos; con el filtro por defecto de «últimas 24 h» de 2026 no
+se vería nada (FAQ, reproducción).
+
+**Casos controlados** (sobre el primer evento, `us6000qw5t`): a) duplicado → ignorado; b) revisión **sintética**
+(updated + 1 h, magnitud 4,2 → 4,3, `source='replay-caso-controlado'`) → actualizado; c) versión antigua → ignorado,
+se conserva la revisión.
+
+**Resultado observado** (01/11/2026): 96 filas en `replay.evento_actual`, 97 en `replay.evento_version`, 0 en
+cuarentena; el evento de prueba vale 4,3 en `replay` y **sigue con 4,2 en `public`** (aislamiento comprobado).
+Evidencia: `docs/evidencias/fase11-reproduccion.txt`.
+
+**En el panel.** Selector «Datos» → «REPRODUCCIÓN»; banda naranja «REPRODUCCIÓN · No son actividad actual»; cada
+terremoto indica «REPRODUCIDO (UTC)»; la comparación con 2025 se desactiva (los datos reproducidos ya son de 2025).
 
 ---
 
@@ -324,6 +355,10 @@ Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados
 | D40 | `BASE_MINIMA = 1`: aviso si se espera menos de 1 terremoto | Sin aviso; otro umbral | **Criterio propio**, no viene del enunciado. Solo añade un aviso | Memoria §7bis |
 | D41 | Tabla paginada de 50 filas | Pintar hasta 5.000 filas | Mantener ágil el navegador; el orden se aplica a toda la lista recibida antes de paginar | Encargo, punto 7 |
 | D42 | Ventanas de 1 h parciales en tono claro y con nota | Dibujarlas igual que las completas | Una ventana cubierta a medias tiene menos eventos sin que haya menos actividad | Enunciado §8 |
+| D43 | ngrok en un contenedor (servicio `tunel`, profile) apuntando a `http://api:8000` | ngrok instalado en Windows | La instalación en Windows falló (Store/winget/Defender). Ambas opciones están permitidas | README profesor, opción B |
+| D44 | Reproducción aislada con **esquema** PostgreSQL `replay` + topic y grupo propios | Columna `mode` en las mismas tablas; otra base de datos | Las mismas consultas sirven con `search_path`; imposible mezclar por error; dimensiones compartidas | Enunciado §11 |
+| D45 | Selección: secuencia de Kamchatka (−1 h / +2 h), 1 evento cada 2 s | Diez eventos al azar | Actividad garantizada y enlace con la Conclusión 1; ~3 min de demostración | FAQ, reproducción |
+| D46 | Revisión del caso controlado **sintética** y marcada (`replay-caso-controlado`) | Buscar una revisión real | No hay revisiones reales dentro del histórico (guarda solo la última versión); se marca para no presentarla como USGS | Enunciado §11 |
 
 ### Evidencia del problema de duplicados (Fase 3)
 Al enviar dos veces el mismo evento (`us7000ttlm`, mismo `updated`), Kafka lo almacenó en los offsets 0 y 1

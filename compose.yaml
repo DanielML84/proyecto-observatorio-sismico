@@ -81,6 +81,7 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092   # nombre del servicio, NO localhost (FAQ 28)
       KAFKA_TOPIC: terremotos.live
       KAFKA_GROUP_ID: consumidor-observatorio
+      MODO_ESPERADO: live                   # un mensaje con mode distinto va a cuarentena (no se mezcla)
       POSTGRES_HOST: postgres
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -94,6 +95,52 @@ services:
       postgres:
         condition: service_healthy                  # ni hasta que PostgreSQL acepte conexiones
     restart: unless-stopped
+
+  # Consumidor de la REPRODUCCIÓN (Fase 11). Es el MISMO código que "consumidor" (enunciado §11: reutiliza el
+  # procesamiento), pero lee otro topic, con otro grupo, y escribe en el esquema "replay" (sql/02_reproduccion.sql).
+  # Así los datos reproducidos NUNCA se mezclan con los actuales.
+  consumidor-replay:
+    image: observatorio-backend
+    command: ["python", "-m", "src.consumidor"]
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: terremotos.replay
+      KAFKA_GROUP_ID: consumidor-replay     # grupo propio: sus offsets son independientes del live
+      MODO_ESPERADO: replay
+      DB_ESQUEMA: replay                    # search_path=replay,public -> escribe en replay.*, lee pais/fecha de public
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PAISES_GEOJSON: /data/paises.geojson
+    volumes:
+      - ./frontend/public/datos/paises.geojson:/data/paises.geojson:ro
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      consumidor:
+        condition: service_started          # que construya la imagen el servicio "consumidor" (tiene build:)
+    restart: unless-stopped
+
+  # Productor de REPRODUCCIÓN: envía la secuencia de Kamchatka (96 eventos de 2025) + 3 casos controlados y termina.
+  # Tiene profile: NO arranca con "docker compose up". Se lanza cuando se quiere hacer la demostración:
+  #   docker compose run --rm productor-replay
+  productor-replay:
+    image: observatorio-backend
+    command: ["python", "-m", "src.productor_replay"]
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC: terremotos.replay
+      HISTORICO_DIR: /data/historico
+      REPLAY_INTERVALO_S: "2"               # un evento cada 2 s (~3 min en total)
+    volumes:
+      - ./data:/data:ro                     # lee los archivos del histórico (Fase 7); solo lectura
+    depends_on:
+      kafka-init:
+        condition: service_completed_successfully
+    profiles: ["replay"]
 
   # Productor REAL: consulta USGS cada 60 s y publica solo novedades (src/productor.py)
   productor:

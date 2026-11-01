@@ -1,6 +1,6 @@
 // Formulario de filtros. Valida lo escrito y avisa al componente padre; no llama a la API.
 import { Component, input, output, signal } from '@angular/core';
-import { FILTROS_VACIOS, Filtros } from '../api.service';
+import { FILTROS_VACIOS, Filtros, ModoDatos } from '../api.service';
 
 // Una opción del desplegable de país.
 export type PaisOpcion = { id: string; nombre: string };
@@ -32,16 +32,25 @@ export class FiltrosComponent {
     if (start && end && start >= end) { this.error.set('La fecha de inicio debe ser anterior a la de fin.'); return; }
     this.error.set(null);
     this.aplicar.emit({
+      mode: this.aplicados().mode,                    // el modo se cambia con su propio selector
       start, end,
       min_mag: magnitud.value === '' ? null : magnitud.valueAsNumber,
       country_id: pais.value || null                  // '' = «Todos los países»
     });
   }
 
-  // Vacía el formulario y vuelve a las últimas 24 h.
+  // Vacía el formulario y vuelve al periodo por defecto (live: últimas 24 h; replay: intervalo reproducido).
   limpiar(formulario: HTMLFormElement): void {
     formulario.reset();
     this.error.set(null);
-    this.aplicar.emit(FILTROS_VACIOS);
+    this.aplicar.emit({ ...FILTROS_VACIOS, mode: this.aplicados().mode });
+  }
+
+  // Cambiar entre datos actuales y REPRODUCCIÓN: se aplica al momento y se vacían los demás filtros,
+  // porque los periodos no tienen nada que ver (2026 frente a la secuencia de 2025).
+  cambiarModo(modo: string, formulario: HTMLFormElement): void {
+    formulario.reset();
+    this.error.set(null);
+    this.aplicar.emit({ ...FILTROS_VACIOS, mode: modo as ModoDatos });
   }
 }

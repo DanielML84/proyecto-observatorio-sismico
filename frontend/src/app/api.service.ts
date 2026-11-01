@@ -17,6 +17,7 @@ export type PropiedadesEvento = {
   country_id?: string | null;      // null = sin país asignado
   country_name?: string | null;
   subregion?: string | null;
+  replayed_at?: number | null;     // solo en REPRODUCCIÓN: cuándo se reprodujo (el tiempo original sigue en «time»)
 };
 
 // Periodo realmente consultado. La API lo devuelve siempre, aunque no se le pida ninguno.
@@ -47,8 +48,12 @@ export type Salud = {
   datos_desactualizados: boolean;
 };
 
+// Qué datos se consultan: los actuales (live) o la reproducción histórica aislada (replay, Fase 11).
+export type ModoDatos = 'live' | 'replay';
+
 // Filtros del panel. null = sin filtro: la API usa su valor por defecto.
 export type Filtros = {
+  mode: ModoDatos;             // live = esquema public; replay = esquema replay (en replay, sin fechas = intervalo reproducido)
   start: string | null;        // ISO 8601 UTC, inclusivo
   end: string | null;          // ISO 8601 UTC, exclusivo
   min_mag: number | null;
@@ -59,7 +64,7 @@ export type Filtros = {
 export const SIN_PAIS = 'SIN_PAIS';
 
 // Estado inicial y resultado de pulsar «Limpiar»: sin filtros, la API devuelve las últimas 24 h.
-export const FILTROS_VACIOS: Filtros = { start: null, end: null, min_mag: null, country_id: null };
+export const FILTROS_VACIOS: Filtros = { mode: 'live', start: null, end: null, min_mag: null, country_id: null };
 
 // Una ventana fija de 1 hora UTC.
 export type VentanaHora = { hora: string; n: number };
@@ -98,7 +103,8 @@ export type Estadisticas = {
   por_hora_utc: VentanaHora[];
   distribucion_magnitud: { tramo: number; tramos: { desde: number; hasta: number; n: number }[]; sin_valor: number };
   distribucion_profundidad: { clases: { clase: string; n: number }[]; sin_valor: number };
-  comparacion_historica: ComparacionHistorica;
+  comparacion_historica: ComparacionHistorica | null;   // null en REPRODUCCIÓN: los datos reproducidos ya son de 2025
+  mode?: ModoDatos;
 };
 
 // providedIn 'root' = Angular crea una sola instancia para toda la aplicación.

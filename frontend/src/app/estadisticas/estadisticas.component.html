@@ -24,8 +24,13 @@
       @if (excluidos(); as texto) { · {{ texto }} }
     </p>
 
-    <app-comparacion-historica [datos]="d.comparacion_historica" [periodo]="d.periodo" [generated]="d.generated"
-                               [minMag]="d.filtros.min_mag" [total]="d.total" />
+    <!-- En REPRODUCCIÓN la API no compara con 2025: los propios datos reproducidos son de 2025. -->
+    @if (d.comparacion_historica; as comparacion) {
+      <app-comparacion-historica [datos]="comparacion" [periodo]="d.periodo" [generated]="d.generated"
+                                 [minMag]="d.filtros.min_mag" [total]="d.total" />
+    } @else {
+      <p class="nota">Comparación con 2025 no disponible en REPRODUCCIÓN: los datos reproducidos ya son de 2025.</p>
+    }
 
     <app-grafico-horas [horas]="d.por_hora_utc" [periodo]="d.periodo" />
 

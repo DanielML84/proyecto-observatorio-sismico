@@ -32,8 +32,14 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 - CORS comprobado con curl: el origen falso no recibe `access-control-allow-origin`; el de Netlify sí. **Fase 10 cerrada.**
 
+- **Fase 11 · reproducción:** esquema `replay` (`sql/02_reproduccion.sql`), servicio `consumidor-replay` (mismo código),
+  `productor_replay.py` (Kamchatka, 96 eventos + 3 casos), API `?mode=replay`, panel con selector y banda
+  «REPRODUCCIÓN». Resultado: 96/97/0; el evento de prueba vale 4,3 en replay y sigue 4,2 en public.
+  Antes de pasarlo, Claude lo probó con un PostgreSQL local y compiló el panel.
+
 ### Siguiente paso
-- Fase 11: reproducción acelerada aislada («REPRODUCCIÓN») por `terremotos.replay` y las 11 pruebas de aceptación.
+- Captura del panel en modo REPRODUCCIÓN (tras el push, en Netlify).
+- Pruebas pendientes: reiniciar el consumidor; cerrar y reabrir el túnel.
 
 ## Sesión 4 · Sábado 31/10/2026
 

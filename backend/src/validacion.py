@@ -116,4 +116,6 @@ def validar(mensaje: dict) -> Valido | Rechazo:
         "country_id": None,                      # se asignará en la Fase 6 (punto en polígono)
         "source": mensaje.get("source") or "desconocida",
         "ingested_at": mensaje.get("ingested_at"),
+        # Solo en la reproducción (mode='replay'): cuándo se REPRODUJO. El tiempo original sigue en event_time.
+        "replayed_at": mensaje.get("replayed_at"),
     })

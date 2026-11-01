@@ -13,3 +13,6 @@ button.secundario { background: white; color: #176b70; }
 /* flex-basis 100 %: estos textos ocupan su propia línea. */
 .error { flex-basis: 100%; margin: 0; padding: 8px 12px; border-left: 4px solid #b91c1c; background: #fee2e2; color: #7f1d1d; }
 .ayuda { flex-basis: 100%; margin: 0; font-size: .8rem; color: #42596b; }
+
+/* El selector de datos ocupa su propia línea: es la decisión más importante del formulario. */
+.campo.modo { flex-basis: 100%; }

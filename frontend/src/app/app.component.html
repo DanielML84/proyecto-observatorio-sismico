@@ -1,5 +1,13 @@
 <main>
   <header><p class="eyebrow">BIG DATA · PROYECTO DE AULA</p><h1>Observatorio de actividad sísmica</h1><p>Terremotos de USGS procesados por nuestro sistema y comparados con 2025.</p></header>
+  <!-- Aviso OBLIGATORIO en reproducción (enunciado §11): que nadie confunda datos de 2025 con actualidad. -->
+  @if (filtros().mode === 'replay') {
+    <p class="reproduccion" role="status">
+      <strong>REPRODUCCIÓN</strong> · Datos históricos de 2025 (secuencia del M8,8 de Kamchatka) reenviados por Kafka
+      y guardados aparte. <strong>No son actividad actual.</strong> Las fechas son las originales; en cada terremoto
+      se indica también cuándo se reprodujo.
+    </p>
+  }
   <app-estado-sistema [estado]="estado()" />
   <!-- Los filtros los resuelve la API, así que en modo demo no se muestran. -->
   @if (estado().modo === 'api') {

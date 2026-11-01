@@ -81,7 +81,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Túnel + publicación + prueba desde otro dispositivo ⚑ (`docs/evidencias/fase10-*`)
 
 ### Fase 11 · Reproducción y pruebas de aceptación  *(FAQ paso 11)*
-- [ ] Replay acelerado aislado («REPRODUCCIÓN»)
+- [x] Replay acelerado aislado («REPRODUCCIÓN») (`fase11-reproduccion.txt`)
 - [ ] Ejecutar las 11 pruebas y guardar evidencias en `docs/evidencias/` ⚑
 
 ### Fase 12 · Complejidad, mediciones y costes

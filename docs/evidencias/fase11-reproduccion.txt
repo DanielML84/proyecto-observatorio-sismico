@@ -1,0 +1,47 @@
+Fase 11 · Reproducción histórica aislada (01/11/2026)
+=====================================================
+Selección: secuencia del M8,8 de Kamchatka (us6000qw60, 2025-07-29 23:24:52 UTC), de 1 h antes a 2 h después
+-> 96 eventos reales del histórico FDSN ya descargado (data/historico/). Ordenados por fecha original. 1 cada 2 s.
+Aislamiento: topic terremotos.replay -> servicio consumidor-replay (mismo código, grupo consumidor-replay,
+DB_ESQUEMA=replay, MODO_ESPERADO=replay) -> esquema PostgreSQL "replay" (sql/02_reproduccion.sql).
+
+$ Get-Content sql/02_reproduccion.sql | docker compose exec -T postgres psql -U observatorio -d observatorio
+ALTER TABLE / ALTER TABLE / CREATE SCHEMA / CREATE TABLE x3 / DO
+
+$ docker compose up -d --build
+$ docker compose logs consumidor-replay --tail 5
+[consumidor] conectado a PostgreSQL
+[consumidor] catálogo de países cargado: 177 entidades; geometrías reparadas: ['USA', 'SDN']
+[consumidor] escuchando topic=terremotos.replay grupo=consumidor-replay esquema=replay modo=replay
+
+$ docker compose run --rm productor-replay      (últimas líneas)
+[replay] 93/96                  us6000qw7d   M5.4  original=2025-07-30 01:20:35 UTC  updated=1760668432040
+[replay] 94/96                  us6000r1gd   M5.3  original=2025-07-30 01:21:09 UTC  updated=1760668433040
+[replay] 95/96                  us6000r11z   M5.1  original=2025-07-30 01:22:03 UTC  updated=1760668433040
+[replay] 96/96                  us6000r115   M4.9  original=2025-07-30 01:23:17 UTC  updated=1760668434040
+[replay] caso a) duplicado      us6000qw5t   M4.2  original=2025-07-29 22:50:08 UTC  updated=1760216255040
+[replay] caso b) revisión       us6000qw5t   M4.3  original=2025-07-29 22:50:08 UTC  updated=1760219855040
+[replay] caso c) versión antigua us6000qw5t   M4.2  original=2025-07-29 22:50:08 UTC  updated=1760216255040
+[replay] terminado: 96 eventos + 3 casos controlados. Esperado en replay.evento_actual: 96 filas; el evento us6000qw5t con la revisión.
+
+$ docker compose logs consumidor-replay --tail 4
+p=2 off=33 clave=us6000r115 -> insertado
+p=2 off=34 clave=us6000qw5t -> ignorado: version_repetida     <- a) duplicado
+p=2 off=35 clave=us6000qw5t -> actualizado                    <- b) revisión
+p=2 off=36 clave=us6000qw5t -> ignorado: version_repetida     <- c) versión antigua: no sustituye a la revisión
+
+$ (recuentos)
+ replay.evento_actual  |    96
+ replay.evento_version |    97     <- 96 + la revisión
+ replay.cuarentena     |     0
+
+$ SELECT event_id, mag, source, event_time, replayed_at FROM replay.evento_actual WHERE event_id = 'us6000qw5t';
+ us6000qw5t | 4.3 | replay-caso-controlado | 2025-07-29 22:50:08.744+00 | 2026-11-01 10:37:42.998+00
+   -> fecha ORIGINAL conservada + hora de reproducción añadida
+
+$ SELECT event_id, mag, source FROM public.evento_actual WHERE event_id = 'us6000qw5t';
+ us6000qw5t | 4.2 | usgs-fdsn
+   -> AISLAMIENTO: el dato real del live no se ha tocado
+
+Nota: la revisión (mag 4.2 -> 4.3, updated + 1 h) es SINTÉTICA a propósito y va marcada con
+source='replay-caso-controlado'. No se presenta como dato de USGS.

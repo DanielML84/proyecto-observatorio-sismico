@@ -19,11 +19,25 @@ CONNINFO = (
     f"password={os.environ['POSTGRES_PASSWORD']}"
 )
 
+# Esquema donde se escriben los HECHOS. Vacío/'public' = datos actuales. 'replay' = reproducción aislada (Fase 11).
+# Se consigue con el search_path de PostgreSQL: las consultas usan nombres SIN esquema ("evento_actual"),
+# y PostgreSQL las busca primero en el esquema indicado y después en public (donde están pais y fecha).
+# Así el MISMO código sirve para los dos casos (enunciado §11: «reutiliza el procesamiento del consumidor»).
+DB_ESQUEMA = os.environ.get("DB_ESQUEMA", "public")
+if DB_ESQUEMA not in ("public", "replay"):
+    raise SystemExit(f"DB_ESQUEMA no válido: {DB_ESQUEMA!r} (usa 'public' o 'replay')")
+
+
+def conninfo(esquema: str = "public") -> str:
+    """Cadena de conexión con el search_path del esquema pedido."""
+    return CONNINFO + (f" options=-csearch_path={esquema},public" if esquema != "public" else "")
+
 # 1) Historial: guarda la versión si no estaba. Si ya estaba (mismo event_id + updated_ms), no hace nada.
 SQL_VERSION = """
-INSERT INTO evento_version (event_id, updated_ms, mag, depth_km, lon, lat, event_time, status, source, ingested_at, raw)
+INSERT INTO evento_version (event_id, updated_ms, mag, depth_km, lon, lat, event_time, status, source, ingested_at,
+                            replayed_at, raw)
 VALUES (%(event_id)s, %(updated_ms)s, %(mag)s, %(depth_km)s, %(lon)s, %(lat)s, %(event_time)s, %(status)s,
-        %(source)s, %(ingested_at)s, %(raw)s)
+        %(source)s, %(ingested_at)s, %(replayed_at)s, %(raw)s)
 ON CONFLICT (event_id, updated_ms) DO NOTHING
 """
 
@@ -35,15 +49,16 @@ ON CONFLICT (event_id, updated_ms) DO NOTHING
 #    Si no se insertó ni actualizó (versión igual o antigua), no devuelve ninguna fila.
 SQL_ACTUAL = """
 INSERT INTO evento_actual (event_id, updated_ms, event_time, updated_at, fecha_id, mag, mag_type, depth_km,
-                           lon, lat, place, status, country_id, source, ingested_at)
+                           lon, lat, place, status, country_id, source, ingested_at, replayed_at)
 VALUES (%(event_id)s, %(updated_ms)s, %(event_time)s, %(updated_at)s, %(fecha_id)s, %(mag)s, %(mag_type)s,
-        %(depth_km)s, %(lon)s, %(lat)s, %(place)s, %(status)s, %(country_id)s, %(source)s, %(ingested_at)s)
+        %(depth_km)s, %(lon)s, %(lat)s, %(place)s, %(status)s, %(country_id)s, %(source)s, %(ingested_at)s,
+        %(replayed_at)s)
 ON CONFLICT (event_id) DO UPDATE SET
     updated_ms = EXCLUDED.updated_ms, event_time = EXCLUDED.event_time, updated_at = EXCLUDED.updated_at,
     fecha_id = EXCLUDED.fecha_id, mag = EXCLUDED.mag, mag_type = EXCLUDED.mag_type,
     depth_km = EXCLUDED.depth_km, lon = EXCLUDED.lon, lat = EXCLUDED.lat, place = EXCLUDED.place,
     status = EXCLUDED.status, country_id = EXCLUDED.country_id, source = EXCLUDED.source,
-    ingested_at = EXCLUDED.ingested_at, processed_at = now()
+    ingested_at = EXCLUDED.ingested_at, replayed_at = EXCLUDED.replayed_at, processed_at = now()
 WHERE evento_actual.updated_ms < EXCLUDED.updated_ms
 RETURNING (xmax = 0) AS insertado
 """
@@ -60,7 +75,7 @@ async def conectar(reintentos: int = 30, espera_s: float = 2.0) -> psycopg.Async
     for intento in range(1, reintentos + 1):
         try:
             # autocommit=True: cada operación se confirma sola SALVO dentro de "async with conn.transaction()"
-            return await psycopg.AsyncConnection.connect(CONNINFO, autocommit=True)
+            return await psycopg.AsyncConnection.connect(conninfo(DB_ESQUEMA), autocommit=True)
         except psycopg.OperationalError as exc:
             print(f"[db] intento {intento}/{reintentos} fallido: {exc}")
             await asyncio.sleep(espera_s)

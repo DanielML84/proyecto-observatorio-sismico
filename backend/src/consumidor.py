@@ -1,4 +1,8 @@
-"""Consumidor: lee terremotos.live, VALIDA, y GUARDA en PostgreSQL de forma idempotente.
+"""Consumidor: lee un topic (terremotos.live o terremotos.replay), VALIDA, y GUARDA en PostgreSQL de forma idempotente.
+
+El MISMO código se ejecuta dos veces en compose.yaml (enunciado §11, reproducción aislada):
+  - servicio "consumidor":        topic terremotos.live   -> esquema public   (MODO_ESPERADO=live)
+  - servicio "consumidor-replay": topic terremotos.replay -> esquema replay   (MODO_ESPERADO=replay)
 
 Orden por cada mensaje (FAQ 13):
   1. Leer y validar (src/validacion.py)
@@ -23,6 +27,9 @@ from src.validacion import Rechazo, validar
 BOOTSTRAP = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "kafka:9092")
 TOPIC = os.environ.get("KAFKA_TOPIC", "terremotos.live")
 GROUP_ID = os.environ.get("KAFKA_GROUP_ID", "consumidor-observatorio")
+# Defensa extra del aislamiento: si a un topic llega un mensaje con un "mode" que no le corresponde
+# (p. ej. un mensaje replay en el topic live), NO se mezcla: va a cuarentena con su motivo.
+MODO_ESPERADO = os.environ.get("MODO_ESPERADO", "live")
 
 
 async def procesar(conn, catalogo, registro) -> str:
@@ -40,6 +47,11 @@ async def procesar(conn, catalogo, registro) -> str:
     if isinstance(resultado, Rechazo):
         await db.guardar_cuarentena(conn, resultado.tipo, resultado.motivo, resultado.event_id, *donde, texto)
         return f"{'excluido' if resultado.tipo == 'excluido' else 'cuarentena'}: {resultado.motivo}"
+
+    if mensaje.get("mode") != MODO_ESPERADO:
+        motivo = f"modo_no_corresponde: {mensaje.get('mode')}!={MODO_ESPERADO}"
+        await db.guardar_cuarentena(conn, "invalido", motivo, resultado.campos["event_id"], *donde, texto)
+        return f"cuarentena: {motivo}"
 
     campos = resultado.campos
     campos["country_id"] = catalogo.asignar(campos["lon"], campos["lat"])   # punto en polígono (None = sin país)
@@ -61,7 +73,7 @@ async def main():
         auto_offset_reset="earliest",  # grupo nuevo -> empezar desde el principio del topic
     )
     await consumidor.start()
-    print(f"[consumidor] escuchando topic={TOPIC} grupo={GROUP_ID}")
+    print(f"[consumidor] escuchando topic={TOPIC} grupo={GROUP_ID} esquema={db.DB_ESQUEMA} modo={MODO_ESPERADO}")
     try:
         async for registro in consumidor:
             clave = registro.key.decode("utf-8") if registro.key else None

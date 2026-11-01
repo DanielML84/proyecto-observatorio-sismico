@@ -2,6 +2,15 @@
 <form #formulario class="filtros" aria-label="Filtros de la consulta" novalidate
       (submit)="enviar($event, inicio, fin, magnitud, pais)">
 
+  <!-- Qué datos se ven. Fuera del formulario lógico: al cambiarlo se consulta ya (no hace falta «Aplicar»). -->
+  <div class="campo modo">
+    <label for="filtro-modo">Datos</label>
+    <select #modo id="filtro-modo" (change)="cambiarModo(modo.value, formulario)">
+      <option value="live" [selected]="aplicados().mode === 'live'">Actuales (feed USGS + histórico 2025)</option>
+      <option value="replay" [selected]="aplicados().mode === 'replay'">REPRODUCCIÓN · secuencia de Kamchatka 2025</option>
+    </select>
+  </div>
+
   <!-- Cada campo con su label asociado (for + id): así lo anuncia un lector de pantalla. -->
   <div class="campo">
     <label for="filtro-inicio">Inicio (UTC)</label>
@@ -40,7 +49,7 @@
   }
 
   <p class="ayuda">
-    Inicio incluido y fin excluido. Sin fechas: últimas 24 h. Solo con fin: las 24 h anteriores.
+    Inicio incluido y fin excluido. Sin fechas: últimas 24 h (en REPRODUCCIÓN, todo el intervalo reproducido). Solo con fin: las 24 h anteriores.
     Solo con inicio: hasta ahora. Los eventos sin magnitud no cumplen el filtro de magnitud mínima.
   </p>
 </form>
