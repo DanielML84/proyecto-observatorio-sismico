@@ -253,7 +253,7 @@ salvo donde se indica otra cosa.
 | **Consistencia** | Escalas de magnitud (`mag_type`) | mb 16 382 · mww 1 483 · ml 399 · mwr 356 · md 195 · mw 29 · mwb 6 · mb_lg 1 | Se guarda la escala junto a la magnitud: mezclar escalas es una limitación de cualquier comparación |
 | **Actualidad** | Retraso ocurrencia → última actualización USGS (feed, 549) | Mediana **11,3 min** | Es el proceso de USGS, no nuestro |
 | **Actualidad** | Retraso actualización USGS → nuestra descarga, solo eventos actualizados con el productor en marcha (174) | Mediana **61 s**, p90 **96 s**; de la descarga al guardado, mediana **1,58 s** | Coherente con consultar cada 60 s. Ver nota 2 |
-| **Actualidad** | Consultas al feed | 1 096 correctas, **1 fallida** (DNS tras reconstruir el contenedor, 01/11 10:19:54 UTC; el reintento funcionó a los 2 s). Huecos > 5 min: 16,8 h (parada nocturna, §5.2bis), 1,3 h (01/11 15:46–17:05 UTC) y 2 de < 11 min (reinicios) | Todos < 24 h → recuperados por la ventana del feed |
+| **Actualidad** | Consultas al feed | 1 096 correctas, **1 fallida** (DNS tras reconstruir el contenedor, 01/11 10:19:54 UTC; el reintento funcionó a los 2 s). Huecos > 5 min: 16,8 h (parada nocturna, §5.2bis), 1,3 h (01/11 15:46–17:05 UTC, PC suspendido) y 2 de < 11 min (reinicios) | Todos < 24 h → recuperados por la ventana del feed |
 | **Exactitud** | ¿Son correctos los valores? | **No se puede verificar** con estos datos | Ver nota 3 |
 
 **Nota 1 · país.** El histórico es M ≥ 4 de todo el mundo y la mayoría ocurre en el mar (zonas de subducción), así que

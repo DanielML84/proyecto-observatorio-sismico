@@ -60,10 +60,16 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Descubierto en calidad: la «ocurrencia → ingesta» (mediana 453 min) engañaba por las cargas de golpe; medido bien
   (solo con el productor en marcha): mediana 61 s. Un terremoto de Alaska con 33 versiones. La única consulta fallida
   fue un error DNS al reconstruir el contenedor; el reintento funcionó.
-- Duda sin resolver: hueco de 1,3 h sin consultas el 01/11 (15:46–17:05 UTC). ¿Docker parado durante el descanso?
+- Hueco de 1,3 h sin consultas el 01/11 (15:46–17:05 UTC): el PC estuvo **suspendido** durante el descanso (dato de Daniel).
+
+- README reescrito siguiendo los 9 puntos de la guía §1.4 + estructura + mapa de evidencias.
+
+- `docs/guia-estudio.md`: 12 bloques del 02/11 al 17/11 (sin jueves, 2 días de colchón) + comprobación final el 18/11.
+- `docs/prompt-principal.md` actualizado (estructura, enlaces y estado).
 
 ### Siguiente paso
-- README reproducible → guía de estudio → checklist final de la guía de entregables.
+- 03/11: re-descarga FDSN del periodo de la Conclusión 3 y comparar con el feed.
+- Estudiar con `docs/guia-estudio.md`. Checklist final el 18/11.
 - ~03/11: re-descarga FDSN del periodo de la Conclusión 3.
 
 ## Sesión 4 · Sábado 31/10/2026

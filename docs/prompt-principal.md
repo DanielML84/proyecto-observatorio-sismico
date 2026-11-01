@@ -83,7 +83,8 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
 | Decisión | Motivo |
 |---|---|
 | Memoria en Markdown (`docs/memoria.md`) | Preferencia; la guía lo permite |
-| Spec y plan a mano en Markdown (`docs/spec.md`, `docs/plan.md`), sin Spec Kit | Entender el método SDD paso a paso |
+| Plan por fases en `docs/roadmap.md` y decisiones en la memoria (Anexo A, D1–D46) | Seguir el avance y justificar cada elección |
+| «Construir primero, estudiar después» (desde el 30/10) | Tener todo funcionando antes de la semana de estudio (`docs/guia-estudio.md`) |
 | Material del profesor sin modificar en `docs/material-profesor/` | Distinguir lo reutilizado de lo propio (guía §1.1) |
 | Base técnica de Kafka tomada de `juanarrow/binance-kafka` | Es el ejemplo del profesor: imagen `apache/kafka:4.1.2` en KRaft y listeners explicados en su `docker.md` |
 | Vocabulario de calidad de la sesión 7 y rúbrica de la sesión 8 | Es lo que evalúa el profesor |
@@ -97,7 +98,8 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
 - Carpeta del proyecto: `C:\Users\Usuario\Desktop\proyecto-observatorio-sismico`
   (antes `PROYECTO_1_BIGDATA`).
 - Repositorio: https://github.com/DanielML84/proyecto-observatorio-sismico (rama `main`).
-- Cuenta GitHub: https://github.com/DanielML84. Netlify y ngrok están pendientes de crear (Fase 10).
+- Cuenta GitHub: https://github.com/DanielML84. Panel en Netlify: https://adorable-zabaione-a69bde.netlify.app/ ·
+  túnel ngrok (contenedor `tunel`): https://unbolted-decorated-heaving.ngrok-free.dev
 - Herramientas: Claude en el escritorio (planificación, explicación y documentos) y Claude Code
   (ejecución en mi Windows). El terminal integrado de Claude en el escritorio es un Linux aislado
   **sin Docker**, así que Docker, npm y git los ejecuto yo en Windows o desde Claude Code.
@@ -106,27 +108,29 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
 
 ```text
 proyecto-observatorio-sismico/
-├── README.md
+├── README.md                  presentación, cómo arrancar/demostrar y mapa de evidencias
 ├── CLAUDE.md                  instrucciones que Claude Code lee automáticamente
-├── .gitignore
-├── .gitattributes             finales de línea LF (necesario para Docker/Linux)
-├── frontend/                  Angular + Leaflet (base del profesor)
-├── docs/
-│   ├── prompt-principal.md    este archivo
-│   ├── roadmap.md             plan por fases con casillas  ← ESTADO
-│   ├── bitacora.md            diario de sesiones          ← ESTADO
-│   ├── memoria.md             memoria final (se va rellenando por fases)
-│   ├── defensa.md             preguntas probables + mis respuestas
-│   ├── material-profesor/     enunciado, FAQ, guía, contrato API, ejemplos (sin modificar)
-│   ├── contrato-mensaje.md    formato de los mensajes Kafka (v1)
-│   └── evidencias/            capturas y salidas de las pruebas
-├── analisis/                  notebooks de exploración (pandas)
-├── backend/                   imagen Python común: src/mensajes.py, productor_prueba.py, consumidor.py
-├── sql/01_esquema.sql         tablas, índices y dimensión fecha (se ejecuta al crear el volumen)
-├── compose.yaml               kafka, kafka-init, postgres, consumidor, productor-prueba
-├── .env.example               plantilla de credenciales (.env real fuera de Git)
-└── (más adelante) productor real, api/, data/
+├── compose.yaml               5 obligatorios + kafka-init, consumidor-replay, tunel; profiles: productor-prueba, productor-replay, medir
+├── .env.example               plantilla (.env real fuera de Git: contraseña, CORS_ORIGINS, NGROK_AUTHTOKEN)
+├── backend/src/               productor, consumidor, validacion, geografia, db, api, mensajes,
+│                              historico_descargar/cargar, productor_replay, pruebas_faq12, medir
+├── sql/                       01_esquema.sql · 02_reproduccion.sql (esquema replay)
+├── frontend/                  Angular + Leaflet (base del profesor ampliada); config.json → URL de ngrok
+├── analisis/                  01_exploracion_feed.ipynb · calidad.sql
+├── data/                      raw/ e historico/ (no se suben) · mediciones/ (sí)
+└── docs/
+    ├── prompt-principal.md    este archivo
+    ├── roadmap.md · bitacora.md   ← ESTADO
+    ├── memoria.md             memoria final (todas las secciones ✅)
+    ├── defensa.md             preguntas probables + respuestas 📘
+    ├── guia-estudio.md        plan de estudio 02/11 → 18/11
+    ├── chuleta-comandos.md · contrato-mensaje.md
+    ├── evidencias/            capturas y salidas de cada prueba
+    └── material-profesor/     sin modificar
 ```
+
+**Estado (01/11/2026):** fases 1–12 cerradas y memoria completa. Pendiente: re-descarga FDSN de la Conclusión 3
+(~03/11), semana de estudio y entrega el 18/11.
 
 ## 6. Referencias del profesor
 
@@ -160,7 +164,7 @@ proyecto-observatorio-sismico/
 7. `docs/material-profesor/CONTRATO-API.md`
 
 **Según la fase en la que estemos:**
-- `docs/spec.md` y `docs/plan.md`, cuando existan
+- `docs/guia-estudio.md` durante la semana de estudio
 - `compose.yaml` y el código de la pieza en la que estemos trabajando
 - `docs/material-profesor/ejemplos/` si vamos a explorar datos
 - `frontend/src/app/app.component.ts` si trabajamos en el panel
