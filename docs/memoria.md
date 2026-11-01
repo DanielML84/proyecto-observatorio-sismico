@@ -269,15 +269,19 @@ diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambi
 | Magnitud nula | Se conserva y se muestra ND | Guardada con `mag` NULL; panel: «ND» en ficha y tabla, al final al ordenar | ídem; `fase9-panel.txt` |
 | Coordenadas inválidas | Cuarentena y motivo | `lat_fuera_de_rango`, offset 4 | ídem |
 | Evento marítimo | Sin país; permanece | Eventos reales como «Fiji region» se guardan sin país y el panel los muestra como «Sin país asignado» (47 de 218) | `fase9-bloque4-estadisticas.png`; `fase9-panel.txt` |
-| Reiniciar consumidor | Reanuda sin duplicar | ⬜ | |
-| Cerrar / reabrir el túnel | Aviso y recuperación | ⬜ pendiente de ejecutar con el túnel real (ya comprobado parando el contenedor de la API) | `fase9-panel.txt` |
+| Reiniciar consumidor | Reanuda sin duplicar | Consumidor parado → 99 mensajes pendientes (LAG 37+30+32); al arrancar, LAG 0 desde el offset confirmado; recuentos iguales (96/97/0), todo «ignorado» | `fase11-reproduccion.txt` |
+| Cerrar el túnel | El panel muestra el fallo y conserva/identifica la última lectura | `docker compose stop tunel` → banda roja «La API no responde: datos antiguos. Se conserva la última lectura, del 1/11/2026, 11:54:47»; mapa con los 216 eventos | `fase11-tunel-cerrado.png` |
+| Volver a abrir el túnel | Se recuperan las consultas automáticamente | `docker compose start tunel` → misma URL de ngrok; sin recargar, el panel vuelve a «Última consulta completada» (11:56:04); el inspector muestra OPTIONS + GET con 200 | `fase11-tunel-reabierto-ngrok.png`, `fase11-tunel-recuperado.png` |
 | Reproducción histórica | Por Kafka, aislada | 96 eventos por `terremotos.replay` → esquema `replay`; duplicado ignorado, revisión aplicada, versión antigua ignorada; el mismo evento sigue con 4,2 en `public` | `fase11-reproduccion.txt` |
 
 Los casos son **sintéticos** (`PRUEBA-*`, `source = 'prueba-faq12'`), separados de los datos reales (enunciado §6).
 ## 10. Reproducción histórica 🟡
 
-**Selección.** La secuencia del terremoto M8,8 de Kamchatka (`us6000qw60`, 29/07/2025 23:24:52 UTC), desde 1 h antes
-hasta 2 h después: **96 eventos reales** del histórico FDSN ya descargado (Fase 7). Se eligió porque garantiza actividad
+**Selección.** Ventana temporal alrededor del terremoto M8,8 de Kamchatka (`us6000qw60`, 29/07/2025 23:24:52 UTC),
+desde 1 h antes hasta 2 h después: **96 eventos reales** (M≥4, todo el mundo) del histórico FDSN ya descargado (Fase 7):
+**90 en la zona de Kamchatka** (lat 45–60, lon 150–170, la misma caja de la Conclusión 1) y 6 en otras regiones
+(Japón, Guatemala, California, Macquarie, dorsal índico-antártica). Se reproduce la ventana completa, como habría
+llegado en vivo. Se eligió porque garantiza actividad
 en la demostración y enlaza con la Conclusión 1 (§7). Se ordenan por fecha original.
 
 **Cómo se inicia y a qué velocidad.** `docker compose run --rm productor-replay` (`backend/src/productor_replay.py`):
@@ -357,7 +361,7 @@ terremoto indica «REPRODUCIDO (UTC)»; la comparación con 2025 se desactiva (l
 | D42 | Ventanas de 1 h parciales en tono claro y con nota | Dibujarlas igual que las completas | Una ventana cubierta a medias tiene menos eventos sin que haya menos actividad | Enunciado §8 |
 | D43 | ngrok en un contenedor (servicio `tunel`, profile) apuntando a `http://api:8000` | ngrok instalado en Windows | La instalación en Windows falló (Store/winget/Defender). Ambas opciones están permitidas | README profesor, opción B |
 | D44 | Reproducción aislada con **esquema** PostgreSQL `replay` + topic y grupo propios | Columna `mode` en las mismas tablas; otra base de datos | Las mismas consultas sirven con `search_path`; imposible mezclar por error; dimensiones compartidas | Enunciado §11 |
-| D45 | Selección: secuencia de Kamchatka (−1 h / +2 h), 1 evento cada 2 s | Diez eventos al azar | Actividad garantizada y enlace con la Conclusión 1; ~3 min de demostración | FAQ, reproducción |
+| D45 | Selección: ventana −1 h / +2 h del M8,8 de Kamchatka, todo el mundo (90 de 96 en la zona), 1 evento cada 2 s | Diez eventos al azar | Actividad garantizada y enlace con la Conclusión 1; ~3 min de demostración | FAQ, reproducción |
 | D46 | Revisión del caso controlado **sintética** y marcada (`replay-caso-controlado`) | Buscar una revisión real | No hay revisiones reales dentro del histórico (guarda solo la última versión); se marca para no presentarla como USGS | Enunciado §11 |
 
 ### Evidencia del problema de duplicados (Fase 3)

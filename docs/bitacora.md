@@ -37,9 +37,14 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   «REPRODUCCIÓN». Resultado: 96/97/0; el evento de prueba vale 4,3 en replay y sigue 4,2 en public.
   Antes de pasarlo, Claude lo probó con un PostgreSQL local y compiló el panel.
 
+- Captura del panel en REPRODUCCIÓN. Descubierto al verla: la ventana de 3 h trae terremotos de todo el mundo
+  (90 de 96 en Kamchatka). Corregidos los textos («ventana del M8,8», no «secuencia»), que decían más de la cuenta.
+- **Prueba «reiniciar consumidor»:** parado → LAG 99; arrancado → LAG 0, recuentos iguales (96/97/0).
+- **Prueba «cerrar/reabrir túnel»:** aviso rojo conservando la última lectura; al reabrir, misma URL de ngrok y
+  recuperación automática sin recargar. **Las 11 pruebas de aceptación tienen evidencia (memoria §9). Fase 11 cerrada.**
+
 ### Siguiente paso
-- Captura del panel en modo REPRODUCCIÓN (tras el push, en Netlify).
-- Pruebas pendientes: reiniciar el consumidor; cerrar y reabrir el túnel.
+- Fase 12: mediciones (3 tamaños, tiempo y memoria), lista vs diccionario, índice sí/no, costes y escalado.
 
 ## Sesión 4 · Sábado 31/10/2026
 

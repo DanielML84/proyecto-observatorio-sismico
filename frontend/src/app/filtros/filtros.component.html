@@ -7,7 +7,7 @@
     <label for="filtro-modo">Datos</label>
     <select #modo id="filtro-modo" (change)="cambiarModo(modo.value, formulario)">
       <option value="live" [selected]="aplicados().mode === 'live'">Actuales (feed USGS + histórico 2025)</option>
-      <option value="replay" [selected]="aplicados().mode === 'replay'">REPRODUCCIÓN · secuencia de Kamchatka 2025</option>
+      <option value="replay" [selected]="aplicados().mode === 'replay'">REPRODUCCIÓN · ventana del M8,8 de Kamchatka (29-30/07/2025)</option>
     </select>
   </div>
 

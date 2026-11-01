@@ -82,7 +82,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 
 ### Fase 11 · Reproducción y pruebas de aceptación  *(FAQ paso 11)*
 - [x] Replay acelerado aislado («REPRODUCCIÓN») (`fase11-reproduccion.txt`)
-- [ ] Ejecutar las 11 pruebas y guardar evidencias en `docs/evidencias/` ⚑
+- [x] Ejecutar las 11 pruebas y guardar evidencias en `docs/evidencias/` ⚑ (memoria §9)
 
 ### Fase 12 · Complejidad, mediciones y costes
 - [ ] 3 tamaños de entrada: tiempo y memoria

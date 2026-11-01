@@ -3,8 +3,10 @@
 Qué hace: reproduce por Kafka, ACELERADA y en orden de fecha, una selección del histórico 2025 ya descargado,
 para poder demostrar el flujo completo sin esperar a que ocurran terremotos nuevos.
 
-Selección (por defecto): la secuencia del terremoto M8,8 de Kamchatka (us6000qw60, 29/07/2025 23:24:52 UTC),
-desde 1 h ANTES hasta 2 h DESPUÉS del principal -> 96 eventos reales de data/historico/ (Conclusión 1 de la memoria).
+Selección (por defecto): ventana TEMPORAL alrededor del M8,8 de Kamchatka (us6000qw60, 29/07/2025 23:24:52 UTC),
+desde 1 h ANTES hasta 2 h DESPUÉS -> 96 eventos reales de data/historico/ de TODO EL MUNDO (el histórico es M>=4):
+90 en la zona de Kamchatka (lat 45-60, lon 150-170, Conclusión 1) y 6 en otras regiones (Japón, Guatemala, California...).
+Se reproduce la ventana completa, como habría llegado en vivo ese día.
 
 Reglas:
   - Topic SEPARADO: terremotos.replay (lo lee el servicio consumidor-replay, que escribe en el esquema "replay").

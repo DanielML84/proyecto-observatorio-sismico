@@ -1,7 +1,8 @@
 Fase 11 · Reproducción histórica aislada (01/11/2026)
 =====================================================
 Selección: secuencia del M8,8 de Kamchatka (us6000qw60, 2025-07-29 23:24:52 UTC), de 1 h antes a 2 h después
--> 96 eventos reales del histórico FDSN ya descargado (data/historico/). Ordenados por fecha original. 1 cada 2 s.
+-> 96 eventos reales M>=4 de TODO EL MUNDO del histórico FDSN (90 en la zona de Kamchatka lat 45-60/lon 150-170,
+   6 en otras regiones). Ordenados por fecha original. 1 cada 2 s. Captura: fase11-panel-reproduccion.png
 Aislamiento: topic terremotos.replay -> servicio consumidor-replay (mismo código, grupo consumidor-replay,
 DB_ESQUEMA=replay, MODO_ESPERADO=replay) -> esquema PostgreSQL "replay" (sql/02_reproduccion.sql).
 
@@ -45,3 +46,27 @@ $ SELECT event_id, mag, source FROM public.evento_actual WHERE event_id = 'us600
 
 Nota: la revisión (mag 4.2 -> 4.3, updated + 1 h) es SINTÉTICA a propósito y va marcada con
 source='replay-caso-controlado'. No se presenta como dato de USGS.
+
+==========================================================================================
+Prueba de aceptación «Reiniciar consumidor -> reanuda sin duplicar» (01/11/2026 ~10:50 UTC)
+==========================================================================================
+$ docker compose stop consumidor-replay
+$ docker compose run --rm -e REPLAY_INTERVALO_S=0.2 productor-replay     -> 96 + 3 mensajes con el consumidor PARADO
+$ docker compose exec kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --group consumidor-replay
+Consumer group 'consumidor-replay' has no active members.
+GROUP             TOPIC             PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG
+consumidor-replay terremotos.replay 2          37              74              37
+consumidor-replay terremotos.replay 1          30              60              30
+consumidor-replay terremotos.replay 0          32              64              32      -> LAG total 99 = 96 + 3
+
+$ docker compose start consumidor-replay ; (describe otra vez)
+consumidor-replay terremotos.replay 2          74              74              0
+consumidor-replay terremotos.replay 1          60              60              0
+consumidor-replay terremotos.replay 0          64              64              0       -> reanuda desde el offset confirmado
+
+$ (recuentos)  actual 96 | versiones 97 | cuarentena 0                          -> sin duplicar
+$ docker compose logs consumidor-replay --tail 5
+p=1 off=55 clave=us6000r10u -> ignorado: version_repetida
+... (todo «ignorado: version_repetida»)
+Interpretación: el offset se confirma DESPUÉS de guardar (al menos una vez); al reiniciar, el grupo retoma desde su
+último offset confirmado y la base de datos (claves primarias + UPSERT con WHERE) absorbe cualquier repetición.
