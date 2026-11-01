@@ -252,12 +252,138 @@ diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambi
 - Comprobado en Edge a 1280, 390 y 320 px. No se ha probado con un lector de pantalla real.
 - Las pruebas de ingesta parada, lista truncada y eventos sin magnitud son simuladas en el navegador: en la base real no hay eventos sin magnitud.
 
-## 8. Complejidad, mediciones, costes y mejoras ⬜
+## 8. Complejidad, mediciones, costes y mejoras 🟡
 
-*Datos ya recogidos:*
-- Búsqueda de versiones: diccionario O(1) de media frente a lista O(N) (productor, D19).
-- Integración geográfica: STRtree frente a bucle sobre los 177 polígonos → 22,3 ms frente a 224,3 ms para 185 puntos
-  (≈10x; entorno de Claude, medición única → hay que repetirla en el equipo de Daniel con 3 tamaños).
+### 8.1 Equipo y procedimiento
+
+| Elemento | Valor | Origen |
+|---|---|---|
+| Equipo físico | AMD Ryzen 7 5800X, 32 GB RAM, Windows | Dato del autor |
+| Entorno de las medidas | Docker Desktop sobre WSL2 (kernel 6.6.87.2), 16 CPU visibles, 15 932 MB visibles | `equipo` del JSON |
+| Software | Python 3.12.16 · PostgreSQL 17.11 · Shapely 2.0.6 | `equipo` del JSON |
+| Fecha | 01/11/2026 18:05 UTC, con el sistema completo en marcha (productor, consumidores, API, túnel) | JSON |
+
+**Procedimiento** (`backend/src/medir.py`, `docker compose run --rm medir`): cada medida es la **mediana de 5
+repeticiones** tras 1 de calentamiento (la fuerza bruta geográfica, 3). Tiempo con `time.perf_counter()` (Python) o
+`EXPLAIN ANALYZE` → *Execution Time* (PostgreSQL). Memoria con `tracemalloc` (objetos Python), VmRSS del proceso
+(Shapely/GEOS, en C) y `pg_relation_size` (PostgreSQL). Semilla fija (42) → mismos ids y búsquedas en cada ejecución.
+Datos: A y D **sintéticos** (ids `SINT-…`; D en el esquema `bench`, que se borra al terminar); B y C **reales**, solo
+lectura. Resultado completo: `data/mediciones/mediciones-20261101T180559Z.json`.
+Limitación: el sistema seguía funcionando durante la medida (no es un entorno aislado), así que hay ruido.
+
+### 8.2 Búsqueda de versiones por identificador (productor)
+
+El productor decide si publica comparando el `updated` recibido con el último publicado de ese `id`
+(`version_publicada`, cargada en un **diccionario** al arrancar, D19).
+
+| N ids (sintéticos) | Lista, caso medio (µs) | Lista, peor caso (µs) | Diccionario, medio (µs) | Diccionario, peor (µs) | Memoria lista (MB) | Memoria diccionario (MB) |
+|---|---|---|---|---|---|---|
+| 1 000 | 8,48 | 15,87 | 0,028 | 0,023 | 0,06 | 0,03 |
+| 10 000 | 78,78 | 156,83 | 0,032 | 0,026 | 0,65 | 0,21 |
+| 100 000 | 789,54 | 1 606,25 | 0,034 | 0,026 | 6,34 | 3,84 |
+
+- **Lista: O(N)** por búsqueda. Caso medio ≈ N/2 comparaciones; peor caso (id inexistente) = N. Medido: ×10 ids →
+  ×≈10 tiempo, y el peor caso ≈ el doble del medio, como predice la teoría.
+- **Diccionario: O(1) de media** (tabla hash: calcula dónde está, no recorre). Medido: casi constante (0,028 → 0,034 µs)
+  con ×100 ids. Peor caso teórico O(N) si todas las claves colisionaran; en la práctica Python lo evita.
+- Con 100 000 ids, el diccionario es **≈23 000 veces** más rápido en el caso medio.
+- Memoria: aquí la lista ocupa más porque guarda una tupla `(id, updated)` por elemento. En general el diccionario
+  necesita memoria extra para su tabla hash; los textos de los ids (comunes a las dos) no se cuentan.
+
+### 8.3 Integración geográfica (consumidor)
+
+| N puntos (reales) | STRtree (ms) | Fuerza bruta, 177 polígonos (ms) | Veces más rápido | Mismo país | Memoria del catálogo (MB, RSS) |
+|---|---|---|---|---|---|
+| 500 | 64,92 | 318,59 | 4,9 | 500/500 | 1,6 |
+| 2 000 | 141,31 | 1 152,35 | 8,2 | 2000/2000 | 1,6 |
+| 8 000 | 576,92 | 4 586,26 | 7,9 | 8000/8000 | 1,6 |
+
+- **Fuerza bruta: O(P)** por punto (P = 177 polígonos), siempre.
+- **STRtree**: construcción una vez O(P log P); consulta **O(log P + c)** de media, siendo c los candidatos cuyo
+  rectángulo envolvente contiene el punto. **Peor caso O(P)** si todos los rectángulos se solapan en ese punto.
+- Medido: ≈0,072 ms/punto frente a ≈0,57 ms/punto (≈8×). Con 500 puntos la ventaja es menor por costes fijos.
+  Los **8 000 resultados coinciden** con la fuerza bruta: el índice no cambia la respuesta, solo el tiempo.
+- La medida anterior en el entorno de Claude (Fase 6) dio ≈10×; esta es la del equipo del autor.
+
+### 8.4 Agregación por ventanas de 1 h (API)
+
+| Periodo (2025, real) | Eventos | Ventanas | Tiempo (ms) |
+|---|---|---|---|
+| 1 día | 60 | 24 | 0,16 |
+| 31 días | 1 413 | 744 | 1,51 |
+| 365 días | 18 302 | 8 760 | 12,57 |
+
+- Coste **O(log N + k + W)**: buscar el inicio del intervalo en el índice de `event_time` (log N), leer los k eventos del
+  periodo y generar/agrupar las W ventanas (`generate_series` + LEFT JOIN, para que las horas con 0 también salgan).
+  **Peor caso O(N + W)**: un periodo que abarque toda la tabla.
+- Medido: crece aproximadamente en proporción a k + W (año completo = 12,6 ms).
+
+### 8.5 Consulta sin índice y con índice (tabla sintética)
+
+| Filas (`SINT-…`) | Tabla (MB) | Rango 1 día, sin índice (ms) | con índice (ms) | Por id, sin índice (ms) | con índice (ms) | Crear los 2 índices (s) | Índice fecha (MB) | Índice id (MB) |
+|---|---|---|---|---|---|---|---|---|
+| 100 000 | 6,0 | 3,33 | 0,18 | 3,81 | 0,039 | 0,1 | 2,3 | 3,2 |
+| 1 000 000 | 60,2 | 20,01 | 1,45 | 21,76 | 0,031 | 0,8 | 22,5 | 31,6 |
+| 3 000 000 | 180,7 | 59,56 | 4,83 | 60,86 | 0,030 | 2,6 | 67,4 | 94,7 |
+
+- **Sin índice**: lectura secuencial de toda la tabla, **O(N)**: ×3 filas → ×3 tiempo.
+- **Con índice (B-tree)**: **O(log N + k)**. Por id (k = 1) el tiempo es casi constante (≈0,03 ms): ≈2 000× más rápido
+  con 3 M filas. Por rango de 1 día crece porque crece k (≈N/365 filas devueltas), no por la búsqueda.
+- **Precio del índice**: espacio (los dos índices ocupan casi lo mismo que la tabla: 162 MB frente a 181 MB),
+  tiempo de creación y escrituras algo más lentas (cada INSERT actualiza también el índice; **no lo hemos medido**).
+- Es lo que justifica `ix_evento_actual_time` (filtros por intervalo y ventanas) y las claves primarias
+  (`event_id`; `(event_id, updated_ms)`), que crean su índice automáticamente (`sql/01_esquema.sql`).
+
+### 8.6 ¿Qué pasaría con 100 millones de registros?
+
+Extrapolación **lineal** de lo medido (estimación, no medida; con datos que no caben en memoria sería peor):
+
+| Operación | Con 100 M | Consecuencia |
+|---|---|---|
+| Lista de versiones (peor caso) | ≈1,6 s por búsqueda (×1 000 sobre 100 000) | Inviable: cada minuto se revisan los ~220 eventos del feed |
+| Diccionario en memoria | Rápido, pero ≈38 B/entrada + textos (~60 B) → **≈10 GB de RAM** | Mejor dejar la consulta a PostgreSQL (PK con índice) o a un almacén clave-valor |
+| Tabla sin índice, consulta por rango | ≈2 s (59,56 ms × 33) por consulta | Panel lento; cada refresco leería toda la tabla |
+| Tabla + índices | Tabla ≈6 GB + índices ≈5,4 GB; búsqueda por id sigue en ≈ms | Viable en un solo servidor, pero con más disco y RAM |
+| Asignación de país (STRtree) | ≈7 200 s ≈ 2 h de CPU en un hilo | Solo afecta a cargas masivas; en vivo (~220/día) es despreciable. Se puede repartir por particiones de Kafka |
+| Agregación anual | Proporcional a k: miles de ms | Tablas resumen precalculadas (por hora/día) o vistas materializadas |
+
+**Propuesta de escalado** (sin contratar nada): particionar `evento_actual`/`evento_version` por fecha (p. ej. por mes),
+tablas de agregados por hora que el consumidor actualiza al guardar, varios consumidores en el mismo grupo
+(uno por partición de Kafka; ya hay 3 particiones), retención o archivo de `evento_version` (hoy 20 de los 34 MB de la base, ≈1 KB por fila con el original en `raw`)
+en almacenamiento barato, y PostgreSQL en un servidor dedicado con copias de seguridad.
+
+### 8.7 Recursos medidos del sistema en marcha (01/11/2026)
+
+| Recurso | Medido | Cómo |
+|---|---|---|
+| Base de datos | 34 MB (evento_version 20 MB/19 021 filas; evento_actual 5,2 MB/18 853) | `pg_database_size`, `pg_total_relation_size` |
+| Kafka (volumen) | 55 MB | `du -sh /var/lib/kafka/data` |
+| Originales del feed (`data/raw`, retención 24 h) | 4,2 MB | `du -sh` |
+| Histórico 2025 (`data/historico`) | 13 MB | `du -sh` |
+| Memoria de los contenedores | ≈1,4 GB en total (Kafka 1 017 MiB, PostgreSQL 227 MiB, el resto 19–43 MiB cada uno) | `docker stats --no-stream` |
+| CPU | Kafka 122 % y el resto < 0,3 % **en ese instante** (una sola lectura; no sabemos si es representativa) | `docker stats --no-stream` |
+| Descarga del feed | ≈140 KB por consulta (sin comprimir; 18 KB comprimido con gzip) → ×1 440 consultas/día ≈ **197 MB/día ≈ 5,9 GB/mes** | media de 20 respuestas de `data/raw` |
+
+### 8.8 Costes
+
+Se distinguen **medidos** (M), **calculados** a partir de lo medido (C) y **supuestos** (S), que habría que sustituir
+por valores reales. Una cuota gratuita (ngrok, Netlify, USGS) **no** significa coste cero: el equipo, la luz y el tiempo
+siguen costando.
+
+| Concepto | Valor | Tipo | Comentario |
+|---|---|---|---|
+| Hardware | ⬜ precio del PC / años de vida útil | S | Pendiente de dato del autor |
+| Electricidad | P × 24 h × 30 días × precio. Ejemplo: 100 W × 720 h = 72 kWh/mes × 0,15 €/kWh ≈ **10,8 €/mes** | S | 100 W y 0,15 €/kWh son **supuestos**: medir con un enchufe medidor y mirar la factura. El sistema necesita el PC encendido 24 h |
+| Almacenamiento | ≈110 MB hoy (34 + 55 + 4,2 + 13) | M | Insignificante en un disco doméstico |
+| Crecimiento de la base | ≈1 KB por versión guardada (20 MB / 19 021) → con 300 versiones/día ≈ 0,3 MB/día ≈ 110 MB/año | C + S | 300/día es un supuesto; se comprueba contando versiones por día en `evento_version` |
+| Transferencia | ≈5,9 GB/mes de descarga del feed + lo que sirva la API por ngrok | C | Pedir el feed comprimido (gzip) la reduciría ≈8× |
+| Servicios externos | ngrok, Netlify y USGS en plan/uso gratuito | M | Tienen cuotas de uso; no se han contratado planes de pago |
+| Mantenimiento | ⬜ horas/mes × coste/hora | S | Vigilar `/api/salud`, actualizar dependencias, copias de seguridad |
+| Desarrollo | ⬜ horas reales × coste/hora | S | Pendiente de dato del autor |
+
+**ROI**: no se estima. El observatorio es un proyecto educativo sin un beneficio económico medible, y el enunciado
+pide no inventarlo.
+
 ## 9. Evidencias de las pruebas de aceptación 🟡
 
 | Prueba (enunciado §11) | Esperado | Observado | Evidencia |

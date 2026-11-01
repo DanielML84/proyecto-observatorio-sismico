@@ -142,6 +142,27 @@ services:
         condition: service_completed_successfully
     profiles: ["replay"]
 
+  # MEDICIONES de la Fase 12 (src/medir.py): tiempo y memoria con 3 tamaños. Se lanza a mano y termina:
+  #   docker compose run --rm medir
+  # Lee datos reales SIN modificarlos; los datos sintéticos van al esquema "bench", que se borra al acabar.
+  medir:
+    image: observatorio-backend
+    command: ["python", "-m", "src.medir"]
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PAISES_GEOJSON: /catalogo/paises.geojson   # fuera de /data para no crear un archivo vacío en ./data
+      MEDIR_SALIDA: /data/mediciones
+    volumes:
+      - ./data:/data                                                      # aquí guarda el JSON de resultados
+      - ./frontend/public/datos/paises.geojson:/catalogo/paises.geojson:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles: ["medir"]
+
   # Productor REAL: consulta USGS cada 60 s y publica solo novedades (src/productor.py)
   productor:
     build: ./backend

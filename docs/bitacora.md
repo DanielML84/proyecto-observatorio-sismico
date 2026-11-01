@@ -43,8 +43,15 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - **Prueba «cerrar/reabrir túnel»:** aviso rojo conservando la última lectura; al reabrir, misma URL de ngrok y
   recuperación automática sin recargar. **Las 11 pruebas de aceptación tienen evidencia (memoria §9). Fase 11 cerrada.**
 
+- **Fase 12 · mediciones** (tarde, 18:05 UTC): `backend/src/medir.py` + servicio `medir` (profile). Probado antes por
+  Claude con un PostgreSQL local (detectó que con pocos puntos la tabla B «mentiría» → ahora se detiene y avisa).
+  Resultados: diccionario ≈23 000× más rápido que la lista con 100 000 ids; STRtree ≈8× (8 000/8 000 iguales);
+  ventanas de 1 h de todo 2025 en 12,6 ms; índice por id ≈2 000× con 3 M filas sintéticas (esquema `bench`, borrado).
+  Recursos medidos: base 34 MB, Kafka 55 MB, ≈1,4 GB de RAM, feed ≈140 KB por consulta. Memoria §8 redactada.
+- Sin explicación: Kafka marcaba 122 % de CPU en la única lectura de `docker stats`.
+
 ### Siguiente paso
-- Fase 12: mediciones (3 tamaños, tiempo y memoria), lista vs diccionario, índice sí/no, costes y escalado.
+- Completar los costes con los datos del autor (PC, horas) → Fase 13 (memoria final, README, guía de estudio).
 
 ## Sesión 4 · Sábado 31/10/2026
 
