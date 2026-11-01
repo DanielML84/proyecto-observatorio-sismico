@@ -258,7 +258,7 @@ diferencia se entiende mejor en cifras absolutas. Solo añade un aviso; no cambi
 
 | Elemento | Valor | Origen |
 |---|---|---|
-| Equipo físico | AMD Ryzen 7 5800X, 32 GB RAM, Windows | Dato del autor |
+| Equipo físico | ASUS · AMD Ryzen 7 5800X (8 núcleos/16 hilos, ~3,8 GHz) · 32 GB RAM · NVIDIA RTX 5060 Ti 16 GB · Windows 11 Pro 64 bits (build 26100) | DxDiag del equipo del autor |
 | Entorno de las medidas | Docker Desktop sobre WSL2 (kernel 6.6.87.2), 16 CPU visibles, 15 932 MB visibles | `equipo` del JSON |
 | Software | Python 3.12.16 · PostgreSQL 17.11 · Shapely 2.0.6 | `equipo` del JSON |
 | Fecha | 01/11/2026 18:05 UTC, con el sistema completo en marcha (productor, consumidores, API, túnel) | JSON |
@@ -372,14 +372,19 @@ siguen costando.
 
 | Concepto | Valor | Tipo | Comentario |
 |---|---|---|---|
-| Hardware | ⬜ precio del PC / años de vida útil | S | Pendiente de dato del autor |
-| Electricidad | P × 24 h × 30 días × precio. Ejemplo: 100 W × 720 h = 72 kWh/mes × 0,15 €/kWh ≈ **10,8 €/mes** | S | 100 W y 0,15 €/kWh son **supuestos**: medir con un enchufe medidor y mirar la factura. El sistema necesita el PC encendido 24 h |
+| Hardware | ≈1 000 € (dato del autor) / 5 años de vida útil (S) = **200 €/año ≈ 16,7 €/mes** | M + S | Cota alta: el PC también se usa para otras cosas, así que al proyecto le corresponde solo una parte. 5 años es un supuesto |
+| Electricidad | P × 24 h × 30 días × precio = 0,100 kW × 720 h = 72 kWh/mes × 0,194 €/kWh ≈ **14 €/mes (≈168 €/año)** | S + referencia | Potencia media de 100 W: **supuesto** (no medido; mejor con un enchufe medidor). Precio: PVPC medio de octubre de 2026 según Selectra (puede no incluir impuestos ni potencia). El sistema obliga a tener el PC encendido 24 h |
 | Almacenamiento | ≈110 MB hoy (34 + 55 + 4,2 + 13) | M | Insignificante en un disco doméstico |
 | Crecimiento de la base | ≈1 KB por versión guardada (20 MB / 19 021) → con 300 versiones/día ≈ 0,3 MB/día ≈ 110 MB/año | C + S | 300/día es un supuesto; se comprueba contando versiones por día en `evento_version` |
 | Transferencia | ≈5,9 GB/mes de descarga del feed + lo que sirva la API por ngrok | C | Pedir el feed comprimido (gzip) la reduciría ≈8× |
 | Servicios externos | ngrok, Netlify y USGS en plan/uso gratuito | M | Tienen cuotas de uso; no se han contratado planes de pago |
-| Mantenimiento | ⬜ horas/mes × coste/hora | S | Vigilar `/api/salud`, actualizar dependencias, copias de seguridad |
-| Desarrollo | ⬜ horas reales × coste/hora | S | Pendiente de dato del autor |
+| Mantenimiento | 1 h/mes (S) × 15 €/h (S) ≈ **15 €/mes** | S | Vigilar `/api/salud`, actualizar dependencias, copias de seguridad. Las dos cifras son supuestos |
+| Desarrollo | ≈6–7 h (estimación del autor, total hasta el 01/11/2026) × 15 €/h (S) ≈ **90–105 € (una vez)** | M + S | Horas del autor, desarrollando con ayuda de IA (Claude). No incluye el estudio posterior ni la defensa. 15 €/h es un supuesto de referencia, no un dato de mercado consultado |
+
+**Resumen** (con los supuestos indicados): coste recurrente ≈ 16,7 (hardware) + 14 (luz) + 15 (mantenimiento)
+≈ **46 €/mes**, más ≈90–105 € de desarrollo una sola vez. La partida mayor no es la nube (gratis), sino tener un PC
+encendido todo el día y el tiempo de las personas. Escalar a un servidor propio o en la nube cambiaría la luz y el
+hardware por una cuota mensual, que no se ha consultado.
 
 **ROI**: no se estima. El observatorio es un proyecto educativo sin un beneficio económico medible, y el enunciado
 pide no inventarlo.

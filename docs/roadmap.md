@@ -87,7 +87,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 ### Fase 12 · Complejidad, mediciones y costes
 - [x] 3 tamaños de entrada: tiempo y memoria (`backend/src/medir.py`, memoria §8)
 - [x] Búsqueda lista vs diccionario / consulta sin vs con índice
-- [ ] Costes y propuesta de escalado ⚑
+- [x] Costes y propuesta de escalado ⚑ (memoria §8.6–8.8)
 
 ### Fase 13 · Memoria y entrega
 - [ ] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)

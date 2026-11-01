@@ -50,8 +50,12 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   Recursos medidos: base 34 MB, Kafka 55 MB, ≈1,4 GB de RAM, feed ≈140 KB por consulta. Memoria §8 redactada.
 - Sin explicación: Kafka marcaba 122 % de CPU en la única lectura de `docker stats`.
 
+- Costes completados: PC ≈1 000 € (dato de Daniel; DxDiag: Ryzen 7 5800X, 32 GB, RTX 5060 Ti, Windows 11 Pro),
+  ≈6–7 h de desarrollo en total (dato de Daniel), luz con el PVPC de octubre de 2026 (0,194 €/kWh, Selectra) y
+  100 W supuestos. Resumen ≈46 €/mes + ≈90–105 € de desarrollo. **Fase 12 cerrada.**
+
 ### Siguiente paso
-- Completar los costes con los datos del autor (PC, horas) → Fase 13 (memoria final, README, guía de estudio).
+- Fase 13: diccionario de datos (§2), repaso de la memoria, README reproducible, guía de estudio, checklist final.
 
 ## Sesión 4 · Sábado 31/10/2026
 
