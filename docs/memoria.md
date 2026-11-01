@@ -142,6 +142,12 @@ Primeros datos reales del productor (31/10/2026, 06:48 UTC, 220 eventos por resp
 `type=explosion` (1) y **`type=quarry blast` (1)**. Es un tipo de evento que no aparecía en la muestra de exploración;
 la regla genérica `type != earthquake` lo excluye sin cambiar el código.
 
+### 5.2bis Recuperación tras una parada (Actualidad)
+El 31/10 a las 15:27 UTC se apagó todo el sistema y se volvió a arrancar el 01/11 a las 08:16 UTC (~16 h 49 min).
+La primera descarga publicó **175 novedades** y las siguientes 0–1: el feed (ventana móvil de 24 h) permite recuperar
+solas las paradas de menos de 24 h. Con paradas mayores quedaría un hueco recuperable desde el catálogo FDSN.
+Evidencia: `docs/evidencias/recuperacion-parada-nocturna.txt`.
+
 ### 5.3 Conciliación entre tablas (Consistencia)
 Todo lo publicado por el productor debe acabar en `evento_actual` o en `cuarentena`.
 Resultado (31/10, ~07:00 UTC): **222 publicados = 221 terremotos + 1 exclusión real (`quarry blast`)**, y

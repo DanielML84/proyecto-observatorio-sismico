@@ -5,6 +5,22 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 5 · Domingo 01/11/2026
+
+### Avanzado
+- Arranque en frío tras apagarlo todo por la noche: Docker Desktop → `docker compose up -d` → `docker compose ps`
+  → `/api/salud` correcto.
+- **Recuperación automática comprobada:** el sistema estuvo parado de 31/10 15:27 UTC a 01/11 08:16 UTC
+  (~16 h 49 min). La primera descarga publicó **175 novedades** y las siguientes 0–1. Como la parada fue menor
+  de 24 h, el feed las cubría. Evidencia: `docs/evidencias/recuperacion-parada-nocturna.txt`. Añadido en
+  memoria §5.2bis y en defensa.
+
+### Problemas
+- Ninguno.
+
+### Siguiente paso
+- Fase 10: cuenta e instalación de ngrok → túnel `ngrok http 8000` → Netlify → CORS → prueba desde el móvil.
+
 ## Sesión 4 · Sábado 31/10/2026
 
 ### Qué se hizo

@@ -1,0 +1,24 @@
+Recuperación tras una parada de menos de 24 h · 01/11/2026
+=========================================================
+El sistema se apagó por completo (Docker cerrado) la noche del 31/10 y se volvió a arrancar el 01/11
+con `docker compose up -d`. Última ingesta antes de parar: 31/10 15:27:34 UTC. Primera tras arrancar:
+01/11 08:16:00 UTC -> parada de ~16 h 49 min (< 24 h).
+
+$ SELECT solicitada_at, n_eventos, n_publicados FROM consulta_ingesta
+  WHERE fuente = 'usgs-feed-all_day' AND ok ORDER BY id DESC LIMIT 12;
+         solicitada_at         | n_eventos | n_publicados
+-------------------------------+-----------+--------------
+ 2026-11-01 08:20:42.196709+00 |       227 |            0
+ 2026-11-01 08:19:46.32244+00  |       227 |            0
+ 2026-11-01 08:18:50.55003+00  |       227 |            0
+ 2026-11-01 08:17:55.001722+00 |       227 |            1
+ 2026-11-01 08:16:59.054505+00 |       226 |            0
+ 2026-11-01 08:16:00.82855+00  |       226 |          175   <- primera descarga tras arrancar
+ 2026-10-31 15:27:34.979409+00 |       220 |            0   <- última antes de parar
+ 2026-10-31 15:26:37.663623+00 |       220 |            0
+ ...
+
+Interpretación: la primera descarga tras arrancar publicó 175 novedades (eventos ocurridos durante la parada
+y revisiones de eventos ya conocidos). Como el feed siempre contiene las últimas 24 h, una parada menor de
+24 h se recupera sola, sin intervención. Con una parada mayor de 24 h quedaría un hueco que habría que
+descargar del catálogo FDSN (limitación documentada, memoria D32).
