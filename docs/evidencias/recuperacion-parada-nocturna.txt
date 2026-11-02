@@ -22,3 +22,15 @@ Interpretación: la primera descarga tras arrancar publicó 175 novedades (event
 y revisiones de eventos ya conocidos). Como el feed siempre contiene las últimas 24 h, una parada menor de
 24 h se recupera sola, sin intervención. Con una parada mayor de 24 h quedaría un hueco que habría que
 descargar del catálogo FDSN (limitación documentada, memoria D32).
+
+Segunda parada · 01/11 -> 02/11/2026
+====================================
+`docker compose --profile tunel stop` la noche del 01/11; `docker compose --profile tunel up -d` el 02/11.
+         solicitada_at         | n_eventos | n_publicados
+-------------------------------+-----------+--------------
+ 2026-11-02 15:01:41.207804+00 |       232 |            1
+ 2026-11-02 15:00:45.215724+00 |       231 |            0
+ 2026-11-02 14:59:49.881662+00 |       231 |          212   <- primera descarga tras arrancar
+ 2026-11-01 18:44:02.843332+00 |       203 |            2   <- última antes de parar
+Parada de 20 h 16 min (< 24 h): 212 novedades recuperadas solas en la primera descarga. Panel de Netlify con
+«Última consulta completada» (232 eventos en las últimas 24 h).

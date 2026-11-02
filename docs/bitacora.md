@@ -5,6 +5,22 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 6 · Lunes 02/11/2026
+
+### Avanzado
+- Arranque tras la noche: `docker compose --profile tunel up -d`. Parada de **20 h 16 min** (< 24 h): la primera
+  descarga recuperó **212** novedades sola. Evidencia añadida a `recuperacion-parada-nocturna.txt` y memoria §5.2bis.
+- Indicaciones para dejarlo recogiendo datos de continuo: PC sin suspensión, Docker Desktop arrancando al iniciar
+  sesión, y no hacer `stop` (los servicios tienen `restart: unless-stopped`).
+- Docker Desktop avisa de «Outdated version»: no se actualiza hasta después de la entrega.
+
+### Problemas
+- No se había explicado que, para seguir ingiriendo, el sistema tiene que quedarse encendido. Explicado hoy.
+
+### Siguiente paso
+- 03/11: re-descarga FDSN del periodo de la Conclusión 3 y comparar con el feed.
+- Bloque 1 de la guía de estudio.
+
 ## Sesión 5 · Domingo 01/11/2026
 
 ### Avanzado

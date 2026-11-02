@@ -223,6 +223,7 @@ la regla genérica `type != earthquake` lo excluye sin cambiar el código.
 El 31/10 a las 15:27 UTC se apagó todo el sistema y se volvió a arrancar el 01/11 a las 08:16 UTC (~16 h 49 min).
 La primera descarga publicó **175 novedades** y las siguientes 0–1: el feed (ventana móvil de 24 h) permite recuperar
 solas las paradas de menos de 24 h. Con paradas mayores quedaría un hueco recuperable desde el catálogo FDSN.
+Segunda comprobación: parada de 20 h 16 min (01/11 18:44 → 02/11 14:59 UTC) → **212** novedades en la primera descarga.
 Evidencia: `docs/evidencias/recuperacion-parada-nocturna.txt`.
 
 ### 5.3 Conciliación entre tablas (Consistencia)
