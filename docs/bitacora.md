@@ -5,7 +5,7 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
-## Sesión 8 · Martes 03/11/2026 (tarde) · Estudio: bloque 1 ✅
+## Sesión 8 · Martes 03/11/2026 (tarde) · Estudio: bloques 1 y 2 ✅
 
 ### Avanzado
 - **Cambio de enfoque a petición de Daniel:** al empezar el bloque 1 dijo que del proyecto «solo le suenan cosas».
@@ -36,9 +36,25 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Falsa alarma: parecía que el comando `Select-String` de la guía solo devolvía una línea; era la terminal demasiado
   pequeña. El comando de la guía es correcto.
 
+### Bloque 2 · Productor y mensaje ✅ (misma tarde, 20:01–20:50)
+- Pasos: (1) el ciclo de cada minuto, con los logs reales (`eventos=` baja de 216 a 213: ventana móvil) · (2) `id` +
+  `updated` y los 4 casos · (3) el mensaje: sobre (`schema_version`, `source`, `mode`, `ingested_at`, `replayed_at`)
+  + carta (`event` sin modificar); `time` = cuándo ocurrió, `ingested_at` = cuándo lo descargamos · (4) publicar →
+  confirmación de Kafka → marcar (perder frente a duplicar) · (5) errores reintentables (espera 2/4/8 s) y definitivos
+  · (6) memoria: diccionario en RAM + tabla `version_publicada`. Extra: huella solo de `features` y latido.
+- Dato real del log: `estado cargado: 1091 versiones ya publicadas` (1 fila por terremoto en `version_publicada`,
+  con su último `updated`; comprobado en `db.py` y `01_esquema.sql`).
+
+### ⚠️ Para repasar (bloque 2)
+- No sabía por qué `eventos=` baja: entran los nuevos y salen los de más de 24 h; el número es el neto.
+- Qué guarda la «libreta» del productor: solo `id → updated` de la última versión publicada, no el terremoto.
+- Sin la libreta en PostgreSQL no se «pierde» nada: se **republican** como nuevos (duplicados que el consumidor tolera).
+- Latido: describió el mecanismo, pero no el caso → `Up` = el proceso existe; latido = completa ciclos (detecta un productor colgado).
+- Defensa: decir «para no perder datos» en vez de «por seguridad» al explicar el orden publicar → marcar.
+
 ### Siguiente paso
-- **Bloque 2 · Productor y mensaje** (la tarea FDSN del bloque 2 ya está hecha en la sesión 7). El calendario va un
-  día retrasado: decidir si se recupera usando un día de colchón.
+- **Bloque 3 · Kafka** (topic, partición, clave, offset, grupo, LAG). Con los bloques 1 y 2 hechos el 03/11,
+  el calendario de la guía vuelve a ir al día.
 
 ## Sesión 7 · Martes 03/11/2026
 

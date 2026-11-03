@@ -11,7 +11,7 @@
 | ☐ | Día | Bloque | Tiempo |
 |---|---|---|---|
 | ☒ | Lun 02/11 (tarde) → hecho Mar 03/11 | 1 · Visión general y arrancar/parar | 1,5 h |
-| ☐ | Mar 03/11 (tarde) | 2 · Productor y mensaje + **tarea: re-descarga FDSN (Conclusión 3)** | 2 h |
+| ☒ | Mar 03/11 (tarde) | 2 · Productor y mensaje + **tarea: re-descarga FDSN (Conclusión 3)** | 2 h |
 | ☐ | Mié 04/11 | 3 · Kafka | 2 h |
 | — | Jue 05/11 | *(niños: descanso)* | — |
 | ☐ | Vie 06/11 (tarde) | 4 · Consumidor, validación y cuarentena | 1,5 h |
@@ -56,7 +56,7 @@
 - 🧪 `docker compose --profile tunel stop` → `docker compose --profile tunel up -d` → `docker compose ps` → abrir el panel de Netlify.
 - ❓ ¿Cuáles son los 5 servicios obligatorios? ¿Para qué sirve `kafka-init`? ¿Qué se pierde con `down -v` y qué no con `stop`? ¿Por qué una parada < 24 h no pierde terremotos?
 
-## Bloque 2 · Productor y mensaje ☐
+## Bloque 2 · Productor y mensaje ☒
 - 🎯 Explicar cómo decide el productor qué publicar y en qué formato.
 - 📂 [`backend/src/productor.py`](../backend/src/productor.py) · [`mensajes.py`](../backend/src/mensajes.py) · [`contrato-mensaje.md`](contrato-mensaje.md) · memoria §3.
 - 🔎 `Select-String -Path backend\src\productor.py -Pattern "send_and_wait|marcar_publicada|ErrorReintentable|latido"`
