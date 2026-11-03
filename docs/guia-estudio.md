@@ -10,7 +10,7 @@
 
 | ☐ | Día | Bloque | Tiempo |
 |---|---|---|---|
-| ☐ | Lun 02/11 (tarde) | 1 · Visión general y arrancar/parar | 1,5 h |
+| ☒ | Lun 02/11 (tarde) → hecho Mar 03/11 | 1 · Visión general y arrancar/parar | 1,5 h |
 | ☐ | Mar 03/11 (tarde) | 2 · Productor y mensaje + **tarea: re-descarga FDSN (Conclusión 3)** | 2 h |
 | ☐ | Mié 04/11 | 3 · Kafka | 2 h |
 | — | Jue 05/11 | *(niños: descanso)* | — |
@@ -49,7 +49,7 @@
 
 ---
 
-## Bloque 1 · Visión general y arrancar/parar ☐
+## Bloque 1 · Visión general y arrancar/parar ☒
 - 🎯 Contar en 1 minuto qué hace el sistema y por qué cada pieza.
 - 📂 [`README.md`](../README.md) (entero) · [memoria §1](memoria.md) · [`compose.yaml`](../compose.yaml) (solo los comentarios de cada servicio).
 - 🔎 `Select-String -Path compose.yaml -Pattern "^  [a-z-]+:$"` → lista de servicios.

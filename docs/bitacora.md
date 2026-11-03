@@ -5,6 +5,41 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 8 · Martes 03/11/2026 (tarde) · Estudio: bloque 1 ✅
+
+### Avanzado
+- **Cambio de enfoque a petición de Daniel:** al empezar el bloque 1 dijo que del proyecto «solo le suenan cosas».
+  Se volvió a la base: 6 pasos cortos, una pregunta por paso y la **analogía de la cocina** (USGS = proveedor,
+  productor = el que recibe, Kafka = barra de comandas, consumidor = cocinero, PostgreSQL = despensa, API = camarero,
+  panel = carta, túnel = puerta a la calle). Funciona: mantener este formato en los siguientes bloques.
+- Pasos hechos: (1) el viaje de un terremoto · (2) imagen, contenedor y servicio; `command` decide qué programa
+  ejecuta la imagen común `observatorio-backend` · (3) comentarios de `compose.yaml` (`kafka-init`) · (4) los 5
+  obligatorios y los 6 ayudantes · (5) `stop` → `up -d` → `ps` → panel de Netlify con datos · (6) por qué una
+  parada < 24 h no pierde terremotos.
+- Práctica real: `docker compose --profile tunel stop` (8 contenedores parados) → `up -d` → `ps`: los 7 en marcha,
+  `tunel` incluido; `kafka-init` en `Exited` (normal). El panel de Netlify muestra terremotos y el estado de ingesta.
+- Comprobado en el código (no de memoria): el histórico 2025 entró por `terremotos.live`
+  (`historico_cargar.py`, línea 5); `terremotos.replay` es solo para la demostración.
+
+### ⚠️ Para repasar el domingo (colchón)
+- Confundió `kafka` con `kafka-init` al nombrar los 5 obligatorios → `kafka` es la barra; `kafka-init` la monta y termina.
+- Atribuyó el almacenamiento a los trabajadores → **no guardan** el productor ni el consumidor: guarda Kafka
+  (7 días o 512 MB) y USGS solo enseña las últimas 24 h (ventana móvil, no «lo que tarda en publicar»).
+- Pensó que `kafka-init` crea réplicas (`--replication-factor 1` = una sola copia), que «se queda a la espera»
+  (TERMINA) y que crea la imagen (la construye Compose desde el `Dockerfile`).
+- Dirección de la API: **recibe** las preguntas del panel y responde con datos de PostgreSQL.
+
+### Problemas y dudas
+- Al hacer `up -d`, `productor`, `consumidor`, `consumidor-replay` (y `api`, según `ps`) salieron como `Recreated`.
+  Causa: **no lo sé** (sospecha no comprobada: cambio de imagen hoy). Sin pérdida de datos (los datos están en volúmenes).
+- Aviso `No services to build` al hacer `up -d`: causa exacta no confirmada; no impidió arrancar.
+- Falsa alarma: parecía que el comando `Select-String` de la guía solo devolvía una línea; era la terminal demasiado
+  pequeña. El comando de la guía es correcto.
+
+### Siguiente paso
+- **Bloque 2 · Productor y mensaje** (la tarea FDSN del bloque 2 ya está hecha en la sesión 7). El calendario va un
+  día retrasado: decidir si se recupera usando un día de colchón.
+
 ## Sesión 7 · Martes 03/11/2026
 
 ### Avanzado
