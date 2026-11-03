@@ -268,7 +268,9 @@ productor estaba consultando justo antes de la actualización de USGS.
 
 **Nota 3 · exactitud.** Comprobar que una magnitud es numérica y está en rango **no demuestra que sea exacta**. No
 tenemos otra fuente independiente con la que contrastarla. Lo que sí se contrasta: el `count` de la API FDSN frente a
-lo descargado (iguales, §3) y la asignación de país del STRtree frente a la fuerza bruta (iguales, §8.3).
+lo descargado (iguales, §3), la asignación de país del STRtree frente a la fuerza bruta (iguales, §8.3) y el feed en
+vivo frente al catálogo para un día concreto: 27 de 28 terremotos M ≥ 4 llegaron por el feed y ninguno cambió de
+magnitud (§7, Conclusión 3).
 Limitaciones: USGS revisa los valores (hasta 33 versiones de un mismo evento), las escalas de magnitud son distintas
 y las fronteras del mapa son simplificadas (1:110 M).
 
@@ -352,9 +354,15 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    p10 es 31; solo **10 de 365 días (2,7 %)** tuvieron 25 o menos. Excluyendo la secuencia de Kamchatka: media 39,25,
    mediana 37, p10 26 y **29 días (7,9 %)** con 25 o menos. Con mag ≥ 4,5: 13 frente a 23,45 (−44,6 %). *Interpretación:* la
    media está inflada por días extremos (máximo 645, el día del M8,8); la mediana y los percentiles describen mejor un día
-   típico. *Limitaciones:* un solo día es una muestra muy pequeña; el feed en tiempo real puede completarse más tarde
-   (pendiente: volver a descargar el periodo del catálogo hacia el 03/11 para medirlo). No es una predicción ni una
-   evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`.
+   típico. **Contraste con el catálogo** (03/11/2026, `backend/src/contrastar_fdsn.py`): para el mismo periodo y filtros,
+   el catálogo FDSN tiene hoy **28** terremotos, nuestra base 27 (2 llegaron después por el propio feed) y falta 1
+   (`us7000tumn`, M4,7 Vanuatu, que nunca apareció en el feed; probablemente USGS lo publicó cuando ya había salido de la
+   ventana de 24 h, pero no lo sabemos con seguridad); 0 cambios de magnitud. Con el dato corregido: **28 frente a 50,14
+   (−44,2 %)** y **27 de 365 días de 2025 (7,4 %)** con 28 o menos. La conclusión se mantiene: parte baja del rango, no
+   excepcional. Y cuantifica una limitación: el feed en tiempo real se quedó corto en 3 de 28 (≈11 %).
+   *Limitaciones:* un solo día es una muestra muy pequeña; el periodo se guardó con precisión de minuto. No es una
+   predicción ni una evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`,
+   `docs/evidencias/fase13-contraste-fdsn.txt`.
    → *Mejora aplicada:* `/api/estadisticas` devuelve ahora la mediana, el p10, el p90 y el % de días de 2025 con un recuento ≤ al reciente.
 
 ## 7bis. Panel del observatorio (enunciado §8) ✅

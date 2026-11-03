@@ -91,7 +91,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 
 ### Fase 13 · Memoria y entrega
 - [x] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
-- [ ] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed
+- [x] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed (`fase13-contraste-fdsn.txt`: 25 → 27 → 28)
 - [x] README reproducible
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación

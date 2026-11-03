@@ -5,6 +5,20 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 7 · Martes 03/11/2026
+
+### Avanzado
+- **Contraste de la Conclusión 3 con el catálogo** (`backend/src/contrastar_fdsn.py`, probado antes por Claude con datos
+  simulados): feed el 31/10 = 25 → nuestra base hoy = 27 → catálogo FDSN hoy = 28. Falta 1 (M4,7 Vanuatu, nunca en el
+  feed), 0 cambios de magnitud. Recalculado: −44,2 % frente a la media; 27 días de 2025 (7,4 %) con ≤ 28.
+  **La conclusión se mantiene.** Memoria §7 y §5.4 (exactitud) actualizadas. **Trabajo técnico terminado.**
+
+### Problemas
+- Ninguno técnico. Daniel aún no maneja el panel con soltura: se trabajará en los bloques de estudio.
+
+### Siguiente paso
+- Lista final de comprobación de la guía de entregables. Después, estudio desde cero con `docs/guia-estudio.md`.
+
 ## Sesión 6 · Lunes 02/11/2026
 
 ### Avanzado

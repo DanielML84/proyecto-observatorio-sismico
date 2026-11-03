@@ -145,6 +145,7 @@ El token de ngrok solo está en `.env`; nunca en Git ni en el panel. La URL púb
 | Cerrar y reabrir el túnel | `docker compose stop tunel` / `docker compose start tunel` | `fase11-tunel-*.png` |
 | Análisis de calidad (solo lectura) | `Get-Content analisis/calidad.sql \| docker compose exec -T postgres psql -U observatorio -d observatorio` | memoria §5.4 |
 | Mediciones de rendimiento (3 tamaños) | `docker compose run --rm medir` | memoria §8 |
+| Contraste feed en vivo frente a catálogo FDSN (Conclusión 3) | `docker compose run --rm productor python -m src.contrastar_fdsn` | memoria §7 · `fase13-contraste-fdsn.txt` |
 
 Los datos sintéticos van siempre marcados (`PRUEBA-…`, `source = 'prueba-…'`, `SINT-…`) y la API nunca los devuelve.
 La reproducción vive en topic, consumidor y esquema propios y nunca toca los datos actuales.

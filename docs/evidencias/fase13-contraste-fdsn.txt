@@ -1,0 +1,23 @@
+Contraste feed en vivo frente a catálogo FDSN · periodo de la Conclusión 3 (consulta: 03/11/2026 15:53 UTC)
+==========================================================================================================
+Script: backend/src/contrastar_fdsn.py (solo lectura; la consulta queda en consulta_ingesta, fuente 'usgs-fdsn-contraste')
+$ docker compose build productor
+$ docker compose run --rm productor python -m src.contrastar_fdsn
+
+Periodo [2026-10-30T09:28:00Z, 2026-10-31T09:28:00Z) · earthquake · M >= 4.0 · consulta FDSN 2026-11-03 15:53 UTC
+  Nuestra base (feed, versión actual), M >= 4.0: 27
+  Catálogo FDSN hoy, M >= 4.0:                   28
+  En los dos: 27 · solo en FDSN: 1 · solo en nuestra base: 0
+
+Emparejados con magnitud distinta (catálogo frente a nuestra base): 0
+
+Solo en FDSN (1): no llegaron por el feed, o llegaron con M < 4.0, o con otro id
+  us7000tumn     10-30 12:40:57  M4.7 mb  status=reviewed  updated=11-01 04:56:50  (148 km NW of Port-Olry, Vanuatu)
+
+Solo en nuestra base (0): el catálogo hoy no los tiene con M >= 4.0
+
+Resumen:  feed el 31/10 (API) = 25  ->  nuestra base hoy = 27  ->  catálogo hoy = 28
+Recálculo frente a 2025 (data/historico, deduplicado; mismas cifras que en la base: 18 302 eventos, mediana 43):
+  días de 2025 con <= 25: 10 (2,7 %) · <= 27: 20 (5,5 %) · <= 28: 27 (7,4 %)
+  28 frente a la media 50,14 -> -44,2 %
+Limitación: el periodo de la Fase 8 solo se guardó con precisión de minuto (09:28), se usa 09:28:00.
