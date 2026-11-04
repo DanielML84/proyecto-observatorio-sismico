@@ -5,7 +5,7 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
-## Sesión 9 · Miércoles 04/11/2026 (tarde) · Estudio: bloque 3 ✅
+## Sesión 9 · Miércoles 04/11/2026 (tarde) · Estudio: bloques 3 y 4 ✅
 
 ### Avanzado
 - Arranque tras ~19 h 40 min parado (< 24 h): primera consulta `eventos=169 publicados=131`, después 1 y 0. Estado
@@ -34,8 +34,29 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Al volver, el enlace con el PC estaba cortado (app de escritorio cerrada). Solución: abrir la conversación en la app.
 - Arranque con `docker compose up -d` sin `--profile tunel`: el túnel no arrancó. Corregido con `--profile tunel up -d`.
 
+### Bloque 4 · Consumidor, validación y cuarentena ✅ (misma tarde, 20:31–21:47)
+- Pasos: (1) qué hace el consumidor con cada mensaje (validar → guardar o cuarentena → transacción → offset), con el log
+  real (`nc75462502`: insertado + 3 actualizado seguidos) · (2) salidas: insertado, actualizado, ignorado, excluido,
+  cuarentena; `excluido` e `invalido` en la misma tabla con tipo distinto · (3) las 15 reglas de `validacion.py`
+  (`f"type={tipo_evento}"`, `geometria_no_point`; sin `id` no se controlan duplicados) · (4) profundidad negativa
+  (geoide WGS84, D3) y magnitud nula (NULL ≠ 0) · (5) `MODO_ESPERADO` como segunda barrera · (6) SQL de cuarentena.
+- Resultado real (04/11): excluido `type=explosion` 12 (1 de prueba) · `type=quarry blast` 12 · invalido
+  `lat_fuera_de_rango` 1 (`PRUEBA-LAT145`). **0 inválidos reales de USGS.**
+
+### ⚠️ Para repasar (bloque 4)
+- Atribuyó las explosiones a volcanes → son provocadas por personas (voladuras, canteras); excluidas porque no son `earthquake`.
+- Latitud 145: dijo «excluido por ser erróneo» → erróneo = **inválido**. Excluido = «no es de mi carta».
+- Pensaba que la magnitud 0 «no sería un terremoto» → M0 y negativas existen (7 en la base); por eso NULL no se rellena con 0.
+- Respuestas aún genéricas («no se puede comprobar», «por si entrara») → dar el caso concreto.
+
+### Decisiones (Daniel, 04/11)
+- **Revisión exhaustiva del enunciado punto por punto** (requisito → dónde se cumple → evidencia): la prepara Claude; se revisa
+  el domingo 08/11. Motivo: si aparece un hueco, quedan días para arreglarlo.
+- **Visita guiada al manejo del panel** el lunes 09/11, antes del bloque 6. Apuntado en la guía y el roadmap.
+
 ### Siguiente paso
-- **Bloque 4 · Consumidor, validación y cuarentena** (calendario: viernes 06/11).
+- Claude: preparar la tabla de revisión del enunciado (con el PC y la app de escritorio encendidos).
+- Daniel: **Bloque 5 · PostgreSQL: modelo e idempotencia** (calendario: sábado 07/11; jueves 05/11 descanso).
 
 ## Sesión 8 · Martes 03/11/2026 (tarde) · Estudio: bloques 1 y 2 ✅
 

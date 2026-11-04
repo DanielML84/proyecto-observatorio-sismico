@@ -14,10 +14,10 @@
 | ☒ | Mar 03/11 (tarde) | 2 · Productor y mensaje + **tarea: re-descarga FDSN (Conclusión 3)** | 2 h |
 | ☒ | Mié 04/11 | 3 · Kafka | 2 h |
 | — | Jue 05/11 | *(niños: descanso)* | — |
-| ☐ | Vie 06/11 (tarde) | 4 · Consumidor, validación y cuarentena | 1,5 h |
+| ☒ | Vie 06/11 (tarde) → hecho Mié 04/11 | 4 · Consumidor, validación y cuarentena | 1,5 h |
 | ☐ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
-| ☐ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 | 1 h |
-| ☐ | Lun 09/11 (tarde) | 6 · Integración geográfica | 1,5 h |
+| ☐ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
+| ☐ | Lun 09/11 (tarde) | **Visita guiada al panel** + 6 · Integración geográfica | 30–45 min + 1,5 h |
 | ☐ | Mar 10/11 (tarde) | 7 · Histórico, comparación y conclusiones | 2 h |
 | ☐ | Mié 11/11 | 8 · API y CORS | 2 h |
 | — | Jue 12/11 | *(niños: descanso)* | — |
@@ -71,7 +71,7 @@
 - 🧪 `docker compose exec kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kafka:9092 --describe --group consumidor-observatorio`
 - ❓ ¿Por qué la clave del mensaje es el `id`? ¿Kafka elimina duplicados? (no). ¿Qué es el LAG? ¿Por qué Kafka no se publica en el host? ¿Qué pasa con los mensajes si el consumidor está parado?
 
-## Bloque 4 · Consumidor, validación y cuarentena ☐
+## Bloque 4 · Consumidor, validación y cuarentena ☒
 - 🎯 Recorrer un mensaje desde que llega hasta que se guarda o va a cuarentena.
 - 📂 [`consumidor.py`](../backend/src/consumidor.py) · [`validacion.py`](../backend/src/validacion.py) · memoria §5.1–5.3.
 - 🔎 `Select-String -Path backend\src\validacion.py -Pattern "Rechazo\("` → todas las reglas.
