@@ -95,5 +95,5 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] README reproducible
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
-- [~] Semana de estudio: Daniel repasa la guía y responde `defensa.md` en voz alta (bloques 1 y 2 ✅ 03/11)
+- [~] Semana de estudio: Daniel repasa la guía y responde `defensa.md` en voz alta (bloques 1 y 2 ✅ 03/11 · bloque 3 ✅ 04/11)
 - [ ] Preparar la defensa: flujo completo + una decisión técnica propia ⚑

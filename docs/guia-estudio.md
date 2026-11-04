@@ -12,7 +12,7 @@
 |---|---|---|---|
 | ☒ | Lun 02/11 (tarde) → hecho Mar 03/11 | 1 · Visión general y arrancar/parar | 1,5 h |
 | ☒ | Mar 03/11 (tarde) | 2 · Productor y mensaje + **tarea: re-descarga FDSN (Conclusión 3)** | 2 h |
-| ☐ | Mié 04/11 | 3 · Kafka | 2 h |
+| ☒ | Mié 04/11 | 3 · Kafka | 2 h |
 | — | Jue 05/11 | *(niños: descanso)* | — |
 | ☐ | Vie 06/11 (tarde) | 4 · Consumidor, validación y cuarentena | 1,5 h |
 | ☐ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
@@ -64,7 +64,7 @@
 - ❓ ¿Por qué se marca como publicada **después** de que Kafka confirme? ¿Qué es un error reintentable y uno definitivo? ¿Dónde guarda el productor su «memoria» al reiniciarse? ¿Por qué se hashean solo los `features` y no la respuesta entera?
 - 📌 **Tarea del 03/11 (con Claude):** volver a descargar del catálogo FDSN el periodo 30/10 09:28 → 31/10 09:28 UTC (M ≥ 4) y comparar con los 25 del feed (Conclusión 3).
 
-## Bloque 3 · Kafka ☐
+## Bloque 3 · Kafka ☒
 - 🎯 Entender topic, partición, clave, offset, grupo de consumidores y LAG.
 - 📂 `compose.yaml` (servicios `kafka` y `kafka-init`) · memoria Anexo A (decisiones de Kafka) · [`fase11-reproduccion.txt`](evidencias/fase11-reproduccion.txt) (parte del LAG).
 - 🔎 `Select-String -Path compose.yaml -Pattern "KAFKA_"`

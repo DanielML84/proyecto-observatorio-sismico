@@ -5,6 +5,38 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 9 · Miércoles 04/11/2026 (tarde) · Estudio: bloque 3 ✅
+
+### Avanzado
+- Arranque tras ~19 h 40 min parado (< 24 h): primera consulta `eventos=169 publicados=131`, después 1 y 0. Estado
+  cargado: 1119 versiones. Los 38 restantes ya estaban en `version_publicada` (ocurridos ayer con el sistema encendido).
+- Detalle visto en el log: una consulta con `publicados=0` guardó copia porque salieron terremotos del tablón (169 → 167)
+  y cambió la huella de `features`.
+- **Bloque 3 · Kafka**, en 6 pasos con la cocina: (1) topic = barra, partición = gancho; 3 particiones (D14) para
+  repartir entre varios consumidores; orden solo dentro de cada partición · (2) clave = `id` → mismo gancho → versiones
+  en orden (con la magnitud como clave, la vieja podría pisar a la buena) · (3) offset = número de comanda por gancho;
+  identificar un mensaje = topic + partición + offset (UNIQUE de `cuarentena`) · (4) grupo de consumidores y offset
+  confirmado (marcapáginas), confirmar después de guardar = «al menos una vez» · (5) LAG = LOG-END − CURRENT ·
+  (6) Kafka sin publicar (PLAINTEXT, sin contraseña ni cifrado; enunciado §2 y §9).
+- Práctica real: `kafka-consumer-groups.sh --describe --group consumidor-observatorio` → LAG 0 en las 3 particiones
+  (offsets 12 738 / 12 947 / 12 832; 38 517 mensajes en total, histórico 2025 incluido). Un solo CONSUMER-ID para las 3.
+
+### ⚠️ Para repasar
+- Pensaba que en la recuperación «se borraron» 38 del tablón → no: eran los que ya estaban en la libreta.
+- Leyó los ~12 000 offsets como pendientes y CONSUMER-ID como el DNI de un terremoto → offset = posición;
+  pendientes = LAG; CONSUMER-ID = el consumidor (uno para las 3 particiones).
+- Dijo que con el consumidor parado «el LAG no aumenta» → sí aumenta: es la resta LOG-END − CURRENT.
+- Pensaba que el comando del LAG llega a Kafka «por la API» → `docker compose exec` ejecuta dentro del contenedor;
+  **la API nunca habla con Kafka** (solo lee PostgreSQL).
+- Defensa: decir el caso concreto («la versión vieja pisaría a la buena»), no «se complicaría».
+
+### Problemas
+- Al volver, el enlace con el PC estaba cortado (app de escritorio cerrada). Solución: abrir la conversación en la app.
+- Arranque con `docker compose up -d` sin `--profile tunel`: el túnel no arrancó. Corregido con `--profile tunel up -d`.
+
+### Siguiente paso
+- **Bloque 4 · Consumidor, validación y cuarentena** (calendario: viernes 06/11).
+
 ## Sesión 8 · Martes 03/11/2026 (tarde) · Estudio: bloques 1 y 2 ✅
 
 ### Avanzado
