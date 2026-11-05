@@ -93,7 +93,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
 - [x] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed (`fase13-contraste-fdsn.txt`: 25 → 27 → 28)
 - [x] README reproducible
-- [ ] Revisión exhaustiva del enunciado punto por punto: requisito → dónde se cumple → evidencia (Claude la prepara; revisión con Daniel el 08/11)
+- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, preparada el 05/11: 99 ✅ · 3 ⚠️ · 1 ❌ · 1 ⏳) → revisar con Daniel el 08/11 y resolver los huecos
 - [ ] Visita guiada al manejo del panel (09/11)
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación

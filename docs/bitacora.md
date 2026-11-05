@@ -5,6 +5,23 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 10 · Jueves 05/11/2026 (tarde)
+
+### Avanzado
+- Arranque a las ~20:00 tras ~21 h 50 min parado (< 24 h): `eventos=208 publicados=194`; los 14 restantes ya estaban
+  publicados → la ventana se solapa con lo recogido, **sin hueco**. Estado cargado: 1317 versiones.
+- **Revisión del enunciado punto por punto** preparada por Claude: `docs/revision-enunciado.md`. 104 requisitos del Word
+  (revisión 2) cruzados con código, memoria y evidencias: **99 ✅ · 3 ⚠️ · 1 ❌ · 1 ⏳**.
+  - ❌ §5: falta documentar la limitación de eventos eliminados/fusionados/revisados fuera del feed.
+  - ⚠️ §12: las conclusiones no enlazan capturas del panel con sus filtros (encaja con la visita al panel del 09/11).
+  - ⚠️ §9: `ngrok/ngrok:latest` sin versión fija (el resto de dependencias sí lo está).
+  - ⚠️ §4.1: documentación de la fuente reciente completa pero repartida en varias secciones.
+  - ⏳ §12: explicación individual (semana de estudio).
+
+### Siguiente paso
+- Domingo 08/11: revisar `docs/revision-enunciado.md` con Daniel y decidir cómo resolver cada hueco.
+- Daniel: bloque 5 (viernes o sábado).
+
 ## Sesión 9 · Miércoles 04/11/2026 (tarde) · Estudio: bloques 3 y 4 ✅
 
 ### Avanzado
