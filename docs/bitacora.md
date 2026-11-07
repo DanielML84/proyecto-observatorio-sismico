@@ -5,6 +5,31 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 11 · Sábado 07/11/2026 (mañana) · Estudio: bloque 5 ✅
+
+### Avanzado
+- Arranque 10:28: `eventos=179 publicados=66`; 113 ya publicados → solapamiento, **sin hueco**. Estado cargado: 1798.
+- **Bloque 5 · PostgreSQL**, en 6 pasos: (1) grano de las 7 tablas; hecho `evento_actual`, dimensiones `pais` y `fecha`
+  · (2) contar en `evento_actual` (en `evento_version` un terremoto con 33 versiones contaría 33 veces; enunciado §8)
+  · (3) claves: PK `event_id`, PK compuesta `(event_id, updated_ms)`, UNIQUE de cuarentena; la clave no compara fechas
+  · (4) UPSERT con `WHERE evento_actual.updated_ms < EXCLUDED.updated_ms` · (5) transacción (o todo o nada) + offset
+  después · `country_id` NULL = «Sin país asignado» (14 465, 76,7 %) · (6) los 8 casos de la FAQ 12: 5/8 acertados.
+
+### ⚠️ Para repasar (prioritario el domingo)
+- **Contar filas de `evento_version`**: falló 3 veces (1 fila por versión distinta que entra; los `ignorado` no añaden).
+  Acabó acertando 5 terremotos × 2 versiones = 5/10 y la revisión de E2 = 3/5.
+- Casos de calidad de la FAQ 12: magnitud nula → `insertado` (no cuarentena); latitud 145 → `cuarentena` (inválido,
+  no excluido: **segunda vez**); explosión → `excluido` (no `ignorado`, que es solo para versiones repetidas o viejas).
+- Decía «la clave compara la fecha» → la clave solo impide repetir; compara el `WHERE` del UPSERT.
+
+### Problemas
+- `docker compose --profile tunel up -d` se quedó sin devolver el control de la terminal, aunque los 8 contenedores
+  arrancaron bien (`ps -a`). Causa: **no lo sé**. Solución: Ctrl + C (no para los contenedores).
+
+### Siguiente paso
+- Domingo 08/11: colchón (⚠️ de los bloques 1–5, sobre todo el recuento de versiones y excluido/inválido) + revisión de
+  `docs/revision-enunciado.md`.
+
 ## Sesión 10 · Jueves 05/11/2026 (tarde)
 
 ### Avanzado

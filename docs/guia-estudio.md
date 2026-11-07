@@ -15,7 +15,7 @@
 | ☒ | Mié 04/11 | 3 · Kafka | 2 h |
 | — | Jue 05/11 | *(niños: descanso)* | — |
 | ☒ | Vie 06/11 (tarde) → hecho Mié 04/11 | 4 · Consumidor, validación y cuarentena | 1,5 h |
-| ☐ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
+| ☒ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
 | ☐ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
 | ☐ | Lun 09/11 (tarde) | **Visita guiada al panel** + 6 · Integración geográfica | 30–45 min + 1,5 h |
 | ☐ | Mar 10/11 (tarde) | 7 · Histórico, comparación y conclusiones | 2 h |
@@ -78,7 +78,7 @@
 - 🧪 `docker compose logs consumidor --tail 10` · `SELECT tipo, motivo, COUNT(*) FROM cuarentena GROUP BY 1, 2;`
 - ❓ ¿Diferencia entre `invalido` y `excluido`? ¿Por qué no se rechaza una profundidad negativa? ¿Por qué el offset se confirma **después** de guardar? («al menos una vez»). ¿Qué hace `MODO_ESPERADO`?
 
-## Bloque 5 · PostgreSQL: modelo e idempotencia ☐
+## Bloque 5 · PostgreSQL: modelo e idempotencia ☒
 - 🎯 Explicar las tablas, su grano y cómo se evita duplicar.
 - 📂 [`sql/01_esquema.sql`](../sql/01_esquema.sql) · [`db.py`](../backend/src/db.py) · memoria §2 y §6.
 - 🔎 `Select-String -Path backend\src\db.py -Pattern "ON CONFLICT|xmax|transaction"`
