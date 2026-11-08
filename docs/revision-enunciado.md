@@ -10,7 +10,7 @@
 
 | ✅ Cumplidos | ⚠️ Mejorables | ❌ Faltan | ⏳ Pendientes |
 |:---:|:---:|:---:|:---:|
-| 99 | 3 | 1 | 1 |
+| 102 | 1 | 0 | 1 |
 
 104 requisitos revisados (contando como uno cada fila de las tablas de abajo).
 
@@ -18,13 +18,13 @@
 
 | # | Estado | Requisito (sección) | Qué pasa | Propuesta | Tiempo |
 |---|---|---|---|---|---|
-| 1 | ❌ | §5 · Documentar la limitación de eventos eliminados, fusionados o revisados cuando ya están fuera del feed, y que «no aparecer en la siguiente ventana» no es «USGS lo ha eliminado» | No hay ningún párrafo sobre esto en la memoria ni en el README (búsqueda de «eliminad», «fusionad», «desaparec», «reconcil»: 0 resultados) | Añadir un párrafo corto en la memoria §3 o §5. Se puede citar el caso real de la Conclusión 3 (`us7000tumn`, nunca apareció en el feed) | 10–15 min |
+| 1 | ✅ (08/11) | §5 · Documentar la limitación de eventos eliminados, fusionados o revisados cuando ya están fuera del feed, y que «no aparecer en la siguiente ventana» no es «USGS lo ha eliminado» | No hay ningún párrafo sobre esto en la memoria ni en el README (búsqueda de «eliminad», «fusionad», «desaparec», «reconcil»: 0 resultados) | Añadir un párrafo corto en la memoria §3 o §5. Se puede citar el caso real de la Conclusión 3 (`us7000tumn`, nunca apareció en el feed) | 10–15 min |
 | 2 | ⚠️ | §12 · «Análisis con al menos tres conclusiones **y capturas de los filtros usados**» | Las 3 conclusiones (memoria §7) citan evidencias `.txt`, pero ninguna enlaza una captura del panel con sus filtros. Hay capturas del panel (`fase9-*.png`), pero no están ligadas a cada conclusión | Hacer una captura por conclusión con sus filtros y citarla en §7. **Encaja con la visita guiada al panel del 09/11.** Ojo: el panel filtra por fecha, magnitud y país, no por rectángulo lat/lon, así que para la Conclusión 1 (zona de Kamchatka) habrá que ver si sirve `fase9-bloque4-kamchatka.png` | 30 min |
-| 3 | ⚠️ | §9 · «Dependencias fijadas» | Todo está fijado (Kafka `4.1.2`, `requirements.txt` con `==`, `package-lock.json`) **salvo el túnel**: `ngrok/ngrok:latest` en `compose.yaml` | Fijar la versión de la imagen de ngrok, o anotarlo como limitación en la memoria | 10 min |
-| 4 | ⚠️ | §4.1 · Documentar respuesta, tipos, unidades, campos opcionales, frecuencia, errores y latencia | Está todo, pero **repartido**: tipos y unidades en §2, estructura y campos poco informados en §4, frecuencia en §3, latencia en §5.4 (Actualidad), errores en §3/§5.4 | Añadir en §4 una línea que remita a cada sitio, para que el profesor lo encuentre de un vistazo | 5 min |
+| 3 | ✅ (08/11, documentado) | §9 · «Dependencias fijadas» | Todo está fijado (Kafka `4.1.2`, `requirements.txt` con `==`, `package-lock.json`) **salvo el túnel**: `ngrok/ngrok:latest` en `compose.yaml` | Fijar la versión de la imagen de ngrok, o anotarlo como limitación en la memoria | 10 min |
+| 4 | ✅ (08/11) | §4.1 · Documentar respuesta, tipos, unidades, campos opcionales, frecuencia, errores y latencia | Está todo, pero **repartido**: tipos y unidades en §2, estructura y campos poco informados en §4, frecuencia en §3, latencia en §5.4 (Actualidad), errores en §3/§5.4 | Añadir en §4 una línea que remita a cada sitio, para que el profesor lo encuentre de un vistazo | 5 min |
 | 5 | ⏳ | §12 · Explicación individual del flujo completo y de una decisión técnica propia | Depende de Daniel | Semana de estudio (bloques 1–12) y simulacro del 17/11 | — |
 
-**Orden de la casa (no es requisito del enunciado):** en el roadmap siguen sin marcar «Explorar el catálogo de países:
+**Orden de la casa (resuelto el 08/11):** en el roadmap estaban sin marcar «Explorar el catálogo de países:
 unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3bis: 177/177; memoria §4). `docs/spec.md` y
 `docs/plan.md` nunca se crearon: eran parte del método propio (bitácora sesión 1), el enunciado no los pide.
 
@@ -70,7 +70,7 @@ unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3b
 | GET a `all_day.geojson` cada ~60 s | `productor.py`, `INTERVALO_S: 60` | `consulta_ingesta`, logs | ✅ |
 | Entender que es una ventana móvil de 24 h con revisiones | memoria §3, §5.2bis | `recuperacion-parada-nocturna.txt` | ✅ |
 | Identificar `id`, `time`, `updated`, `mag`, `magType`, `type`, `place`, `coordinates` | memoria §2 (diccionario) | — | ✅ |
-| Documentar respuesta, tipos, unidades, opcionales, frecuencia, errores y latencia | memoria §2, §3, §4, §5.4 | notebook | ⚠️ (repartido, ver #4) |
+| Documentar respuesta, tipos, unidades, opcionales, frecuencia, errores y latencia | memoria §4 (índice a §2, §3, §5.4 y D20) | notebook | ✅ |
 | Filtrar `type == "earthquake"` y conservar el motivo | `validacion.py` línea 70; tabla `cuarentena` | `type=explosion` 11 y `type=quarry blast` 12 reales (consulta del 04/11) | ✅ |
 
 ### §4.2 · Histórico
@@ -105,7 +105,7 @@ unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3b
 | Clave Kafka = id; mensaje con `source`, `ingested_at`, `mode` y el evento original | `mensajes.py`, `docs/contrato-mensaje.md` | — | ✅ |
 | Esperar confirmación de Kafka antes de marcar; el consumidor tolera el reenvío | `send_and_wait` → `marcar_publicada`; consumidor idempotente | `fase5-faq12-idempotencia.txt` | ✅ |
 | Timeout, 429/5xx, espera progresiva, JSON roto; no borrar el estado válido | `ErrorReintentable`, esperas 2/4/8 s, `consulta_ingesta` | memoria §5.4 (1 fallo DNS recuperado) | ✅ |
-| Documentar la limitación de eliminados/fusionados/revisados fuera del feed | — | — | ❌ (ver #1) |
+| Documentar la limitación de eliminados/fusionados/revisados fuera del feed | memoria §5.2bis («Limitación: lo que sale de la ventana no se reconcilia») | — | ✅ |
 | Explicar cómo recuperar el hueco tras una parada > 24 h | memoria §3 (`updatedafter`), §5.2bis, D32; README §9 | `defensa.md` | ✅ |
 
 ### §6 · Calidad y transformación
@@ -154,7 +154,7 @@ unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3b
 | Requisito | Dónde se cumple | Evidencia | |
 |---|---|---|---|
 | `compose.yaml`, inicialización de la base y `.env.example` sin credenciales | `sql/` en `docker-entrypoint-initdb.d`; `.env.example` con `CAMBIAR_EN_LOCAL` | — | ✅ |
-| Dependencias fijadas | Python con `==`, `package-lock.json`, Kafka `4.1.2`, PostgreSQL `17-alpine` | — | ⚠️ (ngrok `latest`, ver #3) |
+| Dependencias fijadas | Python con `==`, `package-lock.json`, Kafka `4.1.2`, PostgreSQL `17-alpine` | README §1; memoria D43 (huella de la imagen de ngrok) | ✅ (ngrok `latest` documentado con su huella) |
 | Volúmenes persistentes y retención limitada de Kafka | `kafka-data`, `pg-data`; 7 días o 512 MB | memoria §2, README §9 | ✅ |
 | Nombres de servicio dentro de Compose (no `localhost`) | `kafka:9092`, `postgres`, `api:8000` | — | ✅ |
 | Exponer solo la API (`127.0.0.1:8000:8000`) | `compose.yaml` | `docker compose ps` | ✅ |

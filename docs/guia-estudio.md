@@ -16,8 +16,8 @@
 | — | Jue 05/11 | *(niños: descanso)* | — |
 | ☒ | Vie 06/11 (tarde) → hecho Mié 04/11 | 4 · Consumidor, validación y cuarentena | 1,5 h |
 | ☒ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
-| ☐ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
-| ☐ | Lun 09/11 (tarde) | **Visita guiada al panel** + 6 · Integración geográfica | 30–45 min + 1,5 h |
+| ☒ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
+| ☐ | Lun 09/11 (tarde) | **Visita guiada al panel** (+ capturas de las 3 conclusiones) + 6 · Integración geográfica | 45 min + 1,5 h |
 | ☐ | Mar 10/11 (tarde) | 7 · Histórico, comparación y conclusiones | 2 h |
 | ☐ | Mié 11/11 | 8 · API y CORS | 2 h |
 | — | Jue 12/11 | *(niños: descanso)* | — |

@@ -30,7 +30,7 @@ USGS feed (cada 60 s) → productor (Python) → Kafka → consumidor (Python) �
 
 Versiones fijadas dentro de los contenedores: Kafka `apache/kafka:4.1.2` (KRaft, sin ZooKeeper), PostgreSQL `postgres:17-alpine`,
 Python 3.12 (`python:3.12-slim`) con las dependencias exactas de [`backend/requirements.txt`](backend/requirements.txt),
-ngrok `ngrok/ngrok:latest`. Panel: Angular 20.3, ngx-leaflet 20, Leaflet 1.9.4.
+ngrok `ngrok/ngrok:latest` (imagen probada: `sha256:ff3b5c3674432d14a786349908b7bdf28ee56c25662637afcbe7180d471993ef`; la imagen no declara número de versión). Panel: Angular 20.3, ngx-leaflet 20, Leaflet 1.9.4.
 
 ## 2. Configuración local (`.env`)
 

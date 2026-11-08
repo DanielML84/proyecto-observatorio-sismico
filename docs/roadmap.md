@@ -23,12 +23,12 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] Arrancar el frontend en modo demo (`npm ci`, `npm start`) → ver 4 puntos y fronteras ⚑
       Evidencia: `docs/evidencias/fase1-mapa-demo.png`
 - [x] Explorar el JSON del feed: campos, tipos, unidades, opcionales (`analisis/01_exploracion_feed.ipynb`)
-- [ ] Explorar el catálogo de países: unicidad de `ADM0_A3`, atributos
-- [ ] Anotar hallazgos (explosiones, profundidades negativas, nulos…) ⚑
+- [x] Explorar el catálogo de países: unicidad de `ADM0_A3`, atributos (memoria §3bis: 177/177)
+- [x] Anotar hallazgos (explosiones, profundidades negativas, nulos…) ⚑ (memoria §4)
 
 ### Fase 2 · Especificación y plan (a mano, Markdown)
-- [ ] `docs/spec.md`: qué hace el sistema, reglas de negocio, pruebas de aceptación
-- [ ] `docs/plan.md`: decisiones técnicas, servicios, topics, tablas, puertos
+- [–] `docs/spec.md`: descartado (no lo pide el enunciado; su contenido está en la memoria y el README)
+- [–] `docs/plan.md`: descartado (no lo pide el enunciado; las decisiones están en el Anexo A de la memoria)
 - [x] `docs/contrato-mensaje.md`: formato del mensaje Kafka ⚑
 
 ### Fase 3 · Kafka + productor + consumidor mínimos  *(FAQ paso 3)*
@@ -93,7 +93,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
 - [x] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed (`fase13-contraste-fdsn.txt`: 25 → 27 → 28)
 - [x] README reproducible
-- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, preparada el 05/11: 99 ✅ · 3 ⚠️ · 1 ❌ · 1 ⏳) → revisar con Daniel el 08/11 y resolver los huecos
+- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, revisada el 08/11: 102 ✅ · 1 ⚠️ · 0 ❌ · 1 ⏳) → falta el hueco 2 (capturas de las conclusiones, 09/11)
 - [ ] Visita guiada al manejo del panel (09/11)
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación

@@ -169,6 +169,11 @@ venían en esa versión**, y añade:
 
 Notebook: `analisis/01_exploracion_feed.ipynb`. Muestra: una respuesta del feed con 187 eventos.
 
+**Dónde está documentado cada aspecto de la fuente reciente** (enunciado §4.1): respuesta y estructura → tabla de abajo;
+tipos y unidades → §2; campos opcionales → fila «Campos poco informados»; frecuencia → 60 s (§3); errores y reintentos →
+§3, §5.4 (Actualidad) y D20; latencia → §5.4 (Actualidad: mediana de 11,3 min de la ocurrencia a la última
+actualización de USGS y de 61 s de esa actualización a nuestra descarga).
+
 | Comprobación | Resultado |
 |---|---|
 | Estructura | `FeatureCollection` con `metadata`, `bbox` y `features[]`; cada feature con `id`, `geometry` y `properties` (26 campos) |
@@ -225,6 +230,14 @@ La primera descarga publicó **175 novedades** y las siguientes 0–1: el feed (
 solas las paradas de menos de 24 h. Con paradas mayores quedaría un hueco recuperable desde el catálogo FDSN.
 Segunda comprobación: parada de 20 h 16 min (01/11 18:44 → 02/11 14:59 UTC) → **212** novedades en la primera descarga.
 Evidencia: `docs/evidencias/recuperacion-parada-nocturna.txt`.
+
+**Limitación: lo que sale de la ventana no se reconcilia** (enunciado §5). El feed es una ventana móvil de 24 h: que un
+evento deje de aparecer no significa que USGS lo haya eliminado; lo habitual es que haya superado las 24 h. Por eso el
+sistema **no borra nada** cuando un evento desaparece del feed (el código no tiene ningún `DELETE` sobre datos reales).
+La contrapartida es que, si USGS elimina, fusiona o revisa un evento cuando ya está fuera de la ventana, nuestra base no
+se entera y conserva la última versión que vio. La reconciliación exhaustiva —por ejemplo, volver a consultar el catálogo
+FDSN con `updatedafter` e `includedeleted`— es una ampliación fuera del alcance mínimo. Caso real relacionado: en el
+contraste de la Conclusión 3, `us7000tumn` (M4,7, Vanuatu) está en el catálogo pero nunca apareció en el feed (§7).
 
 ### 5.3 Conciliación entre tablas (Consistencia)
 Todo lo publicado por el productor debe acabar en `evento_actual` o en `cuarentena`.
@@ -644,7 +657,7 @@ terremoto indica «REPRODUCIDO (UTC)»; la comparación con 2025 se desactiva (l
 | D40 | `BASE_MINIMA = 1`: aviso si se espera menos de 1 terremoto | Sin aviso; otro umbral | **Criterio propio**, no viene del enunciado. Solo añade un aviso | Memoria §7bis |
 | D41 | Tabla paginada de 50 filas | Pintar hasta 5.000 filas | Mantener ágil el navegador; el orden se aplica a toda la lista recibida antes de paginar | Encargo, punto 7 |
 | D42 | Ventanas de 1 h parciales en tono claro y con nota | Dibujarlas igual que las completas | Una ventana cubierta a medias tiene menos eventos sin que haya menos actividad | Enunciado §8 |
-| D43 | ngrok en un contenedor (servicio `tunel`, profile) apuntando a `http://api:8000` | ngrok instalado en Windows | La instalación en Windows falló (Store/winget/Defender). Ambas opciones están permitidas | README profesor, opción B |
+| D43 | ngrok en un contenedor (servicio `tunel`, profile) apuntando a `http://api:8000` | ngrok instalado en Windows | La instalación en Windows falló (Store/winget/Defender). Ambas opciones están permitidas. **Limitación:** la imagen se usa como `latest` (no declara versión); la probada es `sha256:ff3b5c3674432d14a786349908b7bdf28ee56c25662637afcbe7180d471993ef` (08/11/2026). Se puede fijar con `image: ngrok/ngrok@sha256:ff3b5c3674432d14a786349908b7bdf28ee56c25662637afcbe7180d471993ef`; no se hizo para no tocar el túnel antes de la entrega | README profesor, opción B |
 | D44 | Reproducción aislada con **esquema** PostgreSQL `replay` + topic y grupo propios | Columna `mode` en las mismas tablas; otra base de datos | Las mismas consultas sirven con `search_path`; imposible mezclar por error; dimensiones compartidas | Enunciado §11 |
 | D45 | Selección: ventana −1 h / +2 h del M8,8 de Kamchatka, todo el mundo (90 de 96 en la zona), 1 evento cada 2 s | Diez eventos al azar | Actividad garantizada y enlace con la Conclusión 1; ~3 min de demostración | FAQ, reproducción |
 | D46 | Revisión del caso controlado **sintética** y marcada (`replay-caso-controlado`) | Buscar una revisión real | No hay revisiones reales dentro del histórico (guarda solo la última versión); se marca para no presentarla como USGS | Enunciado §11 |

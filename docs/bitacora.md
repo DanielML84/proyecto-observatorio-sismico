@@ -5,6 +5,30 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 12 · Domingo 08/11/2026 (mañana) · Colchón + revisión del enunciado
+
+### Repaso de los ⚠️ de los bloques 1–5 (7 preguntas, sin mirar)
+- ✅ Contar filas: 4 terremotos (1+2+3+1 versiones) + repetición → 4 y 7. **Resuelto** (era lo prioritario).
+- ✅ Excluido / inválido / guardado: 4/4 (quarry blast, lon 200, mag nula, mag «cinco»). **Resuelto.**
+- ✅ Quién guarda qué (Kafka 7 días) y LAG alto con el consumidor parado · ✅ la API lee PostgreSQL; `exec` para Kafka.
+- ⚠️ «¿Ha quedado hueco?»: atribuyó la línea del productor a Kafka; la resta eventos − publicados (0 = sin solape) la aplica bien.
+- ❌ Latido: pensó que seguiría `healthy` → sin líneas nuevas en el log = sin ciclos = `unhealthy`. **Repasar el 15/11.**
+- ❌ Libreta: dijo `id` + `time` y «original y copia» → `id` + `updated`; RAM (`publicadas`) + PostgreSQL (`version_publicada`). **Repasar el 15/11.**
+
+### Revisión del enunciado (`docs/revision-enunciado.md`) → 102 ✅ · 1 ⚠️ · 0 ❌ · 1 ⏳
+- Daniel decide: Claude aplica las correcciones; él lo estudiará después.
+- Hueco 1 ❌ → ✅: memoria §5.2bis, párrafo «Limitación: lo que sale de la ventana no se reconcilia». Comprobado antes que el
+  código no tiene `DELETE` sobre datos reales (solo el esquema `bench` y el `TRUNCATE` manual de `replay`).
+- Hueco 4 ⚠️ → ✅: memoria §4, índice de dónde está cada aspecto de la fuente reciente (enunciado §4.1).
+- Hueco 3 ⚠️ → ✅ (documentado): `docker compose exec tunel ngrok version` falla con `openat etc/passwd: path escapes from
+  parent` (causa: no lo sé). Con `docker image inspect`: huella `sha256:ff3b5c36…993ef`, sin etiqueta de versión, fecha
+  1970 (imagen hecha con Nix). **Decisión de Daniel: documentar, no fijar** (menos cambios). README §1 y memoria D43.
+- Roadmap: tareas de la Fase 1 ya hechas marcadas; `spec.md` y `plan.md` descartados (no los pide el enunciado).
+- Pendiente: hueco 2 (capturas de los filtros de cada conclusión) → visita al panel del 09/11.
+
+### Siguiente paso
+- Lunes 09/11: visita guiada al panel + capturas de las 3 conclusiones (hueco 2) + bloque 6.
+
 ## Sesión 11 · Sábado 07/11/2026 (mañana) · Estudio: bloque 5 ✅
 
 ### Avanzado
