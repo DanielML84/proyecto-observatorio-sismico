@@ -11,7 +11,7 @@
 | `terremotos.replay` | Reproducción acelerada de una selección histórica (demostración) | Productor de replay (Fase 11) |
 
 Separar los topics cumple el aislamiento de la reproducción que pide el enunciado (§11).
-La carga del histórico de 2025 (¿por Kafka o en batch?) se decidirá en la Fase 7 (FAQ 21).
+La carga del histórico de 2025 también circula por `terremotos.live`, con `source = 'usgs-fdsn'`, para que pase por el mismo consumidor (decisión D29 de la memoria, FAQ 21).
 
 ## Clave del mensaje
 

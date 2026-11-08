@@ -22,7 +22,7 @@
 | ☐ | Mié 11/11 | 8 · API y CORS | 2 h |
 | — | Jue 12/11 | *(niños: descanso)* | — |
 | ☐ | Vie 13/11 (tarde) | 9 · Panel y despliegue (ngrok, Netlify) | 1,5 h |
-| ☐ | Sáb 14/11 | 10 · Reproducción y pruebas de aceptación | 2 h |
+| ☐ | Sáb 14/11 | 10 · Reproducción y pruebas de aceptación + **prueba de arranque desde un entorno limpio** (con Claude) | 2 h + 45 min |
 | ☐ | Dom 15/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 6–10 | 1 h |
 | ☐ | Lun 16/11 (tarde) | 11 · Calidad, complejidad y costes | 2 h |
 | ☐ | Mar 17/11 (tarde) | 12 · Simulacro de defensa | 1,5 h |

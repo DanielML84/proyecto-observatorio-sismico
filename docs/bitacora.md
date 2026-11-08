@@ -26,8 +26,19 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Roadmap: tareas de la Fase 1 ya hechas marcadas; `spec.md` y `plan.md` descartados (no los pide el enunciado).
 - Pendiente: hueco 2 (capturas de los filtros de cada conclusión) → visita al panel del 09/11.
 
+### Guía de entregables y FAQ (revisadas enteras a petición de Daniel)
+- `ENUNCIADO.md` = Word (98 % de coincidencia palabra a palabra; solo añade un párrafo de contexto sin requisitos).
+- Guía §3.2: faltaba un procedimiento breve para la defensa → **añadida** la sección «Activar el sistema para la defensa»
+  al principio del README.
+- FAQ: todo cubierto. `contrato-mensaje.md` aún decía que la carga del histórico «se decidirá» → actualizado (D29, por Kafka).
+- **Sin comprobar (❓):** arrancar desde un entorno limpio (nunca probado → bloque 10, 14/11) y acceso al repositorio
+  (Daniel, en incógnito). Detalle en `docs/revision-enunciado.md`.
+- `docs/chuleta-comandos.md`: nuevo apartado «⭐ Uso diario» (arrancar, comprobar, ver hueco, parar, con túnel), y el
+  comando del LAG.
+
 ### Siguiente paso
 - Lunes 09/11: visita guiada al panel + capturas de las 3 conclusiones (hueco 2) + bloque 6.
+- Sábado 14/11: prueba desde un entorno limpio (con Claude) además del bloque 10.
 
 ## Sesión 11 · Sábado 07/11/2026 (mañana) · Estudio: bloque 5 ✅
 

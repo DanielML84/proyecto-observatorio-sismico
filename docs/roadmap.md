@@ -95,6 +95,8 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] README reproducible
 - [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, revisada el 08/11: 102 ✅ · 1 ⚠️ · 0 ❌ · 1 ⏳) → falta el hueco 2 (capturas de las conclusiones, 09/11)
 - [ ] Visita guiada al manejo del panel (09/11)
+- [ ] Probar el README desde un entorno limpio (clonar en otra carpeta, `-p` distinto, sistema principal parado) (14/11)
+- [ ] Daniel: comprobar en incógnito que el repositorio es accesible sin iniciar sesión
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
 - [~] Semana de estudio: Daniel repasa la guía y responde `defensa.md` en voz alta (bloques 1 y 2 ✅ 03/11 · bloques 3 y 4 ✅ 04/11 · bloque 5 ✅ 07/11)

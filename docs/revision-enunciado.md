@@ -12,7 +12,9 @@
 |:---:|:---:|:---:|:---:|
 | 102 | 1 | 0 | 1 |
 
-104 requisitos revisados (contando como uno cada fila de las tablas de abajo).
+104 requisitos del enunciado revisados (contando como uno cada fila de las tablas de abajo).
+Además, el 08/11 se revisaron enteras la **guía de entregables** y la **FAQ del alumnado** (apartados al final):
+1 punto nuevo resuelto (procedimiento de la defensa) y **2 sin comprobar (❓)**: el arranque desde un entorno limpio y el acceso al repositorio.
 
 ## 🔧 Lo que hay que resolver (por prioridad)
 
@@ -23,6 +25,9 @@
 | 3 | ✅ (08/11, documentado) | §9 · «Dependencias fijadas» | Todo está fijado (Kafka `4.1.2`, `requirements.txt` con `==`, `package-lock.json`) **salvo el túnel**: `ngrok/ngrok:latest` en `compose.yaml` | Fijar la versión de la imagen de ngrok, o anotarlo como limitación en la memoria | 10 min |
 | 4 | ✅ (08/11) | §4.1 · Documentar respuesta, tipos, unidades, campos opcionales, frecuencia, errores y latencia | Está todo, pero **repartido**: tipos y unidades en §2, estructura y campos poco informados en §4, frecuencia en §3, latencia en §5.4 (Actualidad), errores en §3/§5.4 | Añadir en §4 una línea que remita a cada sitio, para que el profesor lo encuentre de un vistazo | 5 min |
 | 5 | ⏳ | §12 · Explicación individual del flujo completo y de una decisión técnica propia | Depende de Daniel | Semana de estudio (bloques 1–12) y simulacro del 17/11 | — |
+| 6 | ✅ (08/11) | Guía §3.2 · Procedimiento breve para activar el sistema en la defensa | Los pasos estaban repartidos por el README | Añadida la sección «Activar el sistema para la defensa» al principio del README (5 pasos con qué hay que ver) | — |
+| 7 | ❓ | Guía (lista final) y FAQ 35 · «El README permite arrancar el sistema **desde un entorno limpio**» | **Nunca se ha probado** clonando el repositorio desde cero | Probarlo en el bloque 10 (sáb. 14/11), en otra carpeta y con otro nombre de proyecto (`-p`), y con el sistema principal parado, para no tocar los volúmenes ni chocar con los puertos 8000 y 4040 | 45 min |
+| 8 | ❓ | Guía (lista final) · «El profesor puede acceder al repositorio» | No se ha podido comprobar desde aquí | Daniel: abrir el repositorio en una ventana de incógnito sin iniciar sesión | 1 min |
 
 **Orden de la casa (resuelto el 08/11):** en el roadmap estaban sin marcar «Explorar el catálogo de países:
 unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3bis: 177/177; memoria §4). `docs/spec.md` y
@@ -213,3 +218,53 @@ unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3b
 | Modelado | memoria §3bis, §6 · `sql/01_esquema.sql`, `db.py` |
 | Análisis | memoria §7, §7bis · panel |
 | Reflexión | memoria §8 y limitaciones de cada sección |
+
+---
+
+## Guía de entregables (revisada entera el 08/11)
+
+La guía dice que «no añade nuevas tareas ni modifica la rúbrica». Cruce de sus apartados:
+
+| Apartado | Dónde se cumple | |
+|---|---|---|
+| 1.1 Código de los componentes; material reutilizado distinguible | `backend/src/`, `frontend/`; `docs/material-profesor/` y commit `5c052ff` | ✅ |
+| 1.2 Dockerfile y `compose.yaml`; `up --build -d`; pasos previos; persistencia, salud y reintentos | README §2–§4; `compose.yaml` | ✅ |
+| 1.3 Dependencias con versiones; `.env.example` con nombres coherentes con el código | `requirements.txt`, `package-lock.json`, `.env.example` (las variables de Kafka van en `compose.yaml`) | ✅ |
+| 1.4 README con los 9 puntos; no subir secretos ni descargas grandes | README §1–§9; `.gitignore` | ✅ |
+| 2.1 Objetivo, flujo y decisiones de alcance | memoria §1 | ✅ |
+| 2.2 Diccionario con significado, tipo, unidades y ausencias | memoria §2 | ✅ |
+| 2.3 Procedencia: URLs, parámetros, nº de registros y fecha de extracción | memoria §3 | ✅ |
+| 2.4 Calidad: comprobaciones, consultas, resultados, decisiones; denominador; sintéticos separados | memoria §5.4 (denominador: terremotos reales) | ✅ |
+| 2.5 Modelo conceptual/lógico/físico; grano; SQL enlazado; índices justificados con medición | memoria §6, §8.5; `sql/` | ✅ |
+| 2.6 Tres conclusiones con periodo, ámbito, filtros y denominador **y capturas con los filtros** | memoria §7 | ⚠️ (= hueco 2) |
+| 2.7 Complejidad, 3 tamaños, costes medidos/supuestos, mejoras ligadas a problemas | memoria §8 (§8.6 propuesta de escalado) | ✅ |
+| 2.8 Pruebas: esperado, observado, evidencia y cómo repetirlas | memoria §9; README §8 | ✅ |
+| 2.9 Reproducción: selección, velocidad, separación, «REPRODUCCIÓN», resultados | memoria §10; `fase11-reproduccion.txt` | ✅ |
+| 3.1 URL de Netlify, abierta desde otro dispositivo | README; `fase10-movil-netlify.png` | ✅ |
+| 3.2 Procedimiento breve para la defensa | README, sección «Activar el sistema para la defensa» (08/11) | ✅ |
+| 3.3 Explicación individual | — | ⏳ |
+| Lista final · acceso al repositorio | — | ❓ (ver #8) |
+| Lista final · arrancar desde un entorno limpio | — | ❓ (ver #7) |
+
+## FAQ del alumnado (revisada entera el 08/11)
+
+La FAQ dice que «aclara el enunciado: no añade requisitos». Lo que concreta, y dónde está:
+
+| FAQ | Qué aclara | Dónde se cumple | |
+|---|---|---|---|
+| 8 · 10 · 11 | Ventana móvil; decisiones del productor; estado que sobrevive a reinicios; Kafka separa ritmos | `productor.py`, `version_publicada`; bloque 3 | ✅ |
+| 12 · 13 · 14 | Secuencia de duplicados y revisiones; orden validar → transacción → offset; offset ≠ id | `fase5-faq12-idempotencia.txt`; `consumidor.py` | ✅ |
+| 15 | No borrar lo que sale del feed; explicar la limitación de retiradas y fusiones | memoria §5.2bis (añadido el 08/11) | ✅ |
+| 16 | Tabla de casos de limpieza (nulos, negativos, lat 145, tipos, UTC) | `validacion.py`; memoria §5.1 | ✅ |
+| 16 · contrato | La magnitud nula se excluye de los filtros **y se cuenta aparte** | API `sin_valor.magnitud_excluidos_por_filtro` (D31) | ✅ |
+| 17 | Calidad en la memoria; denominador; actualidad con la salvedad de las revisiones; exactitud no verificable | memoria §5.4 (notas 2 y 3) | ✅ |
+| 19 · 20 | País por punto en polígono; modelo orientativo y claves | memoria §3bis, §6 | ✅ |
+| 21 | Histórico: una carga inicial, documentar Kafka o batch | D29 (por Kafka). `contrato-mensaje.md` decía «se decidirá»: **actualizado el 08/11** | ✅ |
+| 22 | Ventanas fijas `[hh:00, hh+1:00)` por hora de ocurrencia, desde `evento_actual` | `api.py` líneas 244–252 | ✅ |
+| 23 | Media con días a cero; ND si la media es 0; mismo filtro M ≥ 4 en los dos periodos | memoria §7, §7bis | ✅ |
+| 25 · 26 · contrato | El panel usa nuestra API; `apiUrl` sin `/api`; `start` inclusivo, `end` exclusivo; `truncated`, total y paginación | `api.py` (líneas 70, 128–169); `config.json` | ✅ |
+| 28 · 29 · 30 | Nombres de servicio; ngrok `http://api:8000`; CORS exacto + OPTIONS + cabecera de ngrok | `compose.yaml`; `api.py` líneas 38–41 | ✅ |
+| 31 | Distinguir última consulta del panel, generación y última ingesta | `estado-sistema/`; `generated` / `last_ingestion` | ✅ |
+| 32 | Replay aislado, «REPRODUCCIÓN», sin cambiar fechas, consultando el intervalo histórico | memoria §10; el panel en modo replay usa el intervalo reproducido | ✅ |
+| 33 | Complejidad, 3 tamaños, costes con supuestos explicados | memoria §8 | ✅ |
+| 35 | Lista previa a la entrega | Todo ✅ salvo «arrancan siguiendo mis instrucciones» (❓, ver #7) y la explicación individual (⏳) | ⚠️ |

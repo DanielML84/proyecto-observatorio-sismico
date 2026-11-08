@@ -18,6 +18,22 @@ USGS feed (cada 60 s) → productor (Python) → Kafka → consumidor (Python) �
 
 ---
 
+## Activar el sistema para la defensa (guía de entregables §3.2)
+
+El backend corre en el equipo del autor: si está apagado, el panel de Netlify carga pero muestra el aviso rojo de
+«La API no responde». Para la demostración, en PowerShell y desde la carpeta del proyecto:
+
+| Paso | Qué hacer | Qué hay que ver |
+|---|---|---|
+| 1 · Arrancar y comprobar | Abrir Docker Desktop · `docker compose --profile tunel up -d` · `docker compose --profile tunel ps` | 7 servicios `Up`; `api`, `kafka`, `postgres` y `productor` en `(healthy)` |
+| 2 · Datos e ingesta | `curl.exe http://localhost:8000/api/salud` · `docker compose logs productor --since 5m` | `"base_datos": "ok"` y `"datos_desactualizados": false` (última ingesta hace menos de 5 min); líneas `OK eventos=… publicados=…` cada minuto |
+| 3 · Túnel | Abrir http://localhost:4040 y comparar la URL pública con `apiUrl` de [`frontend/public/config.json`](frontend/public/config.json) · abrir `https://…ngrok-free.dev/api/salud` | La misma URL en los dos sitios; `/api/salud` responde desde internet |
+| 4 · Panel | Abrir https://adorable-zabaione-a69bde.netlify.app/ | Terremotos en el mapa, filtros y tabla funcionando; estado «Última consulta completada» sin aviso rojo |
+| 5 · Reproducción (cuando se pida) | Vaciar el esquema `replay` (comando del §8) · `docker compose run --rm productor-replay` · en el panel, selector **«Datos» → «REPRODUCCIÓN»** | Banda naranja «REPRODUCCIÓN»; 96 eventos de la ventana del M8,8 de Kamchatka (29/07/2025), con sus fechas originales. Los datos actuales no cambian |
+
+Detalle de cada paso: §3 (arranque), §5 (estado y logs), §7 (túnel), §8 (reproducción). Para parar al terminar:
+`docker compose --profile tunel stop` (no borra datos, §9).
+
 ## 1. Requisitos y versiones
 
 | Herramienta | Versión usada | Para qué |
