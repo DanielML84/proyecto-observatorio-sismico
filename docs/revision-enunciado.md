@@ -10,7 +10,7 @@
 
 | ✅ Cumplidos | ⚠️ Mejorables | ❌ Faltan | ⏳ Pendientes |
 |:---:|:---:|:---:|:---:|
-| 102 | 1 | 0 | 1 |
+| 103 | 0 | 0 | 1 |
 
 104 requisitos del enunciado revisados (contando como uno cada fila de las tablas de abajo).
 Además, el 08/11 se revisaron enteras la **guía de entregables** y la **FAQ del alumnado** (apartados al final):
@@ -21,7 +21,7 @@ Además, el 08/11 se revisaron enteras la **guía de entregables** y la **FAQ de
 | # | Estado | Requisito (sección) | Qué pasa | Propuesta | Tiempo |
 |---|---|---|---|---|---|
 | 1 | ✅ (08/11) | §5 · Documentar la limitación de eventos eliminados, fusionados o revisados cuando ya están fuera del feed, y que «no aparecer en la siguiente ventana» no es «USGS lo ha eliminado» | No hay ningún párrafo sobre esto en la memoria ni en el README (búsqueda de «eliminad», «fusionad», «desaparec», «reconcil»: 0 resultados) | Añadir un párrafo corto en la memoria §3 o §5. Se puede citar el caso real de la Conclusión 3 (`us7000tumn`, nunca apareció en el feed) | 10–15 min |
-| 2 | ⚠️ | §12 · «Análisis con al menos tres conclusiones **y capturas de los filtros usados**» | Las 3 conclusiones (memoria §7) citan evidencias `.txt`, pero ninguna enlaza una captura del panel con sus filtros. Hay capturas del panel (`fase9-*.png`), pero no están ligadas a cada conclusión | Hacer una captura por conclusión con sus filtros y citarla en §7. **Encaja con la visita guiada al panel del 09/11.** Ojo: el panel filtra por fecha, magnitud y país, no por rectángulo lat/lon, así que para la Conclusión 1 (zona de Kamchatka) habrá que ver si sirve `fase9-bloque4-kamchatka.png` | 30 min |
+| 2 | ✅ (09/11) | §12 · «Análisis con al menos tres conclusiones **y capturas de los filtros usados**» | Las 3 conclusiones (memoria §7) citan evidencias `.txt`, pero ninguna enlaza una captura del panel con sus filtros. Hay capturas del panel (`fase9-*.png`), pero no están ligadas a cada conclusión | Hacer una captura por conclusión con sus filtros y citarla en §7. **Encaja con la visita guiada al panel del 09/11.** Ojo: el panel filtra por fecha, magnitud y país, no por rectángulo lat/lon, así que para la Conclusión 1 (zona de Kamchatka) habrá que ver si sirve `fase9-bloque4-kamchatka.png` | 30 min |
 | 3 | ✅ (08/11, documentado) | §9 · «Dependencias fijadas» | Todo está fijado (Kafka `4.1.2`, `requirements.txt` con `==`, `package-lock.json`) **salvo el túnel**: `ngrok/ngrok:latest` en `compose.yaml` | Fijar la versión de la imagen de ngrok, o anotarlo como limitación en la memoria | 10 min |
 | 4 | ✅ (08/11) | §4.1 · Documentar respuesta, tipos, unidades, campos opcionales, frecuencia, errores y latencia | Está todo, pero **repartido**: tipos y unidades en §2, estructura y campos poco informados en §4, frecuencia en §3, latencia en §5.4 (Actualidad), errores en §3/§5.4 | Añadir en §4 una línea que remita a cada sitio, para que el profesor lo encuentre de un vistazo | 5 min |
 | 5 | ⏳ | §12 · Explicación individual del flujo completo y de una decisión técnica propia | Depende de Daniel | Semana de estudio (bloques 1–12) y simulacro del 17/11 | — |
@@ -203,7 +203,7 @@ unicidad de `ADM0_A3`» y «Anotar hallazgos», pero están hechos (memoria §3b
 | Diccionario de datos y registro de consultas y procedencia | memoria §2 y §3 | — | ✅ |
 | Apartado de calidad con código, antes/después, decisiones y registros de ejemplo | memoria §5 | `fase13-calidad.txt` | ✅ |
 | Modelo, SQL y justificación de índices | memoria §6, `sql/` | — | ✅ |
-| Tres conclusiones **y capturas de los filtros usados** | memoria §7 | — | ⚠️ (ver #2) |
+| Tres conclusiones **y capturas de los filtros usados** | memoria §7 y README | `conclusion1-2025-ventanas.png`, `conclusion2-*.png`, `conclusion3-comparacion.png` | ✅ |
 | Complejidad, mediciones, costes y mejoras | memoria §8 | — | ✅ |
 | Evidencias de pruebas y reproducción | memoria §9 y §10, `docs/evidencias/` | — | ✅ |
 | Explicación individual del flujo y de una decisión propia | — | — | ⏳ |
@@ -236,7 +236,7 @@ La guía dice que «no añade nuevas tareas ni modifica la rúbrica». Cruce de 
 | 2.3 Procedencia: URLs, parámetros, nº de registros y fecha de extracción | memoria §3 | ✅ |
 | 2.4 Calidad: comprobaciones, consultas, resultados, decisiones; denominador; sintéticos separados | memoria §5.4 (denominador: terremotos reales) | ✅ |
 | 2.5 Modelo conceptual/lógico/físico; grano; SQL enlazado; índices justificados con medición | memoria §6, §8.5; `sql/` | ✅ |
-| 2.6 Tres conclusiones con periodo, ámbito, filtros y denominador **y capturas con los filtros** | memoria §7 | ⚠️ (= hueco 2) |
+| 2.6 Tres conclusiones con periodo, ámbito, filtros y denominador **y capturas con los filtros** | memoria §7 y README (capturas del 09/11) | ✅ |
 | 2.7 Complejidad, 3 tamaños, costes medidos/supuestos, mejoras ligadas a problemas | memoria §8 (§8.6 propuesta de escalado) | ✅ |
 | 2.8 Pruebas: esperado, observado, evidencia y cómo repetirlas | memoria §9; README §8 | ✅ |
 | 2.9 Reproducción: selección, velocidad, separación, «REPRODUCCIÓN», resultados | memoria §10; `fase11-reproduccion.txt` | ✅ |

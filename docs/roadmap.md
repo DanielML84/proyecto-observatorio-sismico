@@ -94,9 +94,9 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `docs/memoria.md` completa (diccionario, procedencia, calidad, modelo, análisis, 3 conclusiones, reflexión)
 - [x] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed (`fase13-contraste-fdsn.txt`: 25 → 27 → 28)
 - [x] README reproducible
-- [~] README completo para el profesor (09/11): rúbrica → evidencias, conclusiones, pruebas, ciclo de desarrollo con IA, imágenes del repositorio
-- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, revisada el 08/11: 102 ✅ · 1 ⚠️ · 0 ❌ · 1 ⏳) → falta el hueco 2 (capturas de las conclusiones, 09/11)
-- [ ] Capturas de las 3 conclusiones con sus filtros (Daniel, 09/11) → enlazarlas en el README y en la memoria §7
+- [x] README completo para el profesor (09/11): rúbrica → evidencias, conclusiones, pruebas, ciclo de desarrollo con IA, imágenes del repositorio
+- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, 09/11: 103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳ + 2 ❓: entorno limpio y acceso al repositorio)
+- [x] Capturas de las 3 conclusiones con sus filtros (09/11, visita guiada al panel) → en el README y en la memoria §7
 - [ ] Probar el README desde un entorno limpio (clonar en otra carpeta, `-p` distinto, sistema principal parado) (10/11)
 - [ ] Daniel: comprobar en incógnito que el repositorio es accesible sin iniciar sesión
 - [ ] Lista final de comprobación de la guía de entregables

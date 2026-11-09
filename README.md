@@ -50,13 +50,30 @@ Ninguna es una predicción ni una evaluación de riesgo.
    (18.302 eventos). La zona (lat 45–60, lon 150–170) pasa de 19,3 eventos/mes (enero–junio) a 1.375 en julio y 1.254 en
    agosto, tras el M8,8 del 29/07/2025; el resto del mundo no tiene pico. Consecuencia: la media diaria de 2025 (50,14)
    está inflada por esa secuencia (sin la zona, 39,25).
+
+   ![Conclusión 1: ventanas de 1 h de 2025 con M ≥ 4](docs/evidencias/conclusion1-2025-ventanas.png)
+   *Panel, 01/01/2025 00:00 → 01/01/2026 00:00 UTC, M ≥ 4: 18.302 terremotos; máximo horario el 30/07/2025 a las 01:00 UTC (49).*
+
 2. **Sin filtro de magnitud, el recuento por país mide sobre todo dónde hay más sensores.** Feed del 30/10 al 01/11/2026:
    sin filtro, **75,1 %** de los terremotos en EE. UU.; con M ≥ 4, **3,3 %** (histórico 2025: 0,4 %). Las redes densas de
    EE. UU. registran magnitudes que en otras regiones no se detectan: para comparar regiones hay que usar el mismo umbral.
+
+   | Sin filtro de magnitud: 608 terremotos, 456 en EE. UU. (75,0 %) | Con M ≥ 4: 71 terremotos, 2 en EE. UU. (2,8 %) |
+   |---|---|
+   | ![Conclusión 2 sin filtro](docs/evidencias/conclusion2-pais-sin-filtro.png) | ![Conclusión 2 con M ≥ 4](docs/evidencias/conclusion2-pais-m4.png) |
+
+   *Panel, 30/10/2026 00:00 → 02/11/2026 00:00 UTC, capturado el 09/11. Los totales son mayores que en la memoria (550 y 61, calculados
+   el 01/11 por la tarde) porque después llegaron los terremotos de la noche del 01/11; los porcentajes apenas cambian (75,1 → 75,0 % y
+   3,3 → 2,8 %, con los mismos 2 de EE. UU.).*
+
 3. **El recuento de 24 h está en la parte baja del rango de 2025, pero no es excepcional.** 30/10/2026 09:28 → 31/10/2026
    09:28 UTC, M ≥ 4: **25** en el feed frente a una media de **50,14** (−50,1 %), pero con mediana 43 y P10 31. Contrastado
    el 03/11 con el catálogo FDSN: **28** (−44,2 %), y el 7,4 % de los días de 2025 tuvo 28 o menos. La mediana describe mejor un
    día típico que la media; el feed en tiempo real se quedó corto en 3 de 28.
+
+   ![Conclusión 3: comparación con 2025](docs/evidencias/conclusion3-comparacion.png)
+   *Panel, 30/10/2026 09:28 → 31/10/2026 09:28 UTC, M ≥ 4, capturado el 09/11: nuestra base tiene hoy **27** (2 llegaron por el feed después
+   del 31/10) → −46,2 % frente a 50,14; mediana 43, P10–P90 31–69 y el 5,5 % de los días de 2025 con 27 o menos.*
 
 ## Pruebas de aceptación (enunciado §11)
 
@@ -319,6 +336,7 @@ docker compose --profile tunel stop      # para todo, incluido el túnel. Se rea
 | Mediciones | `data/mediciones/*.json` · memoria §8 |
 | Contraste de la Conclusión 3 con el catálogo FDSN | `fase13-contraste-fdsn.txt` |
 | Conclusión 2 (por país, con y sin umbral) | `fase13-conclusion2.txt` |
+| Capturas del panel con los filtros de cada conclusión | `conclusion1-2025-ventanas.png`, `conclusion2-pais-sin-filtro.png`, `conclusion2-pais-m4.png`, `conclusion3-comparacion.png` |
 | Revisión requisito a requisito | [`docs/revision-enunciado.md`](docs/revision-enunciado.md) |
 
 ## 12. Fuentes y licencias

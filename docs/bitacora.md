@@ -26,9 +26,21 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   `conclusion3-comparacion.png`).
 - Guía y roadmap replanificados: lun README + capturas · mar guion + entorno limpio · mié grabación · vie entrega.
 
+### Visita guiada al panel + capturas de las conclusiones
+- Recorrido: estado del sistema (último acceso, respuesta generada y última ingesta: «respuesta reciente ≠ datos
+  recientes»), filtros, mapa (tamaño = magnitud, color = profundidad, ficha) y estadísticas.
+- Problema: el campo de fecha conserva la hora actual (16:26) si no se cambia → 18.258 en vez de 18.302 y aviso de
+  «Recuento incompleto». Solución: poner la hora `00:00` a mano. Daniel envía las capturas por el chat y Claude las guarda.
+- Cifras de las capturas (09/11) frente a la memoria:
+  - C1 (2025, M ≥ 4): 18.302 ✅; máximo horario 30/07/2025 01:00 UTC, 49 terremotos.
+  - C2 (30/10–01/11): sin filtro 608 (memoria 550), EE. UU. 75,0 % (75,1 %); con M ≥ 4 71 (61), EE. UU. 2 = 2,8 % (3,3 %).
+    Suben los totales por los terremotos de la noche del 01/11, que llegaron después; la conclusión se mantiene.
+  - C3 (30/10 09:28 → 31/10 09:28, M ≥ 4): 27 (= base del 03/11), −46,2 %, 5,5 % de los días de 2025 con ≤ 27.
+- Capturas enlazadas en el README y en la memoria §7 con sus filtros y la explicación de las diferencias.
+  Revisión del enunciado: **103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳** (+ 2 ❓: entorno limpio y acceso al repositorio).
+
 ### Siguiente paso
-- Integrar las capturas en el README y en la memoria §7 (comparando sus cifras con la memoria).
-- Martes 10/11: guion del vídeo y prueba desde un entorno limpio.
+- Martes 10/11: guion del vídeo (Claude) y prueba desde un entorno limpio.
 
 ## Sesión 12 · Domingo 08/11/2026 (mañana) · Colchón + revisión del enunciado
 

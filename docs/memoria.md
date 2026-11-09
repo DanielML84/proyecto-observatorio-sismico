@@ -351,6 +351,8 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    no con un aumento global. *Consecuencia para la comparación:* la media diaria de 2025 (50,14) incluye esta secuencia;
    sin la zona sería 39,25. Hay que tenerlo en cuenta al comparar el periodo reciente con 2025. No es una predicción ni
    una evaluación de riesgo. Evidencia: `docs/evidencias/fase7-historico.txt`.
+   *Captura del panel* (09/11/2026; filtros 01/01/2025 00:00 → 01/01/2026 00:00 UTC, M ≥ 4): 18.302 terremotos y pico de las
+   ventanas de 1 h el 30/07/2025 a las 01:00 UTC (49) → `docs/evidencias/conclusion1-2025-ventanas.png`.
 2. ✅ **Sin filtro de magnitud, el recuento por país mide sobre todo dónde hay más sensores, no dónde tiembla más.**
    *Datos:* feed en vivo, terremotos con `event_time` entre el 30/10 y el 01/11/2026 (consulta del 01/11 ~18:27 UTC),
    `type = earthquake`, país por punto en polígono. Sin filtro: **550** terremotos, **75,1 %** en EE. UU.; con M ≥ 2,5:
@@ -361,6 +363,10 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    histórica lo usa siempre y el panel lo advierte bajo el gráfico por país (§7bis). *Limitaciones:* el periodo del feed
    es corto (≈3 días) y con M ≥ 4 los números son pequeños (2 de 61): no se interpreta la diferencia 3,3 % frente a
    0,4 %. No es una evaluación de riesgo. Evidencia: `docs/evidencias/fase13-conclusion2.txt`.
+   *Capturas del panel* (09/11/2026; 30/10 00:00 → 02/11 00:00 UTC): sin filtro **608** terremotos, 456 en EE. UU. (**75,0 %**);
+   con M ≥ 4 **71**, 2 en EE. UU. (**2,8 %**). Los totales son mayores que el 01/11 porque después llegaron los terremotos de la
+   noche del 01/11; los porcentajes apenas cambian y la conclusión se mantiene →
+   `docs/evidencias/conclusion2-pais-sin-filtro.png`, `docs/evidencias/conclusion2-pais-m4.png`.
 3. ✅ **El recuento de las últimas 24 h está en la parte baja del rango de 2025, pero no es excepcional; la comparación
    con la media exagera la diferencia.** *Datos:* periodo 30/10/2026 09:28 → 31/10/2026 09:28 UTC, mundial, earthquake,
    mag ≥ 4 → **25** eventos. Media diaria de 2025 = 50,14 (−50,1 %); pero la **mediana** de los 365 días de 2025 es 43 y el
@@ -376,6 +382,8 @@ Evidencia: `docs/evidencias/fase7-historico.txt`.
    *Limitaciones:* un solo día es una muestra muy pequeña; el periodo se guardó con precisión de minuto. No es una
    predicción ni una evaluación de riesgo. Evidencia: `docs/evidencias/fase8-comparacion-historica.txt`,
    `docs/evidencias/fase13-contraste-fdsn.txt`.
+   *Captura del panel* (09/11/2026; 30/10 09:28 → 31/10 09:28 UTC, M ≥ 4): **27** frente a 50,14 (**−46,2 %**), mediana 43,
+   P10–P90 31–69, y el **5,5 %** de los días de 2025 con 27 o menos → `docs/evidencias/conclusion3-comparacion.png`.
    → *Mejora aplicada:* `/api/estadisticas` devuelve ahora la mediana, el p10, el p90 y el % de días de 2025 con un recuento ≤ al reciente.
 
 ## 7bis. Panel del observatorio (enunciado §8) ✅
