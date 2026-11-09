@@ -39,8 +39,15 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 - Capturas enlazadas en el README y en la memoria §7 con sus filtros y la explicación de las diferencias.
   Revisión del enunciado: **103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳** (+ 2 ❓: entorno limpio y acceso al repositorio).
 
+### Guion y README autosuficiente
+- Guion del vídeo creado como documento de Claude (11 escenas: preparación, 5 criterios de la rúbrica, demostración en
+  directo de la reproducción, reflexión, ciclo con IA, decisión propia D32/D39 y cierre).
+- Petición de Daniel: el README no debe obligar al profesor a buscar por el proyecto → las secciones «Cómo se cumple la
+  rúbrica» y «Pruebas de aceptación» incluyen ahora la explicación y los **resultados reales** (código, logs, salidas
+  SQL, tablas de mediciones, LAG); los enlaces quedan solo como detalle. Imágenes y enlaces verificados (0 rotos).
+
 ### Siguiente paso
-- Martes 10/11: guion del vídeo (Claude) y prueba desde un entorno limpio.
+- Martes 10/11: prueba desde un entorno limpio; Daniel lee el guion y pregunta lo que no entienda.
 
 ## Sesión 12 · Domingo 08/11/2026 (mañana) · Colchón + revisión del enunciado
 
