@@ -16,9 +16,109 @@ USGS feed (cada 60 s) → productor (Python) → Kafka → consumidor (Python) �
 | Memoria | [`docs/memoria.md`](docs/memoria.md) |
 | Evidencias | [`docs/evidencias/`](docs/evidencias/) (mapa al final de este README) |
 
+**Contenido de este README:** [cómo se cumple la rúbrica](#cómo-se-cumple-la-rúbrica-enunciado-13) ·
+[las tres conclusiones](#resultados-las-tres-conclusiones) · [pruebas de aceptación](#pruebas-de-aceptación-enunciado-11) ·
+[ciclo de desarrollo con IA](#ciclo-de-desarrollo-cómo-se-ha-construido) · [activar el sistema](#activar-el-sistema-para-la-demostración-guía-de-entregables-32) ·
+instalación y uso (§1–§9) · [estructura](#10-estructura-del-repositorio) · [evidencias](#11-dónde-está-cada-evidencia).
+
+### Vista del panel
+
+| Datos reales del feed, con filtros, estado del sistema y mapa | Estadísticas: ventanas de 1 h UTC, país, magnitud y profundidad |
+|---|---|
+| ![Panel con datos reales](docs/evidencias/fase9-bloque1-normal.png) | ![Estadísticas del panel](docs/evidencias/fase9-bloque4-estadisticas.png) |
+
 ---
 
-## Activar el sistema para la defensa (guía de entregables §3.2)
+## Cómo se cumple la rúbrica (enunciado §13)
+
+| Criterio | Qué se ha hecho | Dónde comprobarlo |
+|---|---|---|
+| **Extracción** | Feed `all_day.geojson` cada 60 s publicando **solo novedades** por `(id, updated)`, con reintentos 2/4/8 s y originales comprimidos con retención de 24 h. Histórico 2025 (mundial, M ≥ 4, `earthquake`): **18.302 eventos** en 12 consultas mensuales con `count` previo, sin truncar y deduplicados. Catálogo Natural Earth integrado por punto en polígono. Exploración de tipos, unidades y campos opcionales | [memoria §2–§4](docs/memoria.md) · [`productor.py`](backend/src/productor.py) · [`historico_descargar.py`](backend/src/historico_descargar.py) · [notebook](analisis/01_exploracion_feed.ipynb) · `fase7-historico.txt` |
+| **Calidad** | 15 reglas de validación con motivo fijo; cuarentena con el mensaje original (`invalido` / `excluido`); análisis de las **6 dimensiones** con consultas SQL, tabla antes → acción → después y limitaciones (la exactitud no es verificable). Magnitudes y profundidades negativas estudiadas y conservadas; nulos sin rellenar | [memoria §5](docs/memoria.md) · [`validacion.py`](backend/src/validacion.py) · [`calidad.sql`](analisis/calidad.sql) · `fase13-calidad.txt` |
+| **Modelado** | Modelo conceptual, lógico y físico: hecho `evento_actual` (1 fila = 1 terremoto), historial `evento_version` (1 fila = 1 versión), dimensiones `pais` y `fecha`, cuarentena y estado de ingesta. **Idempotencia:** claves primarias + UPSERT con `WHERE updated_ms <`, transacción y offset confirmado **después** de escribir. País por `covered_by` con STRtree. Índices justificados y medidos | [memoria §3bis, §6](docs/memoria.md) · [`01_esquema.sql`](sql/01_esquema.sql) · [`db.py`](backend/src/db.py) · `fase5-faq12-idempotencia.txt` · `fase6-paises.txt` |
+| **Análisis** | Ventanas fijas de 1 h UTC por hora de ocurrencia, distribuciones con «sin valor», recuentos por país y subregión con «Sin país asignado», comparación con 2025 con mismos filtros (media, **mediana, P10–P90 y % de días**) y avisos cuando el porcentaje engaña. **Tres conclusiones** con cifras, filtros y periodo, una de ellas contrastada después con el catálogo | [memoria §7 y §7bis](docs/memoria.md) · [abajo](#resultados-las-tres-conclusiones) · [`api.py`](backend/src/api.py) |
+| **Reflexión** | Complejidad de 3 operaciones (lista frente a diccionario ≈23 000×, STRtree ≈8×, índice B-tree ≈2 000×) medidas con 3 tamaños; qué pasaría con 100 millones; costes medidos y supuestos (≈46 €/mes + desarrollo); propuesta de escalado; limitaciones en cada apartado | [memoria §8](docs/memoria.md) · [`medir.py`](backend/src/medir.py) · `data/mediciones/` |
+
+Revisión completa requisito a requisito (enunciado, guía de entregables y FAQ): [`docs/revision-enunciado.md`](docs/revision-enunciado.md).
+
+## Resultados: las tres conclusiones
+
+Detalle con datos, filtros, periodo, denominador, interpretación y limitaciones en la [memoria §7](docs/memoria.md).
+Ninguna es una predicción ni una evaluación de riesgo.
+
+1. **El pico de julio y agosto de 2025 se concentra en Kamchatka.** Histórico 2025, mundial, `earthquake`, M ≥ 4
+   (18.302 eventos). La zona (lat 45–60, lon 150–170) pasa de 19,3 eventos/mes (enero–junio) a 1.375 en julio y 1.254 en
+   agosto, tras el M8,8 del 29/07/2025; el resto del mundo no tiene pico. Consecuencia: la media diaria de 2025 (50,14)
+   está inflada por esa secuencia (sin la zona, 39,25).
+2. **Sin filtro de magnitud, el recuento por país mide sobre todo dónde hay más sensores.** Feed del 30/10 al 01/11/2026:
+   sin filtro, **75,1 %** de los terremotos en EE. UU.; con M ≥ 4, **3,3 %** (histórico 2025: 0,4 %). Las redes densas de
+   EE. UU. registran magnitudes que en otras regiones no se detectan: para comparar regiones hay que usar el mismo umbral.
+3. **El recuento de 24 h está en la parte baja del rango de 2025, pero no es excepcional.** 30/10/2026 09:28 → 31/10/2026
+   09:28 UTC, M ≥ 4: **25** en el feed frente a una media de **50,14** (−50,1 %), pero con mediana 43 y P10 31. Contrastado
+   el 03/11 con el catálogo FDSN: **28** (−44,2 %), y el 7,4 % de los días de 2025 tuvo 28 o menos. La mediana describe mejor un
+   día típico que la media; el feed en tiempo real se quedó corto en 3 de 28.
+
+## Pruebas de aceptación (enunciado §11)
+
+Las 11 se han **ejecutado** y tienen evidencia (detalle: [memoria §9](docs/memoria.md)). Los casos sintéticos van
+marcados (`PRUEBA-…`) y la API nunca los devuelve.
+
+| Prueba | Resultado observado | Evidencia |
+|---|---|---|
+| Evento nuevo · misma versión · versión posterior · versión antigua | `insertado` · `ignorado` · `actualizado` (4,2 → 4,6) · `ignorado` (sigue 4,6) | `fase5-faq12-idempotencia.txt` |
+| Magnitud nula · coordenadas inválidas | Guardado con `mag` NULL y «ND» en el panel · cuarentena `lat_fuera_de_rango` | ídem; `fase9-panel.txt` |
+| Evento marítimo | «Sin país asignado» y presente en todos los recuentos | `fase9-bloque4-estadisticas.png` |
+| Reiniciar consumidor | LAG 99 con el consumidor parado → 0 al arrancar; recuentos iguales | `fase11-reproduccion.txt` |
+| Cerrar / reabrir el túnel | Aviso rojo conservando la última lectura → recuperación sola, sin recargar | `fase11-tunel-*.png` |
+| Reproducción histórica | 96 eventos por `terremotos.replay` → esquema `replay`; duplicado y revisión controlados; los datos actuales no cambian | `fase11-reproduccion.txt` |
+
+| Túnel cerrado: el panel avisa y conserva la última lectura | Modo «REPRODUCCIÓN», aislado de los datos actuales |
+|---|---|
+| ![Túnel cerrado](docs/evidencias/fase11-tunel-cerrado.png) | ![Reproducción](docs/evidencias/fase11-panel-reproduccion.png) |
+
+## Ciclo de desarrollo (cómo se ha construido)
+
+El proyecto se ha desarrollado **con ayuda de IA (Claude, de Anthropic)**, usándola como herramienta y no como sustituto:
+el alumno decide, comprueba y hace los commits; la IA explica, propone y genera, y cada decisión queda documentada.
+
+**Herramientas**
+
+| Herramienta | Para qué |
+|---|---|
+| **Proyecto de Claude** (claude.ai) con documentos de contexto: el enunciado, la guía, la FAQ, [`docs/prompt-principal.md`](docs/prompt-principal.md) (reglas y decisiones), el roadmap, la bitácora y la memoria | Planificar, entender cada pieza, comparar opciones y redactar la documentación. Al empezar cada conversación se cargan el prompt, el roadmap y la bitácora para no perder el contexto |
+| **Claude Code** en VS Code, con las reglas de [`CLAUDE.md`](CLAUDE.md) | Las fases con mucho ir y venir de pruebas (panel, despliegue, reproducción): ejecuta Docker, npm y curl en el Windows del alumno y enseña la evidencia |
+| **Claude de escritorio** con acceso a la carpeta del proyecto | Estudio guiado y revisión final punto por punto contra el enunciado |
+| Git y GitHub | Historial: el primer commit (`5c052ff`) es el material del profesor sin modificar, para distinguir lo reutilizado de lo propio |
+
+**Reglas de trabajo** ([`prompt-principal.md`](docs/prompt-principal.md) §1): no inventar nada y referenciar cada decisión
+(enunciado, FAQ o documentación oficial), decir «no lo sé» cuando no se sabe, **la IA nunca hace commits, push ni
+entregas**, y antes de dar algo por bueno se verifica con un comando, una consulta SQL o una captura.
+
+**Ciclo de cada pieza:** concepto → decisión (opciones, elección y referencia) → generación → verificación →
+commit del alumno → [bitácora](docs/bitacora.md). El plan por fases está en el [roadmap](docs/roadmap.md) y las
+decisiones técnicas en el [Anexo A de la memoria](docs/memoria.md) (D1–D46).
+
+**Fases:** 0 preparación → 1 exploración de datos → 2–3 contrato y Kafka → 4–5 PostgreSQL e idempotencia → 6 país y calidad
+→ 7 histórico → 8 API → 9 panel → 10 despliegue → 11 reproducción y pruebas → 12 mediciones y costes → 13 memoria. A partir
+del 30/10 el método pasó a **«construir primero, estudiar después»**: terminar el sistema completo y después estudiarlo con
+una [guía de 12 bloques](docs/guia-estudio.md) y preguntas de autoevaluación ([`defensa.md`](docs/defensa.md)).
+
+**Control humano: errores de la IA detectados y corregidos** (bitácora):
+- El punto en polígono con `predicate="covers"` dejaba todo sin país: la propia prueba frente a un bucle simple lo detectó → `covered_by`.
+- Una consulta de verificación usaba una columna que no existe (`updated_at` en `evento_version`).
+- La conciliación contó un caso sintético (`PRUEBA-EXPLOSION`) como real; desde entonces los sintéticos se separan por prefijo.
+- Textos del panel en modo reproducción que decían más de lo que mostraban los datos («secuencia»), corregidos al revisar la captura.
+- Fallos visuales del panel (barras estrechas, desbordamiento a 320 px) encontrados al probar.
+
+**Decisiones del alumno** (Anexo A): lista fija de países del catálogo en el panel (D33), campos de cobertura y de
+magnitudes excluidas en la API (D31–D32), mostrar el porcentaje con aviso en lugar de ocultarlo (D39) y el umbral
+propio `BASE_MINIMA` (D40), ngrok en contenedor tras fallar la instalación en Windows (D43) y contrastar la
+Conclusión 3 con el catálogo días después. Trazabilidad: más de 45 commits desde el 28/10/2026 y una entrada de
+bitácora por sesión.
+
+---
+
+## Activar el sistema para la demostración (guía de entregables §3.2)
 
 El backend corre en el equipo del autor: si está apagado, el panel de Netlify carga pero muestra el aviso rojo de
 «La API no responde». Para la demostración, en PowerShell y desde la carpeta del proyecto:
@@ -217,6 +317,9 @@ docker compose --profile tunel stop      # para todo, incluido el túnel. Se rea
 | Recuperación tras una parada | `recuperacion-parada-nocturna.txt` |
 | Calidad por dimensiones | `fase13-calidad.txt` · memoria §5.4 |
 | Mediciones | `data/mediciones/*.json` · memoria §8 |
+| Contraste de la Conclusión 3 con el catálogo FDSN | `fase13-contraste-fdsn.txt` |
+| Conclusión 2 (por país, con y sin umbral) | `fase13-conclusion2.txt` |
+| Revisión requisito a requisito | [`docs/revision-enunciado.md`](docs/revision-enunciado.md) |
 
 ## 12. Fuentes y licencias
 

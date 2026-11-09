@@ -5,6 +5,31 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 13 · Lunes 09/11/2026 (tarde) · Cambio de entrega
+
+### Cambio anunciado en clase (dato de Daniel)
+- Entrega **adelantada al viernes 13/11**. **Sin defensa en clase**: vídeo en YouTube (sin duración fijada) explicando el
+  programa y cómo se cumple la rúbrica; Daniel prefiere grabarlo navegando por los archivos y leyendo un guion.
+- El README es lo que va a leer el profesor: técnico y completo, con las **fotos dentro del repositorio** y con el
+  **ciclo de desarrollo con IA** (Proyecto de Claude con archivos de contexto + Claude Code).
+- Se valoraría un toque personal en el panel. **Decisión de Daniel:** sin cambios en el panel (ni siquiera de color):
+  habría que recompilar y republicar, y las 19 capturas dejarían de coincidir con lo publicado.
+
+### Avanzado
+- Comprobado: las 19 capturas `.png` están en Git; el README no mostraba ninguna.
+- README ampliado: índice, vista del panel (2 imágenes), **cómo se cumple la rúbrica** (5 criterios → evidencias),
+  **las 3 conclusiones**, **pruebas de aceptación** (2 imágenes), **ciclo de desarrollo con IA** (herramientas, reglas,
+  ciclo por pieza, fases, errores de la IA detectados y decisiones del alumno). Imágenes y enlaces verificados (0 rotos).
+- La sección «Activar el sistema» pasa a llamarse «para la demostración». `CLAUDE.md` actualizado con la nueva entrega.
+- Capturas existentes revisadas: sirven de apoyo pero no tienen los filtros exactos de cada conclusión → Daniel hace 4
+  capturas nuevas (`conclusion1-2025-ventanas.png`, `conclusion2-pais-sin-filtro.png`, `conclusion2-pais-m4.png`,
+  `conclusion3-comparacion.png`).
+- Guía y roadmap replanificados: lun README + capturas · mar guion + entorno limpio · mié grabación · vie entrega.
+
+### Siguiente paso
+- Integrar las capturas en el README y en la memoria §7 (comparando sus cifras con la memoria).
+- Martes 10/11: guion del vídeo y prueba desde un entorno limpio.
+
 ## Sesión 12 · Domingo 08/11/2026 (mañana) · Colchón + revisión del enunciado
 
 ### Repaso de los ⚠️ de los bloques 1–5 (7 preguntas, sin mirar)

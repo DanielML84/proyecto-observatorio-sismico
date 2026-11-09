@@ -6,7 +6,11 @@
 > [`defensa.md`](defensa.md). Si una respuesta no te sale, márcala con ⚠️ y repásala el día de colchón.
 > Los comandos 🔎 son de PowerShell, desde la carpeta del proyecto.
 
-## Calendario (entrega: miércoles 18/11, antes de las 00:00)
+> ⚠️ **Cambio del 09/11:** la entrega se adelanta al **viernes 13/11** y no hay defensa en clase: se entrega un **vídeo en YouTube**
+> explicando el programa y cómo cumple la rúbrica (leyendo un guion). El objetivo ya no es memorizar, sino **entender para explicarlo**.
+> Los bloques 6–12 quedan como **material de consulta** para entender el guion.
+
+## Calendario (entrega: viernes 13/11)
 
 | ☐ | Día | Bloque | Tiempo |
 |---|---|---|---|
@@ -17,16 +21,11 @@
 | ☒ | Vie 06/11 (tarde) → hecho Mié 04/11 | 4 · Consumidor, validación y cuarentena | 1,5 h |
 | ☒ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
 | ☒ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
-| ☐ | Lun 09/11 (tarde) | **Visita guiada al panel** (+ capturas de las 3 conclusiones) + 6 · Integración geográfica | 45 min + 1,5 h |
-| ☐ | Mar 10/11 (tarde) | 7 · Histórico, comparación y conclusiones | 2 h |
-| ☐ | Mié 11/11 | 8 · API y CORS | 2 h |
+| ☐ | Lun 09/11 (tarde) | README completo para el profesor (Claude) + **3 capturas de las conclusiones** (Daniel) | 1,5 h |
+| ☐ | Mar 10/11 (tarde) | **Guion del vídeo** (Claude) + Daniel lo lee y pregunta lo que no entienda · **prueba desde un entorno limpio** | 2 h |
+| ☐ | Mié 11/11 | Ensayo y **grabación del vídeo** (navegando por archivos y panel) | 2 h |
 | — | Jue 12/11 | *(niños: descanso)* | — |
-| ☐ | Vie 13/11 (tarde) | 9 · Panel y despliegue (ngrok, Netlify) | 1,5 h |
-| ☐ | Sáb 14/11 | 10 · Reproducción y pruebas de aceptación + **prueba de arranque desde un entorno limpio** (con Claude) | 2 h + 45 min |
-| ☐ | Dom 15/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 6–10 | 1 h |
-| ☐ | Lun 16/11 (tarde) | 11 · Calidad, complejidad y costes | 2 h |
-| ☐ | Mar 17/11 (tarde) | 12 · Simulacro de defensa | 1,5 h |
-| ☐ | Mié 18/11 | ✅ Comprobación final y **entrega** | 1 h |
+| ☐ | Vie 13/11 | Subir a YouTube, lista final de comprobación, **entregar el enlace** | 1 h |
 
 ## El sistema en una imagen
 

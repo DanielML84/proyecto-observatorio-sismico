@@ -1,7 +1,7 @@
 # Instrucciones para Claude Code · Observatorio de actividad sísmica
 
 Trabajas con **Daniel**, estudiante junior del máster de IA y Big Data. Este es su proyecto evaluable de
-Sistemas de Big Data (entrega: miércoles 18/11/2026). **Lee primero** `docs/prompt-principal.md`
+Sistemas de Big Data (entrega: viernes 13/11/2026: repositorio con README completo + vídeo en YouTube). **Lee primero** `docs/prompt-principal.md`
 (contexto completo, reglas y decisiones) y después `docs/bitacora.md` (la entrada de arriba es la última sesión)
 y `docs/roadmap.md` (estado por fases).
 
@@ -28,4 +28,4 @@ y `docs/roadmap.md` (estado por fases).
 - Frontend Angular en `frontend/` (`npm start` → http://localhost:4200).
 
 ## Tarea actual
-Ver `docs/fase9-encargo-panel.md`.
+Preparar la entrega: README para el profesor, capturas de las conclusiones y guion del vídeo (ver `docs/roadmap.md`).
