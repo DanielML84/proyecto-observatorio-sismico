@@ -13,6 +13,17 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
   al día con `origin/main`; compose, `.env.example`, Dockerfile, requirements, SQL, 16/16 `.py` y 28/28 archivos de
   `frontend/src` en Git. Ignorados: `.env` (secreto), `.claude/`, `.vscode/` y `data/tmp/frontend.tgz` (01/11, no lo usa el código).
 - Limitación declarada en `docs/revision-enunciado.md` (#7): no se ha ejecutado el arranque desde cero.
+- Guion del vídeo: Daniel lo revisa y lo edita (sobre todo la escena 5); se añaden indicaciones [▶ …] de dónde ir en cada momento.
+- Nuevo documento aparte **«Guion narrado · Observatorio sísmico»** (Claude Docs), a petición de Daniel: misma estructura de 11 escenas,
+  con **Pantalla** (qué abrir) y subsecciones numeradas (1.1, 1.2…) con texto en primera persona que describe lo que se ve, para
+  grabar primero la voz y después la imagen. Cifras de las escenas 8–11 comprobadas contra el README y la memoria §7bis.
+- ⚠️ Escena 10: las cifras de ejemplo (19 frente a 351, −94,6 %) son las de la memoria; en el panel de hoy pueden salir otras.
+  Comprobar antes de grabar que el aviso «Recuento incompleto» sigue apareciendo con 24/10–01/11.
+
+### Siguiente paso
+1. Commit de los cambios pendientes (README, bitácora, roadmap, revision-enunciado).
+2. Ensayar con el guion narrado, comprobar en el panel los datos de reproducción y grabar.
+3. Viernes 13/11: subir a YouTube («No listado»), añadir el enlace al README, commit y entregar.
 
 ## Sesión 13 · Lunes 09/11/2026 (tarde) · Cambio de entrega
 
