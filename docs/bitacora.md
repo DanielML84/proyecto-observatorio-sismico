@@ -5,6 +5,15 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 14 · Miércoles 11/11/2026 (tarde)
+
+### Avanzado
+- Prueba «desde un entorno limpio»: a Daniel le preocupaba estropear algo → **decisión de Daniel: no arrancar una copia
+  limpia**. En su lugar, Claude comprobó solo leyendo que Git contiene todo lo necesario para el arranque: rama `main`
+  al día con `origin/main`; compose, `.env.example`, Dockerfile, requirements, SQL, 16/16 `.py` y 28/28 archivos de
+  `frontend/src` en Git. Ignorados: `.env` (secreto), `.claude/`, `.vscode/` y `data/tmp/frontend.tgz` (01/11, no lo usa el código).
+- Limitación declarada en `docs/revision-enunciado.md` (#7): no se ha ejecutado el arranque desde cero.
+
 ## Sesión 13 · Lunes 09/11/2026 (tarde) · Cambio de entrega
 
 ### Cambio anunciado en clase (dato de Daniel)

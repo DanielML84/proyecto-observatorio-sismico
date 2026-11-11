@@ -97,7 +97,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] README completo para el profesor (09/11): rúbrica → evidencias, conclusiones, pruebas, ciclo de desarrollo con IA, imágenes del repositorio
 - [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, 09/11: 103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳ + 2 ❓: entorno limpio y acceso al repositorio)
 - [x] Capturas de las 3 conclusiones con sus filtros (09/11, visita guiada al panel) → en el README y en la memoria §7
-- [ ] Probar el README desde un entorno limpio (clonar en otra carpeta, `-p` distinto, sistema principal parado) (10/11)
+- [x] Entorno limpio: comprobado que Git tiene todo lo necesario (11/11, solo lectura). No se arranca una copia limpia (decisión de Daniel)
 - [ ] Daniel: comprobar en incógnito que el repositorio es accesible sin iniciar sesión
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
