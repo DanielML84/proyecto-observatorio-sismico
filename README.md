@@ -151,8 +151,16 @@ Detalle completo: [memoria §5](docs/memoria.md) · salida de las consultas: `do
 
 ### Modelado
 
-**Modelo** ([`01_esquema.sql`](sql/01_esquema.sql)): un terremoto ocurre en un día UTC, puede estar en un país (0 o 1) y
-tiene una o varias versiones. El grano de cada tabla:
+El modelo se explica en tres niveles ([memoria §6](docs/memoria.md)):
+
+- **Conceptual** (qué entidades hay y cómo se relacionan): un terremoto ocurre en un día UTC, puede estar en un país
+  (0 o 1) y tiene una o varias versiones.
+- **Lógico** (tablas, grano y claves): la tabla de abajo. `evento_actual` es la tabla de **hechos**; `pais` y `fecha` son
+  las **dimensiones**.
+- **Físico** (cómo se implementa en PostgreSQL 17, [`01_esquema.sql`](sql/01_esquema.sql)): `TIMESTAMPTZ` en UTC,
+  `BIGINT` para los milisegundos de USGS, `DOUBLE PRECISION` para magnitud y coordenadas, `JSONB` para el original,
+  `CHECK` de rango en `lat`/`lon`, claves foráneas e índices.
+
 
 | Tabla | Tipo | Una fila = | Clave |
 |---|---|---|---|
@@ -186,6 +194,10 @@ evento_actual (3 filas)                 evento_version (4 filas)
  PRUEBA-E2      | 3.1                        PRUEBA-E1      | 10:09 | 4.6
  PRUEBA-MAGNULA | NULL                       PRUEBA-E2      | 10:12 | 3.1
                                              PRUEBA-MAGNULA | 10:20 | NULL
+
+cuarentena (2 filas)
+ excluido | type=explosion     | PRUEBA-EXPLOSION
+ invalido | lat_fuera_de_rango | PRUEBA-LAT145
 ```
 
 **Índices** justificados por las consultas de la API: `event_time` (filtros por intervalo y ventanas horarias) y
