@@ -31,17 +31,25 @@ instalación y uso (§1–§9) · [estructura](#10-estructura-del-repositorio) �
 
 ## Cómo se cumple la rúbrica (enunciado §13)
 
-Resumen; debajo, cada criterio con su explicación y **los resultados reales**. Los enlaces solo llevan al detalle completo.
+Resumen en el orden de la rúbrica; debajo, cada criterio empieza con lo que pide su **nivel más alto (Sobresaliente, 9–10)**
+y dónde está la evidencia, seguido de la explicación y **los resultados reales**. Los enlaces solo llevan al detalle completo.
 
-| Criterio | En una frase |
-|---|---|
-| [Extracción](#extracción) | Feed cada 60 s publicando solo novedades, histórico 2025 completo (18.302 eventos) y catálogo de países integrado por punto en polígono |
-| [Calidad](#calidad) | 15 reglas con motivo, cuarentena con el original, 6 dimensiones medidas con SQL y tabla antes → después |
-| [Modelado](#modelado) | Hecho + dimensiones + historial, idempotencia por claves y UPSERT condicionado, índices medidos |
-| [Análisis](#análisis) | Ventanas de 1 h UTC, distribuciones, comparación equivalente con 2025 (media, mediana, percentiles) y 3 conclusiones |
-| [Reflexión](#reflexión) | 3 operaciones medidas con 3 tamaños, 100 millones de registros, costes y propuesta de escalado |
+| Criterio | Sobresaliente (9–10) pide | Cómo se cumple, en una frase |
+|---|---|---|
+| [Extracción](#extracción) | Carga + análisis tipos | Feed cada 60 s publicando solo novedades, histórico 2025 completo (18.302 eventos) y catálogo de países integrado por punto en polígono |
+| [Calidad](#calidad) | Completo + acciones | 15 reglas con motivo, cuarentena con el original, 6 dimensiones medidas con SQL y tabla antes → después |
+| [Modelado](#modelado) | Modelo optimizado | Hecho + dimensiones + historial, idempotencia por claves y UPSERT condicionado, índices medidos |
+| [Análisis](#análisis) | Análisis + insights | Ventanas de 1 h UTC, distribuciones, comparación equivalente con 2025 (media, mediana, percentiles) y 3 conclusiones |
+| [Reflexión](#reflexión) | Excelente + propuestas | 3 operaciones medidas con 3 tamaños, 100 millones de registros, costes, limitaciones y propuestas de mejora y escalado |
 
 ### Extracción
+
+> **Sobresaliente (9–10): «Carga + análisis tipos».** Evidencias que pide el enunciado: histórico, feed y catálogo; tipos,
+> unidades, límites y automatización. Dónde se ve: **histórico** 2025 cargado entero (18.302, `count` = descargados) ·
+> **feed** cada 60 s publicando solo novedades · **catálogo** de 177 países integrado por punto en polígono · **tipos y
+> unidades** en la tabla «Exploración de la fuente» (tipos de evento, `time`/`updated` en ms Unix → UTC, escalas de
+> magnitud, profundidad en km) · **límites**: ventana de 24 h del feed y 20.000 eventos por consulta del histórico ·
+> **automatización**: productor cada 60 s con reintentos y descarga del histórico con `count` previo y división automática.
 
 **Feed en tiempo real.** El productor ([`productor.py`](backend/src/productor.py)) descarga `all_day.geojson` cada 60 s.
 Cada respuesta trae las 24 h completas, así que compara `id` + `updated` con lo ya publicado y solo publica lo nuevo o
@@ -99,6 +107,11 @@ sobre los 177 polígonos dan el mismo país en 8.000/8.000 puntos.
 
 ### Calidad
 
+> **Sobresaliente (9–10): «Completo + acciones».** Evidencias que pide el enunciado: comprobaciones de las dimensiones de
+> calidad, resultados antes/después, acciones justificadas y limitaciones. Dónde se ve: **reglas** con motivo y
+> cuarentena · **las 6 dimensiones** medidas con SQL, cada una con su acción · tabla **antes → acción → después** ·
+> **limitación** declarada: la exactitud no es verificable.
+
 **Reglas del consumidor** ([`validacion.py`](backend/src/validacion.py)): cada mensaje se valida antes de guardarse.
 Lo que no pasa va a la tabla `cuarentena` con su motivo y el mensaje original (y su topic, partición y offset de Kafka).
 
@@ -150,6 +163,12 @@ docker compose exec postgres psql -U observatorio -d observatorio -c "SELECT tip
 Detalle completo: [memoria §5](docs/memoria.md) · salida de las consultas: `docs/evidencias/fase13-calidad.txt`.
 
 ### Modelado
+
+> **Sobresaliente (9–10): «Modelo optimizado».** Evidencias que pide el enunciado: integración geográfica, grano y claves,
+> revisiones, idempotencia y optimización. Dónde se ve: **integración geográfica** (país por punto en polígono, en
+> [Extracción](#extracción)) · **grano y claves** (tabla de abajo) · **revisiones** (historial + UPSERT que solo acepta
+> versiones más nuevas) · **idempotencia** (resultado de la FAQ 12) · **optimización**: índices elegidos por las consultas
+> de la API y medidos (≈2.000×), STRtree para el país (≈8×) y diccionario en el productor (≈23.000×), en [Reflexión](#reflexión).
 
 El modelo se explica en tres niveles ([memoria §6](docs/memoria.md)):
 
@@ -208,6 +227,11 @@ Detalle: [memoria §3bis y §6](docs/memoria.md) · `docs/evidencias/fase5-faq12
 
 ### Análisis
 
+> **Sobresaliente (9–10): «Análisis + insights».** Evidencias que pide el enunciado: ventanas, distribuciones, comparación
+> equivalente y conclusiones. Dónde se ve: **ventanas** de 1 h UTC · **distribuciones** de magnitud y profundidad ·
+> **comparación equivalente** con 2025 (media, mediana y percentiles) · **insights**: las
+> [tres conclusiones](#resultados-las-tres-conclusiones), con cifras, capturas y limitaciones.
+
 Todo se calcula en la API ([`api.py`](backend/src/api.py)) sobre `evento_actual`, con los **mismos filtros** que el mapa
 (fecha UTC, magnitud mínima y país), así que las revisiones se reflejan sin contadores:
 
@@ -227,6 +251,11 @@ que termina en el futuro, que cae dentro de 2025, o con menos de 1 terremoto esp
 capturas, están [más abajo](#resultados-las-tres-conclusiones). Detalle: [memoria §7 y §7bis](docs/memoria.md).
 
 ### Reflexión
+
+> **Sobresaliente (9–10): «Excelente + propuestas».** Evidencias que pide el enunciado: complejidad, memoria, escalado,
+> costes, limitaciones y mejoras. Dónde se ve: **complejidad** (columna de la tabla) · **memoria** (≈10 GB de RAM del
+> diccionario con 100 M; los índices ocupan casi lo mismo que la tabla) · **escalado** (100 millones y propuesta) ·
+> **costes** (≈46 €/mes) · **limitaciones y mejoras** (al final de esta sección).
 
 Mediciones en el equipo del autor (Ryzen 7 5800X, 32 GB, Docker sobre WSL2), mediana de 5 repeticiones, 3 tamaños
 ([`medir.py`](backend/src/medir.py); resultados en `data/mediciones/`). Los datos sintéticos (`SINT-…`) van en un esquema
@@ -250,6 +279,19 @@ ya hay 3) y archivar el historial de versiones.
 0,194 €/kWh ≈ 14 €/mes (S + precio PVPC) · mantenimiento 1 h/mes × 15 €/h = 15 €/mes (S) · almacenamiento ≈110 MB (M) ·
 transferencia ≈5,9 GB/mes de feed (C). Total ≈ **46 €/mes** + ≈90–105 € de desarrollo. Que ngrok, Netlify y USGS sean
 gratis no hace que el proyecto cueste cero. ROI: no se estima, porque no hay un beneficio económico medible.
+
+**Limitaciones** (cada una documentada en la memoria):
+- La exactitud de los datos no es verificable: solo se contrastaron recuentos con el catálogo (§5.4).
+- Lo que sale de la ventana de 24 h no se reconcilia: si USGS corrige o elimina un evento después, la base no se entera (§5.2bis).
+- Una parada de más de 24 h deja un hueco que el sistema no detecta solo (§7bis, D32).
+- El feed no está completo al momento: en la Conclusión 3, 25 en el feed, 27 en la base y 28 en el catálogo (§7).
+- Fronteras simplificadas (escala 1:110M): un terremoto costero puede quedar sin país (§3bis).
+- El mapa y la tabla reciben como mucho 5.000 eventos; las estadísticas sí usan todos (§7bis).
+- Las mediciones son de un solo equipo y lo de 100 M es una extrapolación lineal, no una medida (§8).
+
+**Mejoras propuestas:** las de escalado de arriba · rellenar huecos de más de 24 h desde el catálogo FDSN (`starttime`/`endtime`
+o `updatedafter`, §3) · reconciliar eventos revisados o eliminados con `updatedafter` e `includedeleted` (§5.2bis) · pedir el
+feed comprimido con gzip, ≈8 veces menos transferencia (§8.8) · medir la potencia real con un enchufe medidor (§8.8).
 
 Detalle: [memoria §8](docs/memoria.md).
 

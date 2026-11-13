@@ -74,8 +74,10 @@ USGS feed (cada 60 s) → productor Python (aiokafka) → Kafka → consumidor P
   `(id, updated)`, cuarentena con motivo, «Sin país asignado», calidad en 6 dimensiones, modelo
   conceptual/lógico/físico, ventanas de 1 h UTC, comparación histórica equivalente,
   3 conclusiones con cifras, complejidad, mediciones con 3 tamaños, costes y 11 pruebas de aceptación.
-- **Entrega (cambio del 09/11):** viernes 13/11/2026. Sin defensa en clase: README completo para el profesor (capturas en el
+- **Entrega (cambio del 09/11; fecha corregida el 12/11):** viernes 20/11/2026. Sin defensa en clase: README completo para el profesor (capturas en el
   repositorio y ciclo de desarrollo con IA) + vídeo en YouTube explicando el programa y cómo cumple la rúbrica.
+- **Indicaciones del profesor (12/11):** vídeo de unos 5 min como máximo, indicando dónde se cumple la rúbrica de principio a fin;
+  demostrar con evidencias el nivel más alto de cada criterio, en el orden de la rúbrica, desde el README.
 - **Rúbrica (sesión 8):** Extracción, Calidad, Modelado, Análisis y Reflexión. Más infraestructura
   no da más nota.
 

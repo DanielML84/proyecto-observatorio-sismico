@@ -5,6 +5,47 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 16 · Viernes 13/11/2026 (tarde)
+
+### Avanzado
+- La conexión con el ordenador de Daniel falló (error de la sesión, no del proyecto). Solución: Claude descargó el
+  repositorio de GitHub (último commit `114fcac`, 11/11), hizo los cambios en esa copia y se los pasa a Daniel para que
+  sustituya los archivos en su carpeta.
+- `docs/defensa.md`: respuestas modelo de las dos obligatorias y de las fases 1–4 (preparadas el 12/11). Las de los campos
+  `ids`, `time` y `updated` se apoyan en la definición de campos de USGS (copia archivada de 2016; la página actual no se pudo abrir).
+- Fecha de entrega corregida a **20/11** en `CLAUDE.md`, `prompt-principal.md`, `roadmap.md` y `guia-estudio.md`.
+- README, «Cómo se cumple la rúbrica»: columna «Sobresaliente (9–10) pide» en la tabla resumen y, al principio de cada
+  criterio, lo que pide el nivel más alto con dónde está la evidencia (en el orden de la rúbrica, enunciado §13).
+  Comprobado que la tabla de calidad ya tenía la acción de cada dimensión.
+- README, Reflexión: añadidas **limitaciones** y **mejoras propuestas** (el enunciado las pide para ese criterio y no
+  estaban en el README; todas salen de la memoria, con su apartado).
+
+### Pendiente de comprobar
+- ⚠️ Que el repositorio sea accesible sin iniciar sesión (incógnito): Claude pudo descargarlo, pero desde su entorno no
+  se puede asegurar que sea sin credenciales.
+
+### Siguiente paso
+1. Daniel copia los 7 archivos actualizados a su carpeta, revisa los cambios (`git diff`) y hace commit.
+2. Ensayar con el guion de 5 min y grabar (semana del 16/11).
+3. Vie 20/11: subir a YouTube («No listado»), enlace en el README, commit y entregar.
+
+## Sesión 15 · Jueves 12/11/2026 (mediodía, sin el ordenador conectado)
+
+### Cambio anunciado por el profesor (dato de Daniel)
+- El vídeo **no necesita más de 5 min**: basta con ir indicando dónde se cumple la rúbrica, de principio a fin.
+- Hay que **demostrar con evidencias el nivel más alto de cada criterio**, en el orden de la rúbrica; se puede hacer todo
+  desde el README («leer código es aburrido»).
+- La entrega es el **viernes 20/11** (Claude había entendido mal que era el 13/11).
+
+### Avanzado
+- Nuevo documento «Guion 5 minutos · Observatorio sísmico» (Claude Docs): 7 escenas siguiendo el README en el orden de
+  la rúbrica; en cada criterio se dice lo que pide el sobresaliente y dónde está la evidencia. Los guiones largos se quedan como consulta.
+- `docs/defensa.md`: las fases 1–4 y las dos obligatorias estaban vacías **a propósito** (las iba a escribir Daniel).
+  Decisión de Daniel: que Claude escriba respuestas modelo. Guardadas en el proyecto de Claude (`claude/defensa-respuestas.md`).
+
+### Problemas
+- El ordenador no estaba conectado → no se pudo tocar la carpeta local; se dejó todo para la sesión siguiente.
+
 ## Sesión 14 · Miércoles 11/11/2026 (tarde)
 
 ### Avanzado

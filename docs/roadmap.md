@@ -1,7 +1,7 @@
 # Roadmap · Observatorio de actividad sísmica
 
-**Entrega:** ⚠️ **adelantada al viernes 13/11/2026** (cambio anunciado en clase el 09/11): repositorio con README completo para el profesor
-(con las capturas dentro del repositorio y el ciclo de desarrollo con IA) + **vídeo en YouTube** explicando el programa y la rúbrica. Sin defensa en clase.
+**Entrega:** ⚠️ **viernes 20/11/2026** (cambio anunciado en clase el 09/11; fecha corregida el 12/11): repositorio con README completo para el profesor
+(con las capturas dentro del repositorio y el ciclo de desarrollo con IA) + **vídeo en YouTube** de unos 5 min que recorra la rúbrica en orden, con evidencias del nivel más alto. Sin defensa en clase.
 **Ritmo previsto:** mínimo 3 días/semana × 4 h. Fechas orientativas.
 
 Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit al terminar
@@ -102,6 +102,8 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [ ] Lista final de comprobación de la guía de entregables
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
 - [x] ~~Semana de estudio completa~~ → sustituida por el vídeo; hechos los bloques 1–5. Daniel repasó la guía y respondió `defensa.md` en voz alta (bloques 1 y 2 ✅ 03/11 · bloques 3 y 4 ✅ 04/11 · bloque 5 ✅ 07/11)
-- [ ] Guion del vídeo: flujo completo, cómo se cumple cada criterio de la rúbrica, una decisión técnica propia y el ciclo con IA (Claude, 10/11)
-- [ ] Grabar el vídeo (11/11) y subirlo a YouTube ⚑
-- [ ] Entregar el enlace del repositorio y del vídeo (13/11)
+- [x] Guion del vídeo (11/11: guion completo y guion narrado) → [x] guion de 5 min en el orden de la rúbrica, con lo que pide el sobresaliente (12/11)
+- [x] `docs/defensa.md`: respuestas modelo de las obligatorias y de las fases 1–4 (12–13/11)
+- [~] README: «Sobresaliente pide» en la tabla resumen y en cada criterio (13/11) ⚑
+- [ ] Grabar el vídeo (≈5 min, semana del 16/11) y subirlo a YouTube («No listado») ⚑
+- [ ] Añadir el enlace del vídeo al README y entregar (20/11) ⚑

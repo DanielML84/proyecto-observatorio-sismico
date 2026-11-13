@@ -1,58 +1,77 @@
 # Preparación de la defensa
 
 > El profesor hará preguntas sobre el proyecto. Este archivo recoge las preguntas probables por
-> fase. **Las respuestas las escribe Daniel con sus palabras**; Claude las revisa y corrige.
+> fase. Todas tienen una 📘 respuesta modelo (las de las obligatorias y las fases 1–4, añadidas el 13/11/2026).
+> Ya no hay defensa en clase (cambio del 09/11): queda como material de estudio.
 > Ensayo: tapar la respuesta y contestar en voz alta.
 
 ## Las dos obligatorias (guía §3.3)
 1. **Explica el recorrido de un terremoto desde USGS hasta el panel, componente a componente.**
-   - Respuesta: *(se completa cuando el sistema esté montado)*
+   - 📘 Respuesta modelo:
+     1. **USGS** publica el terremoto en el feed `all_day.geojson` (ventana de las últimas 24 h).
+     2. **Productor** (Python): descarga el feed cada 60 s, guarda el original en `data/raw/` y registra la consulta en
+        `consulta_ingesta`. Compara cada `id` + `updated` con lo ya publicado (diccionario cargado de `version_publicada`)
+        y solo publica lo nuevo o actualizado.
+     3. **Kafka**: guarda el mensaje en el topic `terremotos.live`, con el `id` como clave (siempre la misma partición).
+     4. **Consumidor** (Python): lo lee, lo valida con 15 reglas (si falla → `cuarentena` con motivo), le asigna país por
+        punto en polígono y lo guarda en PostgreSQL en una transacción: la versión en `evento_version` y el estado en
+        `evento_actual` (UPSERT). Después confirma el offset.
+     5. **PostgreSQL**: hecho `evento_actual`, historial `evento_version` y dimensiones `pais` y `fecha`.
+     6. **API** (FastAPI): consulta PostgreSQL con los filtros y devuelve eventos, estadísticas y salud.
+     7. **ngrok**: publica la API por HTTPS desde mi equipo.
+     8. **Panel** (Angular + Leaflet, en Netlify): pide los datos a la API cada 60 s y los dibuja en el mapa, la tabla y los gráficos.
+   - Evidencia: memoria §1; README (línea del recorrido).
 2. **Justifica una decisión técnica propia.**
-   - Candidatas: ver el Anexo A de `memoria.md`.
+   - 📘 Respuesta modelo (D39, decisión de Daniel): si se compara un periodo que empieza antes de que el sistema tenga
+     datos (24–31/10/2026), sale 19 frente a 351 (−94,6 %). El cálculo es correcto pero engaña: faltan datos, no
+     terremotos. Opciones: ocultarlo con ND o enseñarlo con un aviso. Elegí el aviso, para no esconder el cálculo de
+     la API y explicar cómo leerlo; ND queda para cuando no se puede calcular (`variacion_pct` null). Para saberlo,
+     la API devuelve `periodo_cubierto` y `cobertura_feed_desde`.
+   - Evidencia: memoria §7bis y Anexo A (D39, D32).
 
 ## Fase 1 · Fuentes de datos
-| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+| Pregunta | 📘 Respuesta modelo | Dónde está la evidencia |
 |---|---|---|
-| ¿Qué contiene `all_day.geojson`? ¿Es el día anterior? | | Memoria §3; FAQ 8 |
-| ¿Por qué consultar el feed cada minuto no genera terremotos nuevos cada minuto? | *(respondida en la sesión: mismo `id` + mismo `updated` = misma versión)* | FAQ 10 y 12 |
-| ¿Qué diferencia hay entre `time` y `updated`? ¿En qué unidad vienen? | | Notebook 01, §8 |
-| ¿Por qué hay eventos con profundidad negativa? ¿Los eliminas? | | Memoria §4 |
-| ¿Qué haces con las explosiones? | | Notebook 01, §5 |
-| ¿Qué significa que un evento tenga varios `ids`? | | Notebook 01, §9 |
-| ¿Por qué hay que deduplicar al descargar el histórico por meses? | | Memoria §3 |
+| ¿Qué contiene `all_day.geojson`? ¿Es el día anterior? | No es el día anterior: es una ventana móvil de las últimas 24 h. Cada consulta devuelve la ventana completa, así que 101 eventos un minuto después de 100 no son 101 terremotos nuevos. | Memoria §3; FAQ 8 |
+| ¿Por qué consultar el feed cada minuto no genera terremotos nuevos cada minuto? | Porque en cada consulta vuelven los mismos terremotos de las 24 h. Mismo `id` + mismo `updated` = misma versión, ya publicada: el productor no la vuelve a enviar. | FAQ 10 y 12 |
+| ¿Qué diferencia hay entre `time` y `updated`? ¿En qué unidad vienen? | `time` = cuándo ocurrió el terremoto; `updated` = cuándo USGS actualizó por última vez esa versión. Los dos en milisegundos desde 1970 (Unix), en UTC; para pasarlos a fecha en Python hay que dividir entre 1.000. En la muestra, de `time` a `updated` hubo una mediana de 3,6 min. | Notebook 01, §8; FAQ 9; definición de campos de USGS |
+| ¿Por qué hay eventos con profundidad negativa? ¿Los eliminas? | Según USGS, la profundidad se calcula respecto al geoide WGS84 y en eventos muy superficiales puede salir negativa (o ser un artefacto de baja resolución). No los elimino: el enunciado prohíbe rechazarlos sin estudiarlos (D3). En la muestra hubo 3 (2 explosiones y 1 terremoto de −2,31 km). | Memoria §4; FAQ de USGS |
+| ¿Qué haces con las explosiones? | El productor las publica igual (no filtra); el consumidor las marca como `excluido` (dato válido, pero no es un terremoto) y las guarda en `cuarentena` con el motivo `type=explosion` y el original. Quedan fuera del análisis, pero no se pierden. En datos reales también salió un `quarry blast` (voladura de cantera). | Notebook 01, §5; memoria §5; D9 |
+| ¿Qué significa que un evento tenga varios `ids`? | Que varias redes sísmicas han registrado el mismo terremoto y USGS los ha asociado: `ids` es la lista de identificadores asociados a ese evento. Yo uso el `id` principal como clave. En la muestra, 8 eventos tenían más de un id. | Notebook 01, §9; definición de campos de USGS |
+| ¿Por qué hay que deduplicar al descargar el histórico por meses? | Porque en la API FDSN `starttime` y `endtime` son inclusivos: un terremoto justo a las 00:00:00 del día 1 aparecería en los dos meses. En 2025 salieron 0 repetidos, pero la regla está implementada y probada con un caso sintético. | Memoria §3 |
 
 ## Fase 3 · Kafka
-| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+| Pregunta | 📘 Respuesta modelo | Dónde está la evidencia |
 |---|---|---|
-| ¿Para qué sirve Kafka si podrías guardar directamente en la base de datos? | | FAQ 11 |
-| ¿Qué es un topic? ¿Y un offset? ¿El offset es el id del terremoto? | | FAQ 14 |
-| ¿Qué pasa con los mensajes si el consumidor está parado 2 minutos? ¿Y 2 semanas? | | `compose.yaml` (retención) |
-| ¿Por qué los contenedores usan `kafka:9092` y no `localhost:9092`? | | FAQ 28 |
-| ¿Cómo demuestras que los mensajes sobreviven a un reinicio? | | Bitácora, sesión 2 |
-| Si envías dos veces el mismo terremoto, ¿Kafka lo detecta? ¿Qué consecuencias tiene? | *(Daniel: «se duplicarían los 187 terremotos» → completar con el porqué)* | `docs/evidencias/fase3-pipeline-python.txt`; memoria |
-| ¿Por qué el consumidor confirma el offset después de procesar y no antes? | | Memoria, D13; FAQ 13 |
-| ¿Por qué el id del terremoto siempre va a la misma partición? | | Contrato (clave) |
+| ¿Para qué sirve Kafka si podrías guardar directamente en la base de datos? | Separa el ritmo de recogida del de procesamiento. Si el consumidor se para, el productor sigue y Kafka guarda los mensajes; al volver, el consumidor sigue desde su último offset confirmado. Además es un requisito de la práctica. | FAQ 11 |
+| ¿Qué es un topic? ¿Y un offset? ¿El offset es el id del terremoto? | Un topic es un canal con nombre donde se guardan los mensajes (`terremotos.live`, `terremotos.replay`). El offset es la posición de un mensaje dentro de una partición. No es el id: un mismo terremoto puede estar en varios offsets (uno por cada vez que se envía). El offset sirve para reanudar; el id y la versión, para no duplicar. | FAQ 14 |
+| ¿Qué pasa con los mensajes si el consumidor está parado 2 minutos? ¿Y 2 semanas? | 2 minutos: no pasa nada, Kafka los guarda y el consumidor los procesa al volver (LAG → 0). 2 semanas: la retención es de 7 días o 512 MB por partición, así que los más antiguos se habrían borrado y se perderían. | `compose.yaml` (retención); D6 |
+| ¿Por qué los contenedores usan `kafka:9092` y no `localhost:9092`? | Porque dentro de un contenedor `localhost` es ese mismo contenedor. En la red de Docker Compose cada servicio se encuentra por su nombre (`kafka`, `postgres`, `api`). | FAQ 28 |
+| ¿Cómo demuestras que los mensajes sobreviven a un reinicio? | Con `docker compose down` y después `up`: los mensajes del topic de prueba seguían ahí, porque Kafka usa un volumen persistente (`kafka-data`). | Bitácora, sesión 2; D5 |
+| Si envías dos veces el mismo terremoto, ¿Kafka lo detecta? ¿Qué consecuencias tiene? | No: Kafka no deduplica. Lo probé enviando dos veces `us7000ttlm` con el mismo `updated` y quedó en los offsets 0 y 1. Como el feed trae las 24 h en cada consulta, un consumidor ingenuo volvería a insertar los ~187 eventos cada minuto (≈269.280 filas repetidas al día). Por eso hay control de versiones en el productor y escritura idempotente en el consumidor. | `docs/evidencias/fase3-pipeline-python.txt`; memoria («Evidencia del problema de duplicados») |
+| ¿Por qué el consumidor confirma el offset después de procesar y no antes? | Si lo confirmara antes y se cayera al guardar, ese mensaje se perdería. Confirmándolo después, como mucho se procesa dos veces, y eso no hace daño porque la escritura es idempotente («al menos una vez»). | Memoria, D13; FAQ 13 |
+| ¿Por qué el id del terremoto siempre va a la misma partición? | Porque el id es la clave del mensaje y Kafka elige la partición a partir de la clave. Así todas las versiones de un terremoto van a la misma partición y se leen en orden. | Contrato (clave); D14 |
 
 ## Fase 2 · Contrato del mensaje
-| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+| Pregunta | 📘 Respuesta modelo | Dónde está la evidencia |
 |---|---|---|
-| ¿Qué clave usas en Kafka y por qué? | | `docs/contrato-mensaje.md` |
-| ¿Por qué el productor no filtra las explosiones? | | Memoria, D9 |
-| ¿Qué diferencia hay entre `ingested_at` y `time`? | | Contrato; enunciado §6 («separa tiempo de ocurrencia y de procesamiento») |
-| ¿Cómo separas los datos de la reproducción de los reales? | | Memoria, D10 |
+| ¿Qué clave usas en Kafka y por qué? | El `id` del evento de USGS (`event.id`). Lo pide el enunciado, y hace que todas las versiones de un terremoto vayan a la misma partición, en orden. | `docs/contrato-mensaje.md`; enunciado |
+| ¿Por qué el productor no filtra las explosiones? | Para que cada componente tenga una sola responsabilidad: el productor recoge y publica el original sin tocarlo; el consumidor valida y filtra. Así la exclusión y su motivo quedan registrados en la base de datos. | Memoria, D9 |
+| ¿Qué diferencia hay entre `ingested_at` y `time`? | `time` es cuándo ocurrió el terremoto (lo da USGS); `ingested_at` es cuándo lo descargó mi productor (procesamiento). Separarlos permite medir el retraso y no confundir ocurrencia con llegada. | Contrato; enunciado §6 |
+| ¿Cómo separas los datos de la reproducción de los reales? | Topic propio (`terremotos.replay`), grupo de consumidores propio y esquema propio en PostgreSQL (`replay`). Además, el campo `mode` del mensaje tiene que coincidir con el topic; si no, va a cuarentena. | Memoria, D10; §10 |
 
 ## Fase 4 · Modelo de datos
-| Pregunta | Respuesta (Daniel) | Dónde está la evidencia |
+| Pregunta | 📘 Respuesta modelo | Dónde está la evidencia |
 |---|---|---|
-| ¿Qué diferencia hay entre un terremoto y una versión? | | FAQ 12 y 20 |
-| ¿Qué es el grano de una tabla? Dime el grano de cada una de tus tablas | | Memoria §6 |
-| Para contar terremotos por país, ¿qué tabla usas y por qué? | *(⚠️ trabajada en la sesión 2: estado actual, NO versiones)* | FAQ 20 y 22 |
-| Con la secuencia de la FAQ 12, ¿cuántas filas hay en cada tabla? | | FAQ 12 |
-| ¿Cuál es la tabla de hechos y cuáles son las dimensiones? | | Memoria §6; notebook de modelado dimensional de Juan |
-| ¿Cómo impides que haya dos filas del mismo terremoto? Demuéstralo | | `fase4-postgres-esquema.txt` |
-| ¿Por qué guardas el JSON original de cada versión? | | Enunciado §7; tabla `evento_version.raw` |
-| ¿Dónde guarda el productor lo que ya ha publicado? ¿Por qué no en un diccionario? | | Memoria, D16; FAQ 10 |
-| ¿Por qué no publicas PostgreSQL fuera de Docker? | | Enunciado §9 |
+| ¿Qué diferencia hay entre un terremoto y una versión? | El terremoto es el suceso (un `id`). Una versión es cada publicación de USGS sobre ese terremoto (`id` + `updated`): por ejemplo, cuando corrige la magnitud. Un terremoto puede tener varias versiones. | FAQ 12 y 20 |
+| ¿Qué es el grano de una tabla? Dime el grano de cada una de tus tablas | Qué representa una fila. `evento_actual`: un terremoto con su versión más reciente. `evento_version`: una versión observada. `pais`: una entidad de Natural Earth. `fecha`: un día UTC. `cuarentena`: un mensaje rechazado. `version_publicada`: la última versión publicada de cada evento. `consulta_ingesta`: una petición a USGS. | Memoria §6 |
+| Para contar terremotos por país, ¿qué tabla usas y por qué? | `evento_actual`, el estado actual, con un `LEFT JOIN` a `pais`. No `evento_version`, porque contaría cada terremoto tantas veces como versiones tenga. | FAQ 20 y 22 |
+| Con la secuencia de la FAQ 12, ¿cuántas filas hay en cada tabla? | De 5 mensajes: 2 filas en `evento_actual` (E1 con magnitud 4,6 y E2 con 3,1) y 3 en `evento_version` (E1 10:05, E1 10:09 y E2 10:12). Las repeticiones no crean filas y la versión antigua que llega tarde no devuelve E1 a 4,2. | FAQ 12; `fase5-faq12-idempotencia.txt` |
+| ¿Cuál es la tabla de hechos y cuáles son las dimensiones? | Hecho: `evento_actual` (magnitud, profundidad y claves a país y fecha). Dimensiones: `pais` y `fecha`. `evento_version` es el historial. | Memoria §6 |
+| ¿Cómo impides que haya dos filas del mismo terremoto? Demuéstralo | Con la clave primaria `event_id` en `evento_actual`. Lo comprobé insertando dos veces el mismo `event_id`: PostgreSQL respondió `duplicate key value violates unique constraint`. | `fase4-postgres-esquema.txt`; memoria §6 |
+| ¿Por qué guardas el JSON original de cada versión? | Lo pide el enunciado (historial con «los cambios observados y el original»). Así se puede comprobar o reprocesar un dato sin volver a pedirlo a USGS. Está en `evento_version.raw` (JSONB). | Enunciado §7; tabla `evento_version.raw` |
+| ¿Dónde guarda el productor lo que ya ha publicado? ¿Por qué no en un diccionario? | En las dos cosas: en PostgreSQL (`version_publicada`), para que sobreviva a un reinicio, y al arrancar lo carga en un diccionario en memoria, para buscar rápido (O(1)). Solo un diccionario se perdería al reiniciar y volvería a publicar todo. | Memoria, D16; FAQ 10 |
+| ¿Por qué no publicas PostgreSQL fuera de Docker? | Porque el enunciado pide exponer solo la API y no exponer la base de datos ni el broker. Solo el consumidor y la API la usan, desde dentro de la red de Docker. | Enunciado §9 |
 
 ## Fase 5 · Idempotencia (📘 respuestas modelo «para estudiar»)
 | Pregunta | Respuesta modelo | Evidencia |

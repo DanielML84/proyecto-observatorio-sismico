@@ -6,11 +6,11 @@
 > [`defensa.md`](defensa.md). Si una respuesta no te sale, márcala con ⚠️ y repásala el día de colchón.
 > Los comandos 🔎 son de PowerShell, desde la carpeta del proyecto.
 
-> ⚠️ **Cambio del 09/11:** la entrega se adelanta al **viernes 13/11** y no hay defensa en clase: se entrega un **vídeo en YouTube**
+> ⚠️ **Cambio del 09/11:** no hay defensa en clase y la entrega es el **viernes 20/11** (fecha corregida el 12/11) en clase: se entrega un **vídeo en YouTube**
 > explicando el programa y cómo cumple la rúbrica (leyendo un guion). El objetivo ya no es memorizar, sino **entender para explicarlo**.
 > Los bloques 6–12 quedan como **material de consulta** para entender el guion.
 
-## Calendario (entrega: viernes 13/11)
+## Calendario (entrega: viernes 20/11)
 
 | ☐ | Día | Bloque | Tiempo |
 |---|---|---|---|
@@ -21,11 +21,12 @@
 | ☒ | Vie 06/11 (tarde) → hecho Mié 04/11 | 4 · Consumidor, validación y cuarentena | 1,5 h |
 | ☒ | Sáb 07/11 | 5 · PostgreSQL: modelo e idempotencia | 2 h |
 | ☒ | Dom 08/11 | 🔁 Colchón: repasar los ⚠️ de los bloques 1–5 + **revisión del enunciado punto por punto** (tabla preparada por Claude) | 1 h + 45 min |
-| ☐ | Lun 09/11 (tarde) | README completo para el profesor (Claude) + **3 capturas de las conclusiones** (Daniel) | 1,5 h |
-| ☐ | Mar 10/11 (tarde) | **Guion del vídeo** (Claude) + Daniel lo lee y pregunta lo que no entienda · **prueba desde un entorno limpio** | 2 h |
-| ☐ | Mié 11/11 | Ensayo y **grabación del vídeo** (navegando por archivos y panel) | 2 h |
-| — | Jue 12/11 | *(niños: descanso)* | — |
-| ☐ | Vie 13/11 | Subir a YouTube, lista final de comprobación, **entregar el enlace** | 1 h |
+| ☒ | Lun 09/11 (tarde) | README completo para el profesor (Claude) + **3 capturas de las conclusiones** (Daniel) | 1,5 h |
+| ☒ | Mar 10/11 → Mié 11/11 | **Guion del vídeo** (Claude) + Daniel lo lee y pregunta lo que no entienda · **prueba desde un entorno limpio** | 2 h |
+| ☒ | Jue 12/11 | Guion de 5 min con lo que pide el sobresaliente (Claude) + respuestas modelo de la defensa, fases 1–4 | — |
+| ☐ | Vie 13/11 | README: «Sobresaliente pide» en cada criterio (Claude) · Daniel revisa y hace commit | 1 h |
+| ☐ | Semana 16–19/11 | Ensayo y **grabación del vídeo** (≈5 min, siguiendo el README) | 2 h |
+| ☐ | Vie 20/11 | Subir a YouTube, enlace en el README, lista final de comprobación, **entregar** | 1 h |
 
 ## El sistema en una imagen
 

@@ -1,7 +1,7 @@
 # Instrucciones para Claude Code · Observatorio de actividad sísmica
 
 Trabajas con **Daniel**, estudiante junior del máster de IA y Big Data. Este es su proyecto evaluable de
-Sistemas de Big Data (entrega: viernes 13/11/2026: repositorio con README completo + vídeo en YouTube). **Lee primero** `docs/prompt-principal.md`
+Sistemas de Big Data (entrega: viernes 20/11/2026: repositorio con README completo + vídeo en YouTube de unos 5 min que recorra la rúbrica en orden). **Lee primero** `docs/prompt-principal.md`
 (contexto completo, reglas y decisiones) y después `docs/bitacora.md` (la entrada de arriba es la última sesión)
 y `docs/roadmap.md` (estado por fases).
 
