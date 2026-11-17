@@ -37,12 +37,12 @@ y dónde está la evidencia, seguido de la explicación y **los resultados reale
 | Criterio | Sobresaliente (9–10) pide | Cómo se cumple, en una frase |
 |---|---|---|
 | [Extracción](#extracción) | Carga + análisis tipos | Feed cada 60 s publicando solo novedades, histórico 2025 completo (18.302 eventos) y catálogo de países integrado por punto en polígono |
-| [Calidad](#calidad) | Completo + acciones | 15 reglas con motivo, cuarentena con el original, 6 dimensiones medidas con SQL y tabla antes → después |
-| [Modelado](#modelado) | Modelo optimizado | Hecho + dimensiones + historial, idempotencia por claves y UPSERT condicionado, índices medidos |
-| [Análisis](#análisis) | Análisis + insights | Ventanas de 1 h UTC, distribuciones, comparación equivalente con 2025 (media, mediana, percentiles) y 3 conclusiones |
-| [Reflexión](#reflexión) | Excelente + propuestas | 3 operaciones medidas con 3 tamaños, 100 millones de registros, costes, limitaciones y propuestas de mejora y escalado |
+| [Calidad](#calidad) | Completo + acciones | 15 reglas de comprovación con motivo, los fallos van a cuarentena con el original, 6 dimensiones de calidad medidas con SQL junto con tabla antes → después |
+| [Modelado](#modelado) | Modelo optimizado | Organización de tabla con Hecho + dimensiones + historial, idempotencia por claves y UPSERT condicionado para evitar duplicados, índices medidos para búsquedas rápidas |
+| [Análisis](#análisis) | Análisis + insights | Ventanas de 1 h en UTC, recuentos por magnitud y por profundidad, comparación equivalente con 2025 (media, mediana, percentiles) y 3 conclusiones |
+| [Reflexión](#reflexión) | Excelente + propuestas | rendimiento medido en 3 operaciones con 3 tamaños, estimación para 100 millones de registros, costes, limitaciones y propuestas de mejora y escalado |
 
-### Extracción
+### Extracción (3 tipos)
 
 > **Sobresaliente (9–10): «Carga + análisis tipos».** Evidencias que pide el enunciado: histórico, feed y catálogo; tipos,
 > unidades, límites y automatización. Dónde se ve: **histórico** 2025 cargado entero (18.302, `count` = descargados) ·
