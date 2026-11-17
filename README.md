@@ -147,7 +147,7 @@ docker compose exec postgres psql -U observatorio -d observatorio -c "SELECT tip
 | Validez | 0 coordenadas fuera de rango; mag −0,93 a 8,8; profundidad −3,04 a 669,6 km | Negativas conservadas y señaladas |
 | Consistencia | 0 países inexistentes, 0 días mal calculados, 0 actualizados antes de ocurrir; el estado actual tiene siempre la última versión | Claves foráneas y una sola transformación de fechas |
 | Actualidad | Ocurrencia → actualización de USGS: mediana 11,3 min. Actualización → nuestra descarga: mediana 61 s (p90 96 s). 1.096 consultas correctas, 1 fallida (recuperada) | Coherente con consultar cada 60 s |
-| Exactitud | **No verificable**: que un valor sea numérico y esté en rango no demuestra que sea exacto. Sí se contrastó: `count` FDSN = descargados; STRtree = fuerza bruta; feed frente a catálogo en un día (27 de 28, 0 cambios de magnitud) | Limitación declarada |
+| Exactitud | **No verificable**: que un valor sea numérico y esté en rango no demuestra que sea exacto. Sí se contrastó: `count` FDSN = descargados (El histórico tiene los mismos terremotos que el USGS dice que hay); STRtree = fuerza bruta (El índice espacial da el mismo país que comparando uno a uno con todos los países.); feed frente a catálogo en un día (27 de 28, 0 cambios de magnitud) | Limitación declarada |
 
 **Antes → acción → después** (terremotos reales):
 
