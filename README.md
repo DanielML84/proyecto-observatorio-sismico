@@ -12,6 +12,7 @@ USGS feed (cada 60 s) → productor (Python) → Kafka → consumidor (Python) �
 | Enlace | Dirección |
 |---|---|
 | Panel publicado | https://adorable-zabaione-a69bde.netlify.app/ |
+| Vídeo (YouTube) | https://youtu.be/FvaT1kmd_wQ|
 | API pública (túnel) | https://unbolted-decorated-heaving.ngrok-free.dev/api/salud — **solo responde con el equipo del autor encendido** |
 | Memoria | [`docs/memoria.md`](docs/memoria.md) |
 | Evidencias | [`docs/evidencias/`](docs/evidencias/) (mapa al final de este README) |
