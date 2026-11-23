@@ -1,6 +1,8 @@
 # Roadmap · Observatorio de actividad sísmica
 
-**Entrega:** ⚠️ **viernes 20/11/2026** (cambio anunciado en clase el 09/11; fecha corregida el 12/11): repositorio con README completo para el profesor
+**Estado:** ✅ **PROYECTO ENTREGADO Y CORREGIDO** (23/11/2026: según el profesor, de los mejores de la clase).
+
+**Entrega:** **viernes 20/11/2026** (cambio anunciado en clase el 09/11; fecha corregida el 12/11): repositorio con README completo para el profesor
 (con las capturas dentro del repositorio y el ciclo de desarrollo con IA) + **vídeo en YouTube** de unos 5 min que recorra la rúbrica en orden, con evidencias del nivel más alto. Sin defensa en clase.
 **Ritmo previsto:** mínimo 3 días/semana × 4 h. Fechas orientativas.
 
@@ -67,7 +69,7 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] `/api/eventos` según contrato, con filtros y paginación (`backend/src/api.py`)
 - [x] `/api/salud` y `/api/estadisticas`
 - [x] CORS ⚑
-- [ ] ~03/11: volver a descargar del CATÁLOGO las 24 h del 30/10 09:28 → 31/10 09:28 UTC y compararlas con el feed → medir el retraso y la completitud (Actualidad)
+- [x] ~03/11: volver a descargar del CATÁLOGO las 24 h del 30/10 09:28 → 31/10 09:28 UTC y compararlas con el feed → medir el retraso y la completitud (Actualidad)
 
 ## Semana 3 · 11/11 – 18/11 · Panel, pruebas y memoria
 
@@ -95,15 +97,15 @@ Leyenda: `[ ]` pendiente · `[~]` en curso · `[x]` hecho · ⚑ = hacer commit 
 - [x] ~03/11: volver a descargar del catálogo FDSN el periodo de la Conclusión 3 (30/10 09:28 → 31/10 09:28 UTC) y comparar con el feed (`fase13-contraste-fdsn.txt`: 25 → 27 → 28)
 - [x] README reproducible
 - [x] README completo para el profesor (09/11): rúbrica → evidencias, conclusiones, pruebas, ciclo de desarrollo con IA, imágenes del repositorio
-- [~] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, 09/11: 103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳ + 2 ❓: entorno limpio y acceso al repositorio)
+- [x] Revisión exhaustiva del enunciado punto por punto (`docs/revision-enunciado.md`, 09/11: 103 ✅ · 0 ⚠️ · 0 ❌ · 1 ⏳ + 2 ❓: entorno limpio y acceso al repositorio)
 - [x] Capturas de las 3 conclusiones con sus filtros (09/11, visita guiada al panel) → en el README y en la memoria §7
 - [x] Entorno limpio: comprobado que Git tiene todo lo necesario (11/11, solo lectura). No se arranca una copia limpia (decisión de Daniel)
-- [ ] Daniel: comprobar en incógnito que el repositorio es accesible sin iniciar sesión
-- [ ] Lista final de comprobación de la guía de entregables
+- [x] Repositorio accesible para el profesor: lo corrigió (23/11)
+- [x] ~~Lista final de comprobación de la guía de entregables~~ (no consta que se hiciera; la entrega ya está corregida)
 - [x] `docs/guia-estudio.md`: recorrido completo, archivo por archivo, con autoevaluación
 - [x] ~~Semana de estudio completa~~ → sustituida por el vídeo; hechos los bloques 1–5. Daniel repasó la guía y respondió `defensa.md` en voz alta (bloques 1 y 2 ✅ 03/11 · bloques 3 y 4 ✅ 04/11 · bloque 5 ✅ 07/11)
 - [x] Guion del vídeo (11/11: guion completo y guion narrado) → [x] guion de 5 min en el orden de la rúbrica, con lo que pide el sobresaliente (12/11)
 - [x] `docs/defensa.md`: respuestas modelo de las obligatorias y de las fases 1–4 (12–13/11)
-- [~] README: «Sobresaliente pide» en la tabla resumen y en cada criterio (13/11) ⚑
-- [ ] Grabar el vídeo (≈5 min, semana del 16/11) y subirlo a YouTube («No listado») ⚑
-- [ ] Añadir el enlace del vídeo al README y entregar (20/11) ⚑
+- [x] README: «Sobresaliente pide» en la tabla resumen y en cada criterio (13/11) ⚑
+- [x] Grabar el vídeo (17/11: audio + imagen con OBS) y subirlo a YouTube («No listado»); copia en `grabación terremotos/video-entrega.mp4` ⚑
+- [x] Enlace del vídeo en el README (`a0ed478`, 17/11) y entrega (20/11) ⚑

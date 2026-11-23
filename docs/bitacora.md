@@ -5,6 +5,33 @@ Formato: qué se hizo · decisiones · problemas y solución · commits · dudas
 
 ---
 
+## Sesión 18 · Lunes 23/11/2026 · Resultado de la entrega 🎉
+
+- **Proyecto entregado y corregido.** Según Daniel, su trabajo ha sido **uno de los mejores de la clase** y la explicación
+  del vídeo, perfecta.
+- Problema: Daniel movió la carpeta a `Desktop\Master IA\Big Data\proyecto-observatorio-sismico` y la conexión antigua
+  veía la carpeta vacía. Solución: dar acceso a la ruta nueva.
+- Cierre de la documentación: roadmap con todas las tareas de la entrega marcadas y esta entrada.
+
+### Siguiente paso
+- Ninguno para la entrega. Commit de esta actualización (bitácora + roadmap).
+
+## Sesión 17 · Martes 17/11/2026 · Grabación del vídeo
+
+### Avanzado
+- Guion de imagen del vídeo de 5 min (qué señalar en cada frase del audio).
+- Problema: grabar la voz leyendo el guion y después la imagen **se notaba que estaba leyendo**. Solución (decisión de
+  Daniel): estudiar el README para contarlo con sus palabras y grabar por partes, con un guion nuevo propio.
+- Repaso con Claude de la tabla resumen de la rúbrica (qué significa cada frase de «Cómo se cumple») y de la tabla de las
+  6 dimensiones de calidad (qué mide cada una, el resultado y la acción). Dudas resueltas: qué es UTC; «distribuciones»
+  = recuentos por magnitud y profundidad; lo medido en Reflexión es **rendimiento**, no fiabilidad; lo de 100 millones es
+  una **estimación**.
+- Vídeo: audio grabado aparte e imagen grabada con OBS; subido a
+  YouTube como «No listado» y enlazado en el README.
+
+### Commits (de Daniel)
+- `351f4fb` y `27a7496` cambios en el README · `a0ed478` enlace al vídeo · `f078048` (23/11) copia del vídeo en el repositorio.
+
 ## Sesión 16 · Viernes 13/11/2026 (tarde)
 
 ### Avanzado
